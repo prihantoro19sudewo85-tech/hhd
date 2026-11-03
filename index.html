@@ -245,6 +245,7 @@
                   <option value="gudang">Gudang (QC & Packing)</option>
                   <option value="kurir">Kurir Pengiriman</option>
                   <option value="manager">Manager</option>
+                  <option value="pengembang">Pengembang (Developer)</option>
                 </select>
               </div>
               <div>
@@ -379,20 +380,20 @@
      * 1. KONFIGURASI MENU TANPA NOMOR 1 - 14 & HAK AKSES ROLE
      *************************************************************************/
     const MENU_CONFIG = [
-      { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie', roles: ['admin', 'gudang', 'kurir', 'manager'] },
-      { id: 'pesanan', label: 'Pesanan & Invoice', icon: 'fa-receipt', roles: ['admin', 'gudang', 'manager'] },
-      { id: 'tambah_pesanan', label: 'Tambah Pesanan', icon: 'fa-circle-plus', roles: ['admin'] },
-      { id: 'pelanggan', label: 'Pelanggan (CRUD)', icon: 'fa-users', roles: ['admin', 'manager'] },
-      { id: 'produk', label: 'Produk Buah & Sayur', icon: 'fa-apple-whole', roles: ['admin', 'gudang', 'manager'] },
-      { id: 'cabang', label: 'Cabang', icon: 'fa-building', roles: ['admin', 'manager'] },
-      { id: 'gudang', label: 'Gudang & Stok', icon: 'fa-warehouse', roles: ['admin', 'gudang', 'manager'] },
-      { id: 'persiapan', label: 'Persiapan Barang (QC)', icon: 'fa-boxes-packing', roles: ['admin', 'gudang'] },
-      { id: 'pengiriman', label: 'Tugas Pengiriman Kurir', icon: 'fa-truck-fast', roles: ['admin', 'kurir', 'manager'] },
-      { id: 'penugasan', label: 'Penugasan Kurir', icon: 'fa-user-check', roles: ['admin'] },
-      { id: 'tracking', label: 'Live Tracking Peta', icon: 'fa-map-location-dot', roles: ['admin', 'kurir', 'manager'] },
-      { id: 'laporan', label: 'Laporan & Analitik', icon: 'fa-file-chart-column', roles: ['admin', 'manager'] },
-      { id: 'pengguna', label: 'Manajemen Pengguna', icon: 'fa-user-shield', roles: ['admin'] },
-      { id: 'pengaturan', label: 'Pengaturan Database', icon: 'fa-sliders', roles: ['admin', 'manager'] }
+      { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie', roles: ['admin', 'gudang', 'kurir', 'manager', 'pengembang'] },
+      { id: 'pesanan', label: 'Pesanan & Invoice', icon: 'fa-receipt', roles: ['admin', 'gudang', 'manager', 'pengembang'] },
+      { id: 'tambah_pesanan', label: 'Tambah Pesanan', icon: 'fa-circle-plus', roles: ['admin', 'pengembang'] },
+      { id: 'pelanggan', label: 'Pelanggan (CRUD)', icon: 'fa-users', roles: ['admin', 'manager', 'pengembang'] },
+      { id: 'produk', label: 'Produk Buah & Sayur', icon: 'fa-apple-whole', roles: ['admin', 'gudang', 'manager', 'pengembang'] },
+      { id: 'cabang', label: 'Cabang', icon: 'fa-building', roles: ['admin', 'manager', 'pengembang'] },
+      { id: 'gudang', label: 'Gudang & Stok', icon: 'fa-warehouse', roles: ['admin', 'gudang', 'manager', 'pengembang'] },
+      { id: 'persiapan', label: 'Persiapan Barang (QC)', icon: 'fa-boxes-packing', roles: ['admin', 'gudang', 'pengembang'] },
+      { id: 'pengiriman', label: 'Tugas Pengiriman Kurir', icon: 'fa-truck-fast', roles: ['admin', 'kurir', 'manager', 'pengembang'] },
+      { id: 'penugasan', label: 'Penugasan Kurir', icon: 'fa-user-check', roles: ['admin', 'pengembang'] },
+      { id: 'tracking', label: 'Live Tracking Peta', icon: 'fa-map-location-dot', roles: ['admin', 'kurir', 'manager', 'pengembang'] },
+      { id: 'laporan', label: 'Laporan & Analitik', icon: 'fa-file-chart-column', roles: ['admin', 'manager', 'pengembang'] },
+      { id: 'pengguna', label: 'Manajemen Pengguna', icon: 'fa-user-shield', roles: ['admin', 'pengembang'] },
+      { id: 'pengaturan', label: 'Pengaturan Database', icon: 'fa-sliders', roles: ['pengembang'] }
     ];
 
     const ORDER_STATUS_FLOW = [
@@ -419,7 +420,8 @@
         { user_id: 'USR-002', name: 'Hendra Wijaya (Gudang)', email: 'gudang@hanamhanum.id', phone: '081233334444', role: 'gudang', branch_id: 'BR-01', vehicle: '-', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true },
         { user_id: 'USR-003', name: 'Rizky Ramadhan (Kurir)', email: 'kurir1@hanamhanum.id', phone: '081255556666', role: 'kurir', branch_id: 'BR-01', vehicle: 'Grand Max B 9182 TCD', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true },
         { user_id: 'USR-004', name: 'Agus Pratama (Kurir)', email: 'kurir2@hanamhanum.id', phone: '081277778888', role: 'kurir', branch_id: 'BR-02', vehicle: 'Honda Beat B 4421 KLP', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true },
-        { user_id: 'USR-005', name: 'Siti Rahmawati (Manager)', email: 'manager@hanamhanum.id', phone: '081299990000', role: 'manager', branch_id: 'BR-01', vehicle: '-', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true }
+        { user_id: 'USR-005', name: 'Siti Rahmawati (Manager)', email: 'manager@hanamhanum.id', phone: '081299990000', role: 'manager', branch_id: 'BR-01', vehicle: '-', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true },
+        { user_id: 'USR-006', name: 'Arpra Developer (Pengembang)', email: 'dev@hanamhanum.id', phone: '081200001111', role: 'pengembang', branch_id: 'BR-01', vehicle: '-', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true }
       ],
       HH_BRANCHES: [
         { branch_id: 'BR-01', name: 'Cabang Utama Kramat Jati (Jakarta Timur)', address: 'Jl. Raya Bogor KM 20, Kramat Jati, Jakarta Timur', head: 'Budi Santoso', phone: '021-8091122', lat: -6.2725, lng: 106.8675 },
@@ -573,7 +575,7 @@
       ],
       HH_SETTINGS: {
         company_name: 'Hanam Hanum Delivery',
-        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbzRoY6wisHGZPzajuLXM9xSI62sfUDMm5MLRXpgxPwoQHlGKdkZHobA3TXfs2__iv4a/exec',
+        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbzzyWaLegbElwPdWJa4k95yeg2NpxQ0vLxCe7i0ctJhPiB6dBsKP5ocP943Liapr9h2/exec',
         spreadsheet_id: '1xZF01_8HbPIcjomang4XHhmKVFx_EXSRLEo12Zpw49E',
         drive_folder_id: '13gCbISldFvaTHSQdJ0e023Ry2DQ9U0jJ',
         telegram_bot_username: '@HanamHanumOrderBot',
@@ -589,7 +591,11 @@
         const saved = localStorage.getItem('HANAM_HANUM_DB_V2');
         if (saved) {
           const parsed = JSON.parse(saved);
-          return { ...DEFAULT_DB, ...parsed };
+          const merged = { ...DEFAULT_DB, ...parsed };
+          if (Array.isArray(merged.HH_USERS) && !merged.HH_USERS.some(u => u.role === 'pengembang')) {
+            merged.HH_USERS.push(DEFAULT_DB.HH_USERS.find(u => u.role === 'pengembang'));
+          }
+          return merged;
         }
       } catch (e) {
         console.warn('Gagal memuat LocalStorage:', e);
@@ -927,11 +933,23 @@
       document.getElementById('mobileRoleBadge').innerText = currentUser.role.toUpperCase();
 
       const btnTg = document.getElementById('topBtnTelegram');
-      if (currentUser.role === 'admin') {
+      if (currentUser.role === 'admin' || currentUser.role === 'pengembang') {
         btnTg.classList.remove('hidden');
       } else {
         btnTg.classList.add('hidden');
       }
+
+      const gasBadge = document.getElementById('gasStatusBadge');
+      if (gasBadge) {
+        if (currentUser.role === 'pengembang') {
+          gasBadge.onclick = () => navigateTo('pengaturan');
+          gasBadge.classList.add('cursor-pointer');
+        } else {
+          gasBadge.onclick = null;
+          gasBadge.classList.remove('cursor-pointer');
+        }
+      }
+
       updateTelegramBadge();
     }
 
@@ -2200,7 +2218,9 @@ Catatan: Antar pagi jam 9</textarea>
     function renderWarehouseStockView(container) {
       container.innerHTML = `
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <h3 class="font-extrabold text-sm text-[#053f28]">Log Penyelesaian Gudang & Stok (Sheet: HH_WAREHOUSE)</h3>
+          <div class="flex items-center justify-between">
+            <h3 class="font-extrabold text-sm text-[#053f28]">Log Penyelesaian Gudang & Stok (Sheet: HH_WAREHOUSE)</h3>
+          </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
               <thead class="bg-slate-50 text-slate-500 uppercase border-b">
@@ -2212,11 +2232,12 @@ Catatan: Antar pagi jam 9</textarea>
                   <th class="p-3">Jumlah Krat/Box</th>
                   <th class="p-3">Catatan Barang Kurang/Rusak</th>
                   <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Aksi CRUD</th>
                 </tr>
               </thead>
               <tbody class="divide-y">
                 ${DB.HH_WAREHOUSE.map(w => `
-                  <tr>
+                  <tr class="hover:bg-slate-50">
                     <td class="p-3 font-bold text-[#053f28]">${w.wh_id}</td>
                     <td class="p-3 font-bold">${w.order_id}</td>
                     <td class="p-3">${w.checker_name}</td>
@@ -2224,13 +2245,77 @@ Catatan: Antar pagi jam 9</textarea>
                     <td class="p-3 font-bold">${w.boxes_count} Box/Krat</td>
                     <td class="p-3 text-slate-600">${w.damage_notes}</td>
                     <td class="p-3"><span class="px-2.5 py-1 rounded-full bg-hh-100 text-[#053f28] font-bold text-[11px]">${w.status}</span></td>
+                    <td class="p-3 text-right space-x-1 whitespace-nowrap">
+                      <button onclick="openWarehouseEditModal('${w.wh_id}')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 font-bold text-slate-700"><i class="fa-solid fa-pen"></i> Edit</button>
+                      <button onclick="deleteWarehouseCRUD('${w.wh_id}')" class="px-2.5 py-1 rounded bg-rose-50 hover:bg-rose-100 font-bold text-rose-600"><i class="fa-solid fa-trash"></i> Hapus</button>
+                    </td>
                   </tr>
-                `).join('')}
+                `).join('') || `<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data log gudang.</td></tr>`}
               </tbody>
             </table>
           </div>
         </div>
       `;
+    }
+
+    function openWarehouseEditModal(whId) {
+      const existing = DB.HH_WAREHOUSE.find(w => w.wh_id === whId);
+      if (!existing) return;
+      openModal(`Edit Log Gudang & Stok (${existing.wh_id})`, `
+        <form onsubmit="saveWarehouseCRUD(event, '${whId}')" class="space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold block mb-1">ID Order</label>
+              <input readonly value="${existing.order_id}" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 font-bold" />
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Petugas QC *</label>
+              <input id="crudWhChecker" required value="${existing.checker_name}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold block mb-1">Jumlah Krat / Box *</label>
+              <input id="crudWhBoxes" type="number" min="1" required value="${existing.boxes_count}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold" />
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Status Packing</label>
+              <select id="crudWhStatus" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold">
+                ${['Selesai Packing', 'Perlu Cek Ulang', 'Menunggu Kurir'].map(s => `<option ${existing.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Catatan Barang Kurang / Rusak *</label>
+            <textarea id="crudWhNotes" required rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-200">${existing.damage_notes}</textarea>
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold">Simpan Perubahan Gudang</button>
+        </form>
+      `);
+    }
+
+    function saveWarehouseCRUD(e, whId) {
+      e.preventDefault();
+      const w = DB.HH_WAREHOUSE.find(x => x.wh_id === whId);
+      if (!w) return;
+      w.checker_name = document.getElementById('crudWhChecker').value.trim();
+      w.boxes_count = Number(document.getElementById('crudWhBoxes').value);
+      w.status = document.getElementById('crudWhStatus').value;
+      w.damage_notes = document.getElementById('crudWhNotes').value.trim();
+
+      commitDatabaseChange('upsertWarehouse', { warehouse: w });
+      logActivity(`Mengedit data log gudang ${whId}`);
+      closeModal();
+      navigateTo('gudang');
+      showToast(`Data gudang ${whId} berhasil diperbarui!`);
+    }
+
+    function deleteWarehouseCRUD(whId) {
+      DB.HH_WAREHOUSE = DB.HH_WAREHOUSE.filter(w => w.wh_id !== whId);
+      commitDatabaseChange('deleteWarehouse', { wh_id: whId });
+      logActivity(`Menghapus data log gudang ${whId}`);
+      navigateTo('gudang');
+      showToast(`Data log gudang ${whId} berhasil dihapus.`, 'info');
     }
 
     /*************************************************************************
@@ -2253,8 +2338,10 @@ Catatan: Antar pagi jam 9</textarea>
         <div class="space-y-4">
           ${prepOrders.map(o => {
             const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === o.order_id);
+            const isPacked = o.status === 'Siap dikirim';
+            const whLog = DB.HH_WAREHOUSE.find(w => w.order_id === o.order_id);
             return `
-              <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+              <div class="bg-white rounded-2xl border ${isPacked ? 'border-emerald-300 bg-emerald-50/20' : 'border-slate-200'} shadow-xs p-5 space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
                   <div>
                     <span class="font-black text-base text-[#053f28]">${o.order_id}</span>
@@ -2271,7 +2358,7 @@ Catatan: Antar pagi jam 9</textarea>
                 </div>
 
                 <div class="overflow-x-auto">
-                  <table class="w-full text-xs border border-slate-200 rounded-xl overflow-hidden">
+                  <table class="w-full text-xs border border-slate-200 rounded-xl overflow-hidden bg-white">
                     <thead class="bg-slate-50 text-slate-600">
                       <tr>
                         <th class="p-2.5 text-left">Nama Produk Buah / Sayur</th>
@@ -2287,13 +2374,13 @@ Catatan: Antar pagi jam 9</textarea>
                           <td class="p-2.5 font-bold text-slate-800">${it.product_name}</td>
                           <td class="p-2.5 text-center font-semibold">${it.qty_ordered} ${it.unit}</td>
                           <td class="p-2.5 text-center">
-                            <input id="act_${it.item_id}" type="number" step="0.1" value="${it.qty_actual}"
-                              class="w-24 px-2 py-1 rounded-lg border border-slate-300 text-center font-bold text-[#053f28]" />
+                            <input id="act_${it.item_id}" type="number" step="0.1" value="${it.qty_actual}" ${isPacked ? 'disabled' : ''}
+                              class="w-24 px-2 py-1 rounded-lg border border-slate-300 text-center font-bold text-[#053f28] disabled:bg-slate-100 disabled:text-slate-500" />
                             <span class="text-slate-500 ml-1">${it.unit}</span>
                           </td>
                           <td class="p-2.5 text-center">
-                            <input id="dmg_${it.item_id}" type="number" step="0.1" value="${it.qty_damaged || 0}"
-                              class="w-20 px-2 py-1 rounded-lg border border-rose-200 text-center font-bold text-rose-600" />
+                            <input id="dmg_${it.item_id}" type="number" step="0.1" value="${it.qty_damaged || 0}" ${isPacked ? 'disabled' : ''}
+                              class="w-20 px-2 py-1 rounded-lg border border-rose-200 text-center font-bold text-rose-600 disabled:bg-slate-100 disabled:text-slate-400" />
                             <span class="text-slate-400 ml-1">${it.unit}</span>
                           </td>
                           <td class="p-2.5 text-center">
@@ -2308,16 +2395,24 @@ Catatan: Antar pagi jam 9</textarea>
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center pt-2">
                   <div class="sm:col-span-3">
                     <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Jumlah Krat / Box Packing</label>
-                    <input id="box_${o.order_id}" type="number" min="1" value="2" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold" />
+                    <input id="box_${o.order_id}" type="number" min="1" value="${whLog ? whLog.boxes_count : 2}" ${isPacked ? 'disabled' : ''}
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold disabled:bg-slate-100 disabled:text-slate-500" />
                   </div>
                   <div class="sm:col-span-6">
                     <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Catatan QC / Barang Kurang atau Rusak</label>
-                    <input id="note_${o.order_id}" type="text" placeholder="Contoh: Semua segar, dikemas rapi..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs" />
+                    <input id="note_${o.order_id}" type="text" value="${whLog ? whLog.damage_notes : ''}" placeholder="Contoh: Semua segar, dikemas rapi..." ${isPacked ? 'disabled' : ''}
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs disabled:bg-slate-100 disabled:text-slate-500" />
                   </div>
                   <div class="sm:col-span-3 pt-4">
-                    <button onclick="finishWarehousePacking('${o.order_id}')" class="w-full py-2.5 px-4 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold text-xs shadow-sm">
-                      <i class="fa-solid fa-box-check mr-1"></i> Selesai Packing
-                    </button>
+                    ${isPacked ? `
+                      <button disabled class="w-full py-2.5 px-4 rounded-xl bg-slate-200 text-slate-500 font-extrabold text-xs cursor-not-allowed flex items-center justify-center gap-1.5 border border-slate-300">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i> Sudah Selesai Packing
+                      </button>
+                    ` : `
+                      <button onclick="finishWarehousePacking('${o.order_id}')" class="w-full py-2.5 px-4 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold text-xs shadow-sm transition">
+                        <i class="fa-solid fa-box-check mr-1"></i> Selesai Packing
+                      </button>
+                    `}
                   </div>
                 </div>
               </div>
@@ -2330,6 +2425,10 @@ Catatan: Antar pagi jam 9</textarea>
     function finishWarehousePacking(orderId) {
       const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
       if (!ord) return;
+      if (ord.status === 'Siap dikirim') {
+        showToast(`Pesanan ${orderId} sudah selesai dipacking sebelumnya dan tidak bisa diklik lagi!`, 'warning');
+        return;
+      }
       const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === orderId);
       let newTotal = 0;
 
@@ -2382,20 +2481,26 @@ Catatan: Antar pagi jam 9</textarea>
     function renderAssignCourierView(container) {
       const readyOrders = DB.HH_ORDERS.filter(o => ['Siap dikirim', 'Dijadwalkan ulang', 'Kurir ditugaskan'].includes(o.status));
       const couriers = DB.HH_USERS.filter(u => u.role === 'kurir');
+      const selectableCount = readyOrders.filter(o => o.status !== 'Kurir ditugaskan').length;
 
       container.innerHTML = `
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
           <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div>
               <h3 class="font-extrabold text-base text-[#053f28]">Penugasan Kurir Multi-Order (Batch Delivery)</h3>
-              <p class="text-xs text-slate-500">Pilih beberapa pesanan sekaligus untuk ditugaskan ke satu kurir.</p>
+              <p class="text-xs text-slate-500">Pilih pesanan berstatus Siap Dikirim untuk ditugaskan ke kurir. Pesanan yang sudah ditugaskan terkunci otomatis kecuali klik Edit Kurir.</p>
             </div>
             <div class="flex items-center gap-2">
               <select id="batchCourierSelect" class="px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-hh-50 text-[#053f28]">
                 ${couriers.map(c => `<option value="${c.user_id}">${c.name} (${c.vehicle || 'Armada HH'})</option>`).join('')}
               </select>
-              <button onclick="assignSelectedOrdersToCourier()" class="px-5 py-2.5 rounded-xl bg-[#053f28] text-[#fde002] text-xs font-extrabold shadow-sm">
-                <i class="fa-solid fa-user-check mr-1"></i> Tugaskan Kurir
+              <button onclick="assignSelectedOrdersToCourier()" ${selectableCount === 0 ? 'disabled' : ''}
+                class="px-5 py-2.5 rounded-xl font-extrabold text-xs shadow-sm transition ${
+                  selectableCount === 0
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-[#053f28] hover:bg-[#04301e] text-[#fde002]'
+                }">
+                <i class="fa-solid fa-user-check mr-1"></i> ${selectableCount === 0 ? 'Semua Sudah Ditugaskan' : 'Tugaskan Kurir'}
               </button>
             </div>
           </div>
@@ -2404,27 +2509,44 @@ Catatan: Antar pagi jam 9</textarea>
             <table class="w-full text-left text-xs">
               <thead class="bg-slate-50 text-slate-500 uppercase border-b">
                 <tr>
-                  <th class="p-3 w-10"><input type="checkbox" onchange="toggleSelectAllAssign(this)" class="w-4 h-4 accent-[#053f28]" /></th>
+                  <th class="p-3 w-10"><input type="checkbox" onchange="toggleSelectAllAssign(this)" ${selectableCount === 0 ? 'disabled' : ''} class="w-4 h-4 accent-[#053f28]" /></th>
                   <th class="p-3">ID Order</th>
                   <th class="p-3">Pelanggan</th>
                   <th class="p-3">Alamat Tujuan</th>
                   <th class="p-3">Status Saat Ini</th>
                   <th class="p-3">Kurir Saat Ini</th>
+                  <th class="p-3 text-right">Aksi Penugasan</th>
                 </tr>
               </thead>
               <tbody class="divide-y">
-                ${readyOrders.map(o => `
-                  <tr class="hover:bg-slate-50">
-                    <td class="p-3">
-                      <input type="checkbox" value="${o.order_id}" class="assign-order-chk w-4 h-4 accent-[#053f28]" ${o.status === 'Siap dikirim' ? 'checked' : ''} />
-                    </td>
-                    <td class="p-3 font-extrabold text-[#053f28]">${o.order_id}</td>
-                    <td class="p-3 font-bold">${o.customer_name}</td>
-                    <td class="p-3 text-slate-600">${o.customer_address}</td>
-                    <td class="p-3">${statusBadgeHTML(o.status)}</td>
-                    <td class="p-3 font-semibold">${o.courier_name || '-'}</td>
-                  </tr>
-                `).join('') || `<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pesanan berstatus Siap Dikirim.</td></tr>`}
+                ${readyOrders.map(o => {
+                  const isAssigned = o.status === 'Kurir ditugaskan' && o.courier_id;
+                  return `
+                    <tr class="hover:bg-slate-50 ${isAssigned ? 'bg-slate-50/60' : ''}">
+                      <td class="p-3">
+                        <input type="checkbox" value="${o.order_id}" class="assign-order-chk w-4 h-4 accent-[#053f28] disabled:opacity-40 disabled:cursor-not-allowed"
+                          ${isAssigned ? 'disabled' : 'checked'} />
+                      </td>
+                      <td class="p-3 font-extrabold text-[#053f28]">${o.order_id}</td>
+                      <td class="p-3 font-bold">${o.customer_name}</td>
+                      <td class="p-3 text-slate-600">${o.customer_address}</td>
+                      <td class="p-3">${statusBadgeHTML(o.status)}</td>
+                      <td class="p-3 font-semibold">${o.courier_name || '-'}</td>
+                      <td class="p-3 text-right whitespace-nowrap">
+                        ${isAssigned ? `
+                          <span class="px-2.5 py-1 rounded-lg bg-slate-200 text-slate-500 font-bold text-[11px] cursor-not-allowed mr-1 inline-flex items-center gap-1">
+                            <i class="fa-solid fa-lock"></i> Terkunci
+                          </span>
+                          <button onclick="openEditCourierModal('${o.order_id}')" class="px-2.5 py-1 rounded-lg bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-extrabold text-[11px]">
+                            <i class="fa-solid fa-user-pen mr-1"></i> Edit Kurir
+                          </button>
+                        ` : `
+                          <span class="text-[11px] font-bold text-emerald-700"><i class="fa-solid fa-check-double mr-1"></i> Siap Pilih</span>
+                        `}
+                      </td>
+                    </tr>
+                  `;
+                }).join('') || `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada pesanan berstatus Siap Dikirim.</td></tr>`}
               </tbody>
             </table>
           </div>
@@ -2433,7 +2555,75 @@ Catatan: Antar pagi jam 9</textarea>
     }
 
     function toggleSelectAllAssign(master) {
-      document.querySelectorAll('.assign-order-chk').forEach(chk => chk.checked = master.checked);
+      document.querySelectorAll('.assign-order-chk:not(:disabled)').forEach(chk => chk.checked = master.checked);
+    }
+
+    function openEditCourierModal(orderId) {
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      if (!ord) return;
+      const couriers = DB.HH_USERS.filter(u => u.role === 'kurir');
+      openModal(`Edit Penugasan Kurir (${ord.order_id})`, `
+        <form onsubmit="saveEditedCourier(event, '${ord.order_id}')" class="space-y-4 text-xs">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <p class="text-slate-500">Pelanggan: <b class="text-slate-800">${ord.customer_name}</b></p>
+            <p class="text-slate-500 mt-0.5">Kurir Saat Ini: <b class="text-[#053f28]">${ord.courier_name || '-'}</b></p>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Pilih Kurir Pengganti *</label>
+            <select id="editSingleCourierSelect" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold text-[#053f28]">
+              ${couriers.map(c => `<option value="${c.user_id}" ${c.user_id === ord.courier_id ? 'selected' : ''}>${c.name} (${c.vehicle || 'Armada HH'})</option>`).join('')}
+            </select>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold">Simpan Perubahan Kurir</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveEditedCourier(e, orderId) {
+      e.preventDefault();
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      const courierId = document.getElementById('editSingleCourierSelect').value;
+      const courier = DB.HH_USERS.find(u => u.user_id === courierId);
+      if (!ord || !courier) return;
+
+      ord.courier_id = courier.user_id;
+      ord.courier_name = courier.name;
+      ord.status = 'Kurir ditugaskan';
+
+      const deliv = DB.HH_DELIVERIES.find(d => d.order_id === orderId);
+      if (deliv) {
+        deliv.courier_id = courier.user_id;
+        deliv.courier_name = courier.name;
+        deliv.assigned_at = nowFormatted();
+      } else {
+        DB.HH_DELIVERIES.unshift({
+          delivery_id: generateUID('DEL'),
+          order_id: orderId,
+          courier_id: courier.user_id,
+          courier_name: courier.name,
+          assigned_at: nowFormatted(),
+          departed_at: '', arrived_at: '', completed_at: '', recipient_name: '', fail_reason: '',
+          status: 'Kurir ditugaskan'
+        });
+      }
+
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: orderId,
+        status: 'Kurir ditugaskan',
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name}`,
+        note: `Penugasan kurir diubah menjadi: ${courier.name}`
+      });
+
+      commitDatabaseChange('assignCourierBatch', { order_ids: [orderId], courier_id: courier.user_id, courier_name: courier.name });
+      logActivity(`Mengubah kurir pesanan ${orderId} ke ${courier.name}`);
+      closeModal();
+      navigateTo('penugasan');
+      showToast(`Kurir untuk pesanan ${orderId} berhasil diubah ke ${courier.name}!`);
     }
 
     function assignSelectedOrdersToCourier() {
@@ -2560,32 +2750,46 @@ Catatan: Antar pagi jam 9</textarea>
                 </div>
 
                 <div class="space-y-2.5 pt-2 border-t border-slate-100">
+                  <!-- 1. Tombol Buka Navigasi Google Maps -->
                   <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer"
                     class="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-diamond-turn-right text-base"></i> BUKA NAVIGASI GOOGLE MAPS
+                    <i class="fa-solid fa-diamond-turn-right text-base"></i> Buka Navigasi Google Maps
                   </a>
 
-                  <div class="grid grid-cols-2 gap-2">
-                    <button onclick="courierUpdateOrderStep('${o.order_id}', 'Dalam perjalanan')"
-                      class="py-3 px-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5">
-                      <i class="fa-solid fa-motorcycle"></i> Mulai Jalan
-                    </button>
+                  <!-- 2. Tombol Bertahap Dinamis (Mulai Jalan -> Tiba di Lokasi -> Ambil Foto) -->
+                  ${o.status === 'Dalam perjalanan' ? `
                     <button onclick="courierUpdateOrderStep('${o.order_id}', 'Tiba di lokasi')"
-                      class="py-3 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5">
-                      <i class="fa-solid fa-location-crosshairs"></i> Tiba di Lokasi
+                      class="w-full py-3.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition">
+                      <i class="fa-solid fa-location-crosshairs text-sm"></i> Tiba di lokasi
                     </button>
-                  </div>
-
-                  <div class="grid grid-cols-2 gap-2">
+                  ` : o.status === 'Tiba di lokasi' ? `
                     <button onclick="openProofUploadModal('${o.order_id}')"
-                      class="py-3.5 px-3 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md">
-                      <i class="fa-solid fa-camera"></i> Berhasil & Foto
+                      class="w-full py-3.5 px-4 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition">
+                      <i class="fa-solid fa-camera text-sm"></i> Ambil Foto
                     </button>
+                  ` : o.status === 'Berhasil terkirim' ? `
+                    <button disabled
+                      class="w-full py-3 px-4 rounded-xl bg-emerald-100 text-[#053f28] font-extrabold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
+                      <i class="fa-solid fa-circle-check"></i> Pengiriman Selesai
+                    </button>
+                  ` : o.status === 'Gagal terkirim' ? `
+                    <button onclick="courierUpdateOrderStep('${o.order_id}', 'Dalam perjalanan')"
+                      class="w-full py-3 px-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm">
+                      <i class="fa-solid fa-rotate-right"></i> Mulai Jalan Ulang
+                    </button>
+                  ` : `
+                    <button onclick="courierUpdateOrderStep('${o.order_id}', 'Dalam perjalanan')"
+                      class="w-full py-3.5 px-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition">
+                      <i class="fa-solid fa-motorcycle text-sm"></i> Mulai Jalan
+                    </button>
+                  `}
+
+                  ${o.status !== 'Berhasil terkirim' && o.status !== 'Gagal terkirim' ? `
                     <button onclick="openDeliveryFailModal('${o.order_id}')"
-                      class="py-3.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs flex items-center justify-center gap-1.5">
+                      class="w-full py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs flex items-center justify-center gap-1.5">
                       <i class="fa-solid fa-triangle-exclamation"></i> Gagal Kirim
                     </button>
-                  </div>
+                  ` : ''}
                 </div>
               </div>
             `;
@@ -3188,7 +3392,7 @@ Catatan: Antar pagi jam 9</textarea>
             <div>
               <label class="font-bold block mb-1">Role Hak Akses *</label>
               <select id="crudUsrRole" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold">
-                ${['admin', 'gudang', 'kurir', 'manager'].map(r => `<option value="${r}" ${existing && existing.role === r ? 'selected' : ''}>${r.toUpperCase()}</option>`).join('')}
+                ${['admin', 'gudang', 'kurir', 'manager', 'pengembang'].map(r => `<option value="${r}" ${existing && existing.role === r ? 'selected' : ''}>${r.toUpperCase()}</option>`).join('')}
               </select>
             </div>
             <div>
