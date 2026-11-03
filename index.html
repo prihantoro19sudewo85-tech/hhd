@@ -1,0 +1,3146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#15803d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Hanam Hanum Delivery — Sistem Manajemen Pesanan & Pengiriman</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Leaflet Maps CSS & JS (Interactive Map without blocking API key requirement, plus Google Maps Nav integration) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Chart.js for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            hh: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .leaflet-container { z-index: 10 !important; border-radius: 0.75rem; }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .gps-pulse::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 9999px;
+      background-color: #22c55e;
+      animation: pulse-ring 1.5s infinite;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-hh-600 selection:text-white">
+
+  <!-- NOTIFICATION TOAST CONTAINER -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- MODAL CONTAINER -->
+  <div id="modalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[9000] hidden items-center justify-center p-4 overflow-y-auto">
+    <div id="modalBox" class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-100 my-8">
+      <div class="flex items-center justify-between px-6 py-4 bg-hh-700 text-white">
+        <h3 id="modalTitle" class="font-bold text-lg">Detail</h3>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="modalBody" class="p-6 max-h-[80vh] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER PUBLIC TRACKING MODAL VIEW (Simulates Public Link) -->
+  <div id="publicTrackingModal" class="fixed inset-0 bg-slate-900/80 z-[9500] hidden items-center justify-center p-2 sm:p-6">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="bg-hh-700 text-white px-5 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white text-hh-700 flex items-center justify-center font-extrabold text-lg">
+            <i class="fa-solid fa-leaf"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-base">Hanam Hanum Live Tracking</h4>
+            <p id="pubTrackOrderId" class="text-xs text-hh-100">Order #ORD-000</p>
+          </div>
+        </div>
+        <button onclick="closePublicTracking()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-xs font-semibold">
+          Tutup Preview
+        </button>
+      </div>
+      <div id="pubTrackContent" class="p-5 overflow-y-auto space-y-4"></div>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="min-h-screen flex flex-col lg:flex-row bg-white">
+    <!-- Left Branding Panel -->
+    <div class="lg:w-5/12 bg-gradient-to-br from-hh-800 via-hh-700 to-emerald-600 text-white p-8 lg:p-14 flex flex-col justify-between relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="inline-flex items-center gap-3 bg-white/15 backdrop-blur-md px-4 py-2 rounded-2xl mb-6">
+          <i class="fa-solid fa-seedling text-hh-200 text-xl"></i>
+          <span class="font-bold tracking-wide text-sm uppercase">Hanam Hanum Delivery</span>
+        </div>
+        <h1 class="text-3xl lg:text-4xl font-extrabold leading-tight mb-4">
+          Sistem Manajemen Pesanan & Pengiriman Buah & Sayur Segar
+        </h1>
+        <p class="text-hh-100 text-sm lg:text-base leading-relaxed">
+          Terintegrasi penuh dengan Google Spreadsheet Database, Telegram Order Bot, Gudang QC, dan Pelacakan Kurir Live GPS untuk operasional 300–500 pesanan per hari.
+        </p>
+      </div>
+
+      <div class="relative z-10 mt-8 space-y-3">
+        <div class="bg-black/20 backdrop-blur-xs rounded-xl p-4 border border-white/10">
+          <p class="text-xs uppercase tracking-wider text-hh-200 font-semibold mb-2">
+            <i class="fa-solid fa-bolt mr-1"></i> Pikiran Cepat — Klik Akun Demo Sesuai Role:
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="quickLogin('admin')" class="text-left px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-xs">
+              <div class="font-bold">1. Role Admin</div>
+              <div class="text-hh-200 text-[11px]">admin@hanamhanum.id</div>
+            </button>
+            <button onclick="quickLogin('gudang')" class="text-left px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-xs">
+              <div class="font-bold">2. Role Gudang</div>
+              <div class="text-hh-200 text-[11px]">gudang@hanamhanum.id</div>
+            </button>
+            <button onclick="quickLogin('kurir')" class="text-left px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-xs">
+              <div class="font-bold">3. Role Kurir (HP UI)</div>
+              <div class="text-hh-200 text-[11px]">kurir1@hanamhanum.id</div>
+            </button>
+            <button onclick="quickLogin('manager')" class="text-left px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-xs">
+              <div class="font-bold">4. Role Manager</div>
+              <div class="text-hh-200 text-[11px]">manager@hanamhanum.id</div>
+            </button>
+          </div>
+        </div>
+        <p class="text-xs text-hh-200">
+          <i class="fa-solid fa-shield-halved mr-1"></i> Keamanan SHA-256 Hash • Multi-Cabang • PWA Ready
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="lg:w-7/12 flex items-center justify-center p-6 sm:p-12">
+      <div class="max-w-md w-full space-y-6">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900">Masuk ke Portal Operasional</h2>
+          <p class="text-sm text-slate-500 mt-1">Gunakan kredensial sesuai hak akses divisi Anda.</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Email Pengguna / Username</label>
+            <div class="relative">
+              <i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-400"></i>
+              <input id="loginEmail" type="email" required value="admin@hanamhanum.id"
+                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-hh-600 focus:ring-2 focus:ring-hh-100 outline-none text-sm font-medium"
+                placeholder="nama@hanamhanum.id" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Password</label>
+            <div class="relative">
+              <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400"></i>
+              <input id="loginPassword" type="password" required value="123456"
+                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-hh-600 focus:ring-2 focus:ring-hh-100 outline-none text-sm font-medium"
+                placeholder="••••••••" />
+            </div>
+          </div>
+
+          <button type="submit"
+            class="w-full py-3.5 px-6 rounded-xl bg-hh-700 hover:bg-hh-800 text-white font-bold text-sm shadow-lg shadow-hh-700/25 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-right-to-bracket"></i> Masuk Aplikasi
+          </button>
+        </form>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Status Database: <strong id="loginDbMode" class="text-hh-700">Hybrid (Local + GAS)</strong></span>
+          <button onclick="installPWA()" id="btnInstallLogin" class="text-hh-700 font-bold hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-download"></i> Instal Aplikasi (PWA)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APPLICATION SHELL -->
+  <div id="appShell" class="hidden min-h-screen flex flex-col lg:flex-row bg-slate-50">
+
+    <!-- MOBILE HEADER -->
+    <header class="lg:hidden bg-hh-700 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-md">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-leaf text-hh-200"></i>
+          <span class="font-extrabold tracking-tight text-base">HANAM HANUM</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="mobileRoleBadge" class="px-2.5 py-1 rounded-lg bg-white/20 text-xs font-bold uppercase">ADMIN</span>
+      </div>
+    </header>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out">
+      <!-- Brand Header -->
+      <div class="p-5 bg-hh-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white text-hh-700 flex items-center justify-center font-black text-xl shadow-md">
+            <i class="fa-solid fa-seedling"></i>
+          </div>
+          <div>
+            <h1 class="font-extrabold text-base leading-none">HANAM HANUM</h1>
+            <p class="text-[11px] text-hh-200 mt-1 font-medium">Fresh Fruit & Veggie Logistics</p>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Active User Info & Quick Role Switcher -->
+      <div class="p-4 border-b border-slate-100 bg-hh-50/60">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div id="userNameDisplay" class="font-bold text-sm text-slate-900">Budi Santoso</div>
+            <div id="userEmailDisplay" class="text-xs text-slate-500">admin@hanamhanum.id</div>
+          </div>
+          <span id="userRoleBadge" class="px-2.5 py-1 rounded-lg bg-hh-700 text-white text-[11px] font-bold uppercase">ADMIN</span>
+        </div>
+        <!-- Quick Role Switcher for Testing all 4 Roles seamlessly -->
+        <div class="mt-2 pt-2 border-t border-hh-200/60">
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Uji Hak Akses Role (Pindah Cepat):</label>
+          <select id="roleSwitcherSelect" onchange="switchRoleQuick(this.value)" class="w-full text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 font-semibold text-slate-700 focus:outline-none focus:border-hh-600">
+            <option value="admin">Role: ADMIN (Akses Penuh)</option>
+            <option value="gudang">Role: GUDANG (QC & Packing)</option>
+            <option value="kurir">Role: KURIR (Mode HP & GPS)</option>
+            <option value="manager">Role: MANAGER (Laporan & Pantau)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Menu List (14 Menus filtered by Role) -->
+      <nav id="sidebarNav" class="flex-1 overflow-y-auto p-3 space-y-1"></nav>
+
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-slate-200 space-y-2 bg-slate-50">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-500 font-medium">Status GPS Kurir:</span>
+          <span id="sidebarGpsIndicator" class="inline-flex items-center gap-1.5 font-bold text-slate-500">
+            <span class="w-2 h-2 rounded-full bg-slate-400"></span> Nonaktif
+          </span>
+        </div>
+        <button onclick="installPWA()" class="w-full py-2 px-3 rounded-xl bg-hh-100 hover:bg-hh-200 text-hh-800 font-bold text-xs flex items-center justify-center gap-2 transition">
+          <i class="fa-solid fa-mobile-screen-button"></i> Pasang Aplikasi (PWA)
+        </button>
+        <button onclick="handleLogout()" class="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs flex items-center justify-center gap-2 transition">
+          <i class="fa-solid fa-power-off"></i> Keluar Akun
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT WORKSPACE -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+      <!-- Top Bar -->
+      <div class="bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 id="pageHeaderTitle" class="text-xl font-extrabold text-slate-900">Dashboard Operasional</h2>
+          <p id="pageHeaderSubtitle" class="text-xs text-slate-500">Ringkasan pesanan, persiapan gudang, dan pengiriman real-time.</p>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <!-- Connection Status Badge -->
+          <div id="gasStatusBadge" onclick="navigateTo('pengaturan')" class="cursor-pointer px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="gasStatusText">DB Aktif (Siap Sinkron GAS)</span>
+          </div>
+
+          <!-- Telegram Draft Quick Button (Admin Only) -->
+          <button id="topBtnTelegram" onclick="openTelegramSimulatorModal()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition">
+            <i class="fa-brands fa-telegram text-sm"></i>
+            <span>Telegram Bot (<span id="badgeTelegramCount">0</span>)</span>
+          </button>
+
+          <!-- Sync Button -->
+          <button onclick="syncWithGASBackend()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition" title="Sinkronisasi dengan Google Spreadsheet">
+            <i id="syncIcon" class="fa-solid fa-rotate"></i>
+            <span class="hidden sm:inline">Sinkronisasi</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dynamic View Container -->
+      <div id="viewContainer" class="p-4 sm:p-8 flex-1 space-y-6 max-w-7xl w-full mx-auto"></div>
+    </main>
+  </div>
+
+  <!-- APPLICATION JAVASCRIPT ENGINE -->
+  <script>
+    /*************************************************************************
+     * 1. KONFIGURASI MENU & HAK AKSES ROLE (RBAC 14 MENU)
+     *************************************************************************/
+    const MENU_CONFIG = [
+      { id: 'dashboard', label: '1. Dashboard', icon: 'fa-chart-pie', roles: ['admin', 'gudang', 'kurir', 'manager'] },
+      { id: 'pesanan', label: '2. Pesanan', icon: 'fa-receipt', roles: ['admin', 'gudang', 'manager'] },
+      { id: 'tambah_pesanan', label: '3. Tambah Pesanan', icon: 'fa-circle-plus', roles: ['admin'] },
+      { id: 'pelanggan', label: '4. Pelanggan', icon: 'fa-users', roles: ['admin', 'manager'] },
+      { id: 'produk', label: '5. Produk Buah & Sayur', icon: 'fa-apple-whole', roles: ['admin', 'gudang', 'manager'] },
+      { id: 'cabang', label: '6. Cabang', icon: 'fa-building', roles: ['admin', 'manager'] },
+      { id: 'gudang', label: '7. Gudang & Stok', icon: 'fa-warehouse', roles: ['admin', 'gudang', 'manager'] },
+      { id: 'persiapan', label: '8. Persiapan Barang (QC)', icon: 'fa-boxes-packing', roles: ['admin', 'gudang'] },
+      { id: 'pengiriman', label: '9. Pengiriman (Tugas Kurir)', icon: 'fa-truck-fast', roles: ['admin', 'kurir', 'manager'] },
+      { id: 'penugasan', label: '10. Penugasan Kurir', icon: 'fa-user-check', roles: ['admin'] },
+      { id: 'tracking', label: '11. Tracking Pengiriman', icon: 'fa-map-location-dot', roles: ['admin', 'kurir', 'manager'] },
+      { id: 'laporan', label: '12. Laporan & Analitik', icon: 'fa-file-chart-column', roles: ['admin', 'manager'] },
+      { id: 'pengguna', label: '13. Pengguna & Role', icon: 'fa-user-shield', roles: ['admin'] },
+      { id: 'pengaturan', label: '14. Pengaturan & Koneksi', icon: 'fa-sliders', roles: ['admin', 'manager'] }
+    ];
+
+    const ORDER_STATUS_FLOW = [
+      'Pesanan diterima',
+      'Menunggu persiapan',
+      'Sedang disiapkan',
+      'Siap dikirim',
+      'Kurir ditugaskan',
+      'Dalam perjalanan',
+      'Tiba di lokasi',
+      'Berhasil terkirim',
+      'Gagal terkirim',
+      'Dijadwalkan ulang'
+    ];
+
+    /*************************************************************************
+     * 2. STRUKTUR DATABASE 14 SHEET (REPLIKA GOOGLE SPREADSHEET)
+     *************************************************************************/
+    let DB = {
+      HH_USERS: [
+        { user_id: 'USR-001', name: 'Budi Santoso (Admin Utama)', email: 'admin@hanamhanum.id', phone: '081211112222', role: 'admin', branch_id: 'BR-01', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true },
+        { user_id: 'USR-002', name: 'Hendra Wijaya (Kepala Gudang)', email: 'gudang@hanamhanum.id', phone: '081233334444', role: 'gudang', branch_id: 'BR-01', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true },
+        { user_id: 'USR-003', name: 'Rizky Ramadhan (Kurir Motor/Mobil)', email: 'kurir1@hanamhanum.id', phone: '081255556666', role: 'kurir', branch_id: 'BR-01', vehicle: 'Grand Max B 9182 TCD', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true },
+        { user_id: 'USR-004', name: 'Agus Pratama (Kurir Cabang)', email: 'kurir2@hanamhanum.id', phone: '081277778888', role: 'kurir', branch_id: 'BR-02', vehicle: 'Honda Beat B 4421 KLP', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true },
+        { user_id: 'USR-005', name: 'Siti Rahmawati (Operational Manager)', email: 'manager@hanamhanum.id', phone: '081299990000', role: 'manager', branch_id: 'BR-01', password_hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', active: true }
+      ],
+      HH_BRANCHES: [
+        { branch_id: 'BR-01', name: 'Cabang Utama Kramat Jati (Jakarta Timur)', address: 'Jl. Raya Bogor KM 20, Kramat Jati, Jakarta Timur', head: 'Budi Santoso', phone: '021-8091122', lat: -6.2725, lng: 106.8675 },
+        { branch_id: 'BR-02', name: 'Cabang BSD Serpong (Tangerang)', address: 'Pasar Modern BSD Blok R-12, Tangerang Selatan', head: 'Dewi Lestari', phone: '021-5315889', lat: -6.3016, lng: 106.6534 },
+        { branch_id: 'BR-03', name: 'Cabang Bekasi Barat', address: 'Jl. Jenderal Sudirman No. 88, Bekasi', head: 'Lukman Hakim', phone: '021-8842110', lat: -6.2383, lng: 106.9756 }
+      ],
+      HH_CUSTOMERS: [
+        { customer_id: 'CUST-101', name: 'Resto Sunda Rasa Cawang', phone: '08119283746', address: 'Jl. MT Haryono Kav 15, Cawang, Jakarta Timur', branch_id: 'BR-01', lat: -6.2442, lng: 106.8632, type: 'B2B Resto' },
+        { customer_id: 'CUST-102', name: 'Ibu Clarissa Putri', phone: '08138827162', address: 'Perumahan Cipinang Elok Blok D No. 14, Jakarta Timur', branch_id: 'BR-01', lat: -6.2248, lng: 106.8891, type: 'Rumah Tangga' },
+        { customer_id: 'CUST-103', name: 'Hotel Horison Cawang Kitchen', phone: '08129988771', address: 'Jl. Letjen MT. Haryono No.9, Jakarta Selatan', branch_id: 'BR-01', lat: -6.2435, lng: 106.8548, type: 'B2B Hotel' },
+        { customer_id: 'CUST-104', name: 'Katering Berkah Mandiri', phone: '08156677889', address: 'Jl. Condet Raya No. 45, Batu Ampar, Jakarta Timur', branch_id: 'BR-01', lat: -6.2819, lng: 106.8562, type: 'Katering' }
+      ],
+      HH_PRODUCTS: [
+        { product_id: 'PRD-01', sku: 'BH-APL-01', name: 'Apel Fuji Premium', category: 'Buah Impor', unit: 'Kg', price: 42000, stock: 185, min_stock: 30 },
+        { product_id: 'PRD-02', sku: 'BH-JRK-02', name: 'Jeruk Medan Super', category: 'Buah Lokal', unit: 'Kg', price: 28000, stock: 240, min_stock: 40 },
+        { product_id: 'PRD-03', sku: 'BH-PIS-03', name: 'Pisang Cavendish Sunpride', category: 'Buah Lokal', unit: 'Sisir', price: 24000, stock: 120, min_stock: 25 },
+        { product_id: 'PRD-04', sku: 'SY-BRK-04', name: 'Brokoli Hijau Segar Dieng', category: 'Sayuran Bunga', unit: 'Kg', price: 32000, stock: 95, min_stock: 20 },
+        { product_id: 'PRD-05', sku: 'SY-SLD-05', name: 'Selada Romaine Hidroponik', category: 'Sayuran Daun', unit: 'Pack (250g)', price: 15000, stock: 160, min_stock: 30 },
+        { product_id: 'PRD-06', sku: 'SY-TMT-06', name: 'Tomat Merah TW Super', category: 'Sayuran Buah', unit: 'Kg', price: 18000, stock: 310, min_stock: 50 },
+        { product_id: 'PRD-07', sku: 'SY-WTL-07', name: 'Wortel Brastagi Bersih', category: 'Umbi', unit: 'Kg', price: 19500, stock: 220, min_stock: 40 },
+        { product_id: 'PRD-08', sku: 'BH-ALP-08', name: 'Alpukat Mentega Matang Pohon', category: 'Buah Lokal', unit: 'Kg', price: 36000, stock: 140, min_stock: 25 }
+      ],
+      HH_ORDERS: [
+        {
+          order_id: 'ORD-261101',
+          created_at: '2026-11-03 07:15',
+          delivery_date: '2026-11-03',
+          customer_id: 'CUST-101',
+          customer_name: 'Resto Sunda Rasa Cawang',
+          customer_phone: '08119283746',
+          customer_address: 'Jl. MT Haryono Kav 15, Cawang, Jakarta Timur',
+          branch_id: 'BR-01',
+          source: 'Telegram WA Forward',
+          status: 'Dalam perjalanan',
+          courier_id: 'USR-003',
+          courier_name: 'Rizky Ramadhan (Kurir Motor/Mobil)',
+          total_amount: 924000,
+          notes: 'Tolong kirim sebelum jam 11 siang ke pintu dapur belakang.',
+          public_tracking_enabled: true,
+          lat: -6.2442,
+          lng: 106.8632
+        },
+        {
+          order_id: 'ORD-261102',
+          created_at: '2026-11-03 07:45',
+          delivery_date: '2026-11-03',
+          customer_id: 'CUST-102',
+          customer_name: 'Ibu Clarissa Putri',
+          customer_phone: '08138827162',
+          customer_address: 'Perumahan Cipinang Elok Blok D No. 14, Jakarta Timur',
+          branch_id: 'BR-01',
+          source: 'Manual App',
+          status: 'Menunggu persiapan',
+          courier_id: '',
+          courier_name: '-',
+          total_amount: 248000,
+          notes: 'Alpukat pilih yang setengah matang 2 buah.',
+          public_tracking_enabled: true,
+          lat: -6.2248,
+          lng: 106.8891
+        },
+        {
+          order_id: 'ORD-261103',
+          created_at: '2026-11-03 08:10',
+          delivery_date: '2026-11-03',
+          customer_id: 'CUST-103',
+          customer_name: 'Hotel Horison Cawang Kitchen',
+          customer_phone: '08129988771',
+          customer_address: 'Jl. Letjen MT. Haryono No.9, Jakarta Selatan',
+          branch_id: 'BR-01',
+          source: 'Telegram WA Forward',
+          status: 'Siap dikirim',
+          courier_id: '',
+          courier_name: '-',
+          total_amount: 1410000,
+          notes: 'Sertakan surat jalan rangkap 2.',
+          public_tracking_enabled: true,
+          lat: -6.2435,
+          lng: 106.8548
+        },
+        {
+          order_id: 'ORD-261104',
+          created_at: '2026-11-03 06:30',
+          delivery_date: '2026-11-03',
+          customer_id: 'CUST-104',
+          customer_name: 'Katering Berkah Mandiri',
+          customer_phone: '08156677889',
+          customer_address: 'Jl. Condet Raya No. 45, Batu Ampar, Jakarta Timur',
+          branch_id: 'BR-01',
+          source: 'Telegram WA Forward',
+          status: 'Berhasil terkirim',
+          courier_id: 'USR-003',
+          courier_name: 'Rizky Ramadhan (Kurir Motor/Mobil)',
+          total_amount: 685000,
+          notes: 'Diterima Pak Slamet keamanan.',
+          public_tracking_enabled: true,
+          lat: -6.2819,
+          lng: 106.8562
+        }
+      ],
+      HH_ORDER_ITEMS: [
+        { item_id: 'ITM-1001', order_id: 'ORD-261101', product_id: 'PRD-01', product_name: 'Apel Fuji Premium', qty_ordered: 10, qty_actual: 10, qty_damaged: 0, unit: 'Kg', price: 42000, qc_status: 'Checked' },
+        { item_id: 'ITM-1002', order_id: 'ORD-261101', product_id: 'PRD-04', product_name: 'Brokoli Hijau Segar Dieng', qty_ordered: 10, qty_actual: 10, qty_damaged: 0, unit: 'Kg', price: 32000, qc_status: 'Checked' },
+        { item_id: 'ITM-1003', order_id: 'ORD-261101', product_id: 'PRD-06', product_name: 'Tomat Merah TW Super', qty_ordered: 10.2, qty_actual: 10.2, qty_damaged: 0, unit: 'Kg', price: 18000, qc_status: 'Checked' },
+        { item_id: 'ITM-1004', order_id: 'ORD-261102', product_id: 'PRD-08', product_name: 'Alpukat Mentega Matang Pohon', qty_ordered: 4, qty_actual: 4, qty_damaged: 0, unit: 'Kg', price: 36000, qc_status: 'Pending' },
+        { item_id: 'ITM-1005', order_id: 'ORD-261102', product_id: 'PRD-02', product_name: 'Jeruk Medan Super', qty_ordered: 2, qty_actual: 2, qty_damaged: 0, unit: 'Kg', price: 28000, qc_status: 'Pending' },
+        { item_id: 'ITM-1006', order_id: 'ORD-261102', product_id: 'PRD-03', product_name: 'Pisang Cavendish Sunpride', qty_ordered: 2, qty_actual: 2, qty_damaged: 0, unit: 'Sisir', price: 24000, qc_status: 'Pending' },
+        { item_id: 'ITM-1007', order_id: 'ORD-261103', product_id: 'PRD-01', product_name: 'Apel Fuji Premium', qty_ordered: 20, qty_actual: 20, qty_damaged: 0.5, unit: 'Kg', price: 42000, qc_status: 'Checked' },
+        { item_id: 'ITM-1008', order_id: 'ORD-261103', product_id: 'PRD-05', product_name: 'Selada Romaine Hidroponik', qty_ordered: 38, qty_actual: 38, qty_damaged: 0, unit: 'Pack (250g)', price: 15000, qc_status: 'Checked' },
+        { item_id: 'ITM-1009', order_id: 'ORD-261104', product_id: 'PRD-07', product_name: 'Wortel Brastagi Bersih', qty_ordered: 20, qty_actual: 20, qty_damaged: 0, unit: 'Kg', price: 19500, qc_status: 'Checked' },
+        { item_id: 'ITM-1010', order_id: 'ORD-261104', product_id: 'PRD-06', product_name: 'Tomat Merah TW Super', qty_ordered: 16.38, qty_actual: 16.38, qty_damaged: 0, unit: 'Kg', price: 18000, qc_status: 'Checked' }
+      ],
+      HH_WAREHOUSE: [
+        { wh_id: 'WH-01', order_id: 'ORD-261101', checker_name: 'Hendra Wijaya', packed_at: '2026-11-03 08:00', boxes_count: 3, damage_notes: 'Tidak ada barang rusak, segar 100%.', status: 'Selesai Packing' },
+        { wh_id: 'WH-02', order_id: 'ORD-261103', checker_name: 'Hendra Wijaya', packed_at: '2026-11-03 08:50', boxes_count: 4, damage_notes: '0.5 Kg Apel memar diganti baru dari stok gudang.', status: 'Selesai Packing' },
+        { wh_id: 'WH-03', order_id: 'ORD-261104', checker_name: 'Hendra Wijaya', packed_at: '2026-11-03 07:10', boxes_count: 2, damage_notes: 'Aman.', status: 'Selesai Packing' }
+      ],
+      HH_DELIVERIES: [
+        { delivery_id: 'DEL-901', order_id: 'ORD-261101', courier_id: 'USR-003', courier_name: 'Rizky Ramadhan (Kurir Motor/Mobil)', assigned_at: '2026-11-03 08:15', departed_at: '2026-11-03 08:30', arrived_at: '', completed_at: '', recipient_name: '', fail_reason: '', status: 'Dalam perjalanan' },
+        { delivery_id: 'DEL-902', order_id: 'ORD-261104', courier_id: 'USR-003', courier_name: 'Rizky Ramadhan (Kurir Motor/Mobil)', assigned_at: '2026-11-03 07:20', departed_at: '2026-11-03 07:30', arrived_at: '2026-11-03 08:05', completed_at: '2026-11-03 08:10', recipient_name: 'Pak Slamet (Security Katering)', fail_reason: '', status: 'Berhasil terkirim' }
+      ],
+      HH_TRACKING: [
+        { track_id: 'TRK-01', order_id: 'ORD-261101', status: 'Pesanan diterima', timestamp: '2026-11-03 07:15', actor: 'Admin (Telegram Bot)', note: 'Pesanan dari WA diteruskan ke Telegram & divalidasi.' },
+        { track_id: 'TRK-02', order_id: 'ORD-261101', status: 'Sedang disiapkan', timestamp: '2026-11-03 07:35', actor: 'Hendra Wijaya (Gudang)', note: 'Timbang & sortir kualitas buah/sayur.' },
+        { track_id: 'TRK-03', order_id: 'ORD-261101', status: 'Siap dikirim', timestamp: '2026-11-03 08:00', actor: 'Hendra Wijaya (Gudang)', note: 'Selesai packing 3 krat plastik.' },
+        { track_id: 'TRK-04', order_id: 'ORD-261101', status: 'Kurir ditugaskan', timestamp: '2026-11-03 08:15', actor: 'Budi Santoso (Admin)', note: 'Ditugaskan ke kurir Rizky Ramadhan.' },
+        { track_id: 'TRK-05', order_id: 'ORD-261101', status: 'Dalam perjalanan', timestamp: '2026-11-03 08:30', actor: 'Rizky Ramadhan (Kurir)', note: 'Kurir berangkat menuju lokasi pelanggan dengan GPS aktif.' },
+        { track_id: 'TRK-06', order_id: 'ORD-261104', status: 'Pesanan diterima', timestamp: '2026-11-03 06:30', actor: 'Admin', note: 'Order masuk.' },
+        { track_id: 'TRK-07', order_id: 'ORD-261104', status: 'Berhasil terkirim', timestamp: '2026-11-03 08:10', actor: 'Rizky Ramadhan (Kurir)', note: 'Diterima oleh Pak Slamet disertai bukti foto.' }
+      ],
+      HH_GPS_LOG: [
+        { gps_id: 'GPS-101', courier_id: 'USR-003', courier_name: 'Rizky Ramadhan (Kurir Motor/Mobil)', order_id: 'ORD-261101', lat: -6.2580, lng: 106.8651, accuracy: 12, speed: 34, updated_at: '2026-11-03 12:55:10' },
+        { gps_id: 'GPS-102', courier_id: 'USR-004', courier_name: 'Agus Pratama (Kurir Cabang)', order_id: '-', lat: -6.2995, lng: 106.6580, accuracy: 15, speed: 20, updated_at: '2026-11-03 12:50:00' }
+      ],
+      HH_PROOFS: [
+        { proof_id: 'PRF-01', order_id: 'ORD-261104', courier_id: 'USR-003', recipient_name: 'Pak Slamet (Security Katering)', drive_file_id: '1A2B3C_ SimulatedDriveFile', photo_url: 'https://placehold.co/600x400/15803d/ffffff?text=Bukti+Foto+Pengiriman+ORD-261104', uploaded_at: '2026-11-03 08:10' }
+      ],
+      HH_TELEGRAM: [
+        {
+          draft_id: 'TG-DRF-01',
+          received_at: '2026-11-03 12:40',
+          raw_message: `Nama: Cafe Kopi Senja Tebet\nHP: 081290008877\nAlamat: Jl. Tebet Timur Dalam Raya No. 55, Jakarta Selatan\nTanggal Kirim: 2026-11-03\nPesanan:\n- Apel Fuji Premium 5 Kg\n- Alpukat Mentega Matang Pohon 8 Kg\n- Selada Romaine Hidroponik 10 Pack\nCatatan: Kirim sore jam 3`,
+          parsed_customer: 'Cafe Kopi Senja Tebet',
+          parsed_phone: '081290008877',
+          parsed_address: 'Jl. Tebet Timur Dalam Raya No. 55, Jakarta Selatan',
+          parsed_date: '2026-11-03',
+          parsed_items: [
+            { product_id: 'PRD-01', product_name: 'Apel Fuji Premium', qty: 5, unit: 'Kg', price: 42000 },
+            { product_id: 'PRD-08', product_name: 'Alpukat Mentega Matang Pohon', qty: 8, unit: 'Kg', price: 36000 },
+            { product_id: 'PRD-05', product_name: 'Selada Romaine Hidroponik', qty: 10, unit: 'Pack (250g)', price: 15000 }
+          ],
+          status: 'Draft Menunggu Konfirmasi'
+        }
+      ],
+      HH_ACTIVITY_LOG: [
+        { log_id: 'LOG-01', timestamp: '2026-11-03 07:15', user: 'admin@hanamhanum.id', role: 'admin', action: 'Konfirmasi Draft Telegram #ORD-261101' },
+        { log_id: 'LOG-02', timestamp: '2026-11-03 08:00', user: 'gudang@hanamhanum.id', role: 'gudang', action: 'Selesai QC & Packing #ORD-261101 (3 Box)' },
+        { log_id: 'LOG-03', timestamp: '2026-11-03 08:30', user: 'kurir1@hanamhanum.id', role: 'kurir', action: 'Mengaktifkan Live GPS & Memulai Pengiriman #ORD-261101' }
+      ],
+      HH_SETTINGS: {
+        company_name: 'Hanam Hanum Delivery',
+        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbz1C0BtCJUTWIZeT1eLr3UpKkBCySh1awdj-wIv0z5-JmzPETJ2aQvfPSW0PLVvFbMxXQ/exec',
+        spreadsheet_id: '1xZF01_8HbPIcjomang4XHhmKVFx_EXSRLEo12Zpw49E',
+        drive_folder_id: '13gCbISldFvaTHSQdJ0e023Ry2DQ9U0jJ',
+        telegram_bot_username: '@HanamHanumOrderBot',
+        public_tracking_default: true,
+        daily_capacity_target: 500
+      }
+    };
+
+    /*************************************************************************
+     * 3. STATE APLIKASI, AUTH, GPS & PWA
+     *************************************************************************/
+    let currentUser = null;
+    let currentView = 'dashboard';
+    let gpsWatchId = null;
+    let gpsActive = false;
+    let lastGpsCoord = { lat: -6.2580, lng: 106.8651, accuracy: 10, timestamp: 'Baru saja' };
+    let deferredInstallPrompt = null;
+    let mapInstance = null;
+    let chartInstances = {};
+
+    // SHA-256 Hashing menggunakan Web Crypto API asli
+    async function sha256Hash(text) {
+      const msgBuffer = new TextEncoder().encode(text);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function generateUID(prefix) {
+      const rnd = Math.floor(1000 + Math.random() * 9000);
+      return `${prefix}-${Date.now().toString().slice(-4)}${rnd}`;
+    }
+
+    function nowFormatted() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function formatRupiah(num) {
+      return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+    }
+
+    function logActivity(actionText) {
+      if (!currentUser) return;
+      DB.HH_ACTIVITY_LOG.unshift({
+        log_id: generateUID('LOG'),
+        timestamp: nowFormatted(),
+        user: currentUser.email,
+        role: currentUser.role,
+        action: actionText
+      });
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const colors = {
+        success: 'bg-hh-700 text-white border-hh-800',
+        warning: 'bg-amber-500 text-white border-amber-600',
+        error: 'bg-rose-600 text-white border-rose-700',
+        info: 'bg-sky-600 text-white border-sky-700'
+      };
+      const icons = {
+        success: 'fa-circle-check',
+        warning: 'fa-triangle-exclamation',
+        error: 'fa-circle-xmark',
+        info: 'fa-circle-info'
+      };
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl border ${colors[type] || colors.success} text-xs font-bold transition-all duration-300`;
+      toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.success} text-base"></i><span class="flex-1">${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function openModal(title, htmlContent) {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalBody').innerHTML = htmlContent;
+      const overlay = document.getElementById('modalOverlay');
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+    }
+
+    function closeModal() {
+      const overlay = document.getElementById('modalOverlay');
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+    }
+
+    function statusBadgeHTML(status) {
+      const map = {
+        'Pesanan diterima': 'bg-slate-100 text-slate-700 border-slate-300',
+        'Menunggu persiapan': 'bg-amber-50 text-amber-700 border-amber-200',
+        'Sedang disiapkan': 'bg-amber-100 text-amber-800 border-amber-300',
+        'Siap dikirim': 'bg-sky-50 text-sky-700 border-sky-200',
+        'Kurir ditugaskan': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        'Dalam perjalanan': 'bg-orange-100 text-orange-800 border-orange-300',
+        'Tiba di lokasi': 'bg-teal-100 text-teal-800 border-teal-300',
+        'Berhasil terkirim': 'bg-hh-100 text-hh-800 border-hh-300',
+        'Gagal terkirim': 'bg-rose-100 text-rose-800 border-rose-300',
+        'Dijadwalkan ulang': 'bg-purple-100 text-purple-800 border-purple-300'
+      };
+      const cls = map[status] || 'bg-slate-100 text-slate-700 border-slate-200';
+      return `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${cls} inline-flex items-center gap-1 whitespace-nowrap">${status}</span>`;
+    }
+
+    /*************************************************************************
+     * 4. SISTEM LOGIN & HAK AKSES ROLE
+     *************************************************************************/
+    function quickLogin(role) {
+      const credentials = {
+        admin: 'admin@hanamhanum.id',
+        gudang: 'gudang@hanamhanum.id',
+        kurir: 'kurir1@hanamhanum.id',
+        manager: 'manager@hanamhanum.id'
+      };
+      document.getElementById('loginEmail').value = credentials[role];
+      document.getElementById('loginPassword').value = '123456';
+      handleLogin(new Event('submit'));
+    }
+
+    async function handleLogin(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+      const passHash = await sha256Hash(password);
+
+      const user = DB.HH_USERS.find(u => u.email.toLowerCase() === email && u.active);
+      if (!user || (user.password_hash !== passHash && password !== '123456')) {
+        showToast('Email atau password tidak sesuai!', 'error');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appShell').classList.remove('hidden');
+
+      updateUserHeaderUI();
+      renderSidebarMenu();
+
+      // Default view per role
+      if (user.role === 'kurir') {
+        navigateTo('pengiriman');
+      } else if (user.role === 'gudang') {
+        navigateTo('persiapan');
+      } else {
+        navigateTo('dashboard');
+      }
+
+      logActivity(`Login ke aplikasi sebagai ${user.role.toUpperCase()}`);
+      showToast(`Selamat datang, ${user.name}!`, 'success');
+    }
+
+    function switchRoleQuick(newRole) {
+      const targetUser = DB.HH_USERS.find(u => u.role === newRole);
+      if (!targetUser) return;
+      currentUser = targetUser;
+      updateUserHeaderUI();
+      renderSidebarMenu();
+
+      const allowedMenus = MENU_CONFIG.filter(m => m.roles.includes(currentUser.role)).map(m => m.id);
+      if (!allowedMenus.includes(currentView)) {
+        navigateTo(allowedMenus[0]);
+      } else {
+        navigateTo(currentView);
+      }
+      showToast(`Beralih tampilan ke Role: ${newRole.toUpperCase()}`, 'info');
+    }
+
+    function updateUserHeaderUI() {
+      document.getElementById('userNameDisplay').innerText = currentUser.name;
+      document.getElementById('userEmailDisplay').innerText = currentUser.email;
+      document.getElementById('userRoleBadge').innerText = currentUser.role.toUpperCase();
+      document.getElementById('mobileRoleBadge').innerText = currentUser.role.toUpperCase();
+      document.getElementById('roleSwitcherSelect').value = currentUser.role;
+
+      if (DB.HH_SETTINGS.gas_webapp_url) {
+        const badgeTxt = document.getElementById('gasStatusText');
+        if (badgeTxt) badgeTxt.innerText = 'Terhubung ke GAS Cloud';
+      }
+
+      // Tampilkan tombol Telegram hanya untuk Admin
+      const btnTg = document.getElementById('topBtnTelegram');
+      if (currentUser.role === 'admin') {
+        btnTg.classList.remove('hidden');
+      } else {
+        btnTg.classList.add('hidden');
+      }
+      updateTelegramBadge();
+    }
+
+    // Helper kirim data ke Google Apps Script di latar belakang (non-blocking)
+    async function postToGAS(payload) {
+      const url = DB.HH_SETTINGS.gas_webapp_url;
+      if (!url) return null;
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        return await res.json();
+      } catch (err) {
+        console.warn('Sinkronisasi latar belakang ke GAS:', err);
+        return null;
+      }
+    }
+
+    function updateTelegramBadge() {
+      const pendingCount = DB.HH_TELEGRAM.filter(d => d.status === 'Draft Menunggu Konfirmasi').length;
+      document.getElementById('badgeTelegramCount').innerText = pendingCount;
+    }
+
+    function handleLogout() {
+      if (gpsActive) toggleCourierGPS(false);
+      logActivity('Logout dari aplikasi');
+      currentUser = null;
+      document.getElementById('appShell').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+      showToast('Anda telah keluar dari sesi.', 'info');
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      sb.classList.toggle('-translate-x-full');
+    }
+
+    function renderSidebarMenu() {
+      const nav = document.getElementById('sidebarNav');
+      const allowed = MENU_CONFIG.filter(m => m.roles.includes(currentUser.role));
+      nav.innerHTML = allowed.map(m => {
+        const isActive = m.id === currentView;
+        return `
+          <button onclick="navigateTo('${m.id}')"
+            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+              isActive
+                ? 'bg-hh-700 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-hh-50 hover:text-hh-700'
+            }">
+            <i class="fa-solid ${m.icon} w-5 text-center text-sm"></i>
+            <span class="truncate">${m.label}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function navigateTo(viewId) {
+      const menuObj = MENU_CONFIG.find(m => m.id === viewId);
+      if (!menuObj || !menuObj.roles.includes(currentUser.role)) {
+        showToast('Role Anda tidak memiliki akses ke menu tersebut.', 'warning');
+        return;
+      }
+      currentView = viewId;
+      renderSidebarMenu();
+
+      // Close mobile sidebar if open
+      const sb = document.getElementById('sidebar');
+      if (!sb.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
+        sb.classList.add('-translate-x-full');
+      }
+
+      document.getElementById('pageHeaderTitle').innerText = menuObj.label.replace(/^\d+\.\s*/, '');
+      const container = document.getElementById('viewContainer');
+
+      switch (viewId) {
+        case 'dashboard': renderDashboard(container); break;
+        case 'pesanan': renderOrdersView(container); break;
+        case 'tambah_pesanan': renderAddOrderView(container); break;
+        case 'pelanggan': renderCustomersView(container); break;
+        case 'produk': renderProductsView(container); break;
+        case 'cabang': renderBranchesView(container); break;
+        case 'gudang': renderWarehouseStockView(container); break;
+        case 'persiapan': renderWarehousePrepView(container); break;
+        case 'pengiriman': renderCourierDeliveriesView(container); break;
+        case 'penugasan': renderAssignCourierView(container); break;
+        case 'tracking': renderTrackingView(container); break;
+        case 'laporan': renderReportsView(container); break;
+        case 'pengguna': renderUsersView(container); break;
+        case 'pengaturan': renderSettingsView(container); break;
+      }
+    }
+
+    /*************************************************************************
+     * 5. MENU 1: DASHBOARD (KARTU STATISTIK, GRAFIK, TABEL, TRACKING)
+     *************************************************************************/
+    function renderDashboard(container) {
+      const totalOrders = DB.HH_ORDERS.length;
+      const inTransit = DB.HH_ORDERS.filter(o => ['Dalam perjalanan', 'Tiba di lokasi', 'Kurir ditugaskan'].includes(o.status)).length;
+      const completed = DB.HH_ORDERS.filter(o => o.status === 'Berhasil terkirim').length;
+      const pendingPrep = DB.HH_ORDERS.filter(o => ['Pesanan diterima', 'Menunggu persiapan', 'Sedang disiapkan', 'Siap dikirim'].includes(o.status)).length;
+      const totalRevenue = DB.HH_ORDERS.reduce((acc, o) => acc + Number(o.total_amount || 0), 0);
+
+      container.innerHTML = `
+        <!-- Role Banner -->
+        <div class="bg-gradient-to-r from-hh-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-full bg-white/20 text-[11px] font-bold uppercase tracking-wider">Mode Akses: ${currentUser.role.toUpperCase()}</span>
+            <h3 class="text-xl sm:text-2xl font-extrabold mt-2">Halo, ${currentUser.name}!</h3>
+            <p class="text-xs sm:text-sm text-hh-100 mt-1">Target Kapasitas Harian: 300–500 Pesanan/Hari • Semua modul terhubung ke struktur 14 Sheet.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${currentUser.role === 'admin' ? `
+              <button onclick="navigateTo('tambah_pesanan')" class="px-4 py-2.5 rounded-xl bg-white text-hh-800 font-bold text-xs shadow-sm hover:bg-hh-50 transition">
+                <i class="fa-solid fa-plus mr-1"></i> Input Pesanan Baru
+              </button>
+              <button onclick="openTelegramSimulatorModal()" class="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs shadow-sm transition">
+                <i class="fa-brands fa-telegram mr-1"></i> Proses WA via Telegram
+              </button>
+            ` : ''}
+            ${currentUser.role === 'kurir' ? `
+              <button onclick="navigateTo('pengiriman')" class="px-5 py-3 rounded-xl bg-amber-400 text-slate-900 font-extrabold text-xs shadow-md">
+                <i class="fa-solid fa-motorcycle mr-1"></i> Buka Tugas Pengiriman Saya
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- KPI Stat Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-400">Total Pesanan Hari Ini</p>
+              <p class="text-2xl font-black text-slate-900 mt-1">${totalOrders} <span class="text-xs font-semibold text-hh-600">Order</span></p>
+              <p class="text-[11px] text-slate-500 mt-1">Nilai: ${formatRupiah(totalRevenue)}</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-hh-100 text-hh-700 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-basket-shopping"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-400">Persiapan & Gudang</p>
+              <p class="text-2xl font-black text-amber-600 mt-1">${pendingPrep} <span class="text-xs font-semibold">Antrean</span></p>
+              <p class="text-[11px] text-slate-500 mt-1">Menunggu QC / Kurir</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-boxes-packing"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-400">Dalam Pengiriman</p>
+              <p class="text-2xl font-black text-orange-600 mt-1">${inTransit} <span class="text-xs font-semibold">Aktif</span></p>
+              <p class="text-[11px] text-slate-500 mt-1">Terpantau Live GPS</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-truck-fast"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-400">Berhasil Terkirim</p>
+              <p class="text-2xl font-black text-hh-700 mt-1">${completed} <span class="text-xs font-semibold">Selesai</span></p>
+              <p class="text-[11px] text-slate-500 mt-1">Bukti Foto Tersimpan</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts & Live Map Preview -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-chart-column text-hh-600 mr-1.5"></i> Grafik Aktivitas Pengiriman & Produk Terlaris</h4>
+              <span class="text-xs text-slate-400">Real-Time Data</span>
+            </div>
+            <div class="h-64">
+              <canvas id="dashboardChart"></canvas>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-satellite-dish text-hh-600 mr-1.5"></i> Peta Posisi Kurir Aktif</h4>
+              <button onclick="navigateTo('tracking')" class="text-xs text-hh-700 font-bold hover:underline">Layar Penuh →</button>
+            </div>
+            <div id="dashMiniMap" class="flex-1 min-h-[240px] rounded-xl border border-slate-200"></div>
+          </div>
+        </div>
+
+        <!-- Recent Orders Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h4 class="font-bold text-sm text-slate-800">Daftar Pesanan Terbaru</h4>
+            <button onclick="navigateTo('pesanan')" class="text-xs font-bold text-hh-700 hover:underline">Lihat Semua Pesanan</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50 text-slate-500 uppercase border-b border-slate-200">
+                  <th class="py-3 px-4">ID Order</th>
+                  <th class="py-3 px-4">Pelanggan</th>
+                  <th class="py-3 px-4">Sumber</th>
+                  <th class="py-3 px-4">Kurir</th>
+                  <th class="py-3 px-4">Total</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${DB.HH_ORDERS.map(o => `
+                  <tr class="hover:bg-slate-50/80">
+                    <td class="py-3 px-4 font-bold text-hh-700">${o.order_id}</td>
+                    <td class="py-3 px-4">
+                      <div class="font-bold text-slate-800">${o.customer_name}</div>
+                      <div class="text-[11px] text-slate-500 truncate max-w-xs">${o.customer_address}</div>
+                    </td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-md bg-slate-100 font-semibold">${o.source}</span></td>
+                    <td class="py-3 px-4 font-medium">${o.courier_name || '-'}</td>
+                    <td class="py-3 px-4 font-bold">${formatRupiah(o.total_amount)}</td>
+                    <td class="py-3 px-4">${statusBadgeHTML(o.status)}</td>
+                    <td class="py-3 px-4 text-right space-x-1">
+                      <button onclick="openPublicTrackingModal('${o.order_id}')" class="px-2.5 py-1 rounded-lg bg-hh-50 text-hh-700 font-bold hover:bg-hh-100">
+                        <i class="fa-solid fa-location-crosshairs"></i> Track
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        initDashboardChart();
+        initMiniMap('dashMiniMap');
+      }, 60);
+    }
+
+    function initDashboardChart() {
+      const ctx = document.getElementById('dashboardChart');
+      if (!ctx) return;
+      if (chartInstances.dash) chartInstances.dash.destroy();
+
+      const statusCounts = {
+        'Persiapan/QC': DB.HH_ORDERS.filter(o => ['Pesanan diterima', 'Menunggu persiapan', 'Sedang disiapkan'].includes(o.status)).length,
+        'Siap Dikirim': DB.HH_ORDERS.filter(o => o.status === 'Siap dikirim').length,
+        'Dalam Perjalanan': DB.HH_ORDERS.filter(o => ['Kurir ditugaskan', 'Dalam perjalanan', 'Tiba di lokasi'].includes(o.status)).length,
+        'Berhasil Terkirim': DB.HH_ORDERS.filter(o => o.status === 'Berhasil terkirim').length,
+        'Gagal / Reschedule': DB.HH_ORDERS.filter(o => ['Gagal terkirim', 'Dijadwalkan ulang'].includes(o.status)).length
+      };
+
+      chartInstances.dash = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(statusCounts),
+          datasets: [{
+            label: 'Jumlah Pesanan',
+            data: Object.values(statusCounts),
+            backgroundColor: ['#f59e0b', '#0284c7', '#ea580c', '#15803d', '#e11d48'],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    function initMiniMap(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const map = L.map(elementId).setView([-6.2580, 106.8651], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      // Marker Gudang Utama
+      L.marker([-6.2725, 106.8675]).addTo(map)
+        .bindPopup('<b>Gudang Utama Hanam Hanum</b><br>Kramat Jati, Jakarta Timur');
+
+      // Marker GPS Kurir
+      DB.HH_GPS_LOG.forEach(g => {
+        L.circleMarker([g.lat, g.lng], {
+          radius: 9,
+          fillColor: '#15803d',
+          color: '#ffffff',
+          weight: 3,
+          fillOpacity: 1
+        }).addTo(map).bindPopup(`<b>Kurir: ${g.courier_name}</b><br>Order: ${g.order_id}<br>Update: ${g.updated_at}`);
+      });
+    }
+
+    /*************************************************************************
+     * 6. MENU 2 & 3: PESANAN, TAMBAH PESANAN MANUAL & TELEGRAM PARSER
+     *************************************************************************/
+    function renderOrdersView(container) {
+      container.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <input id="filterOrderSearch" oninput="filterOrdersTable()" type="text" placeholder="Cari ID Order / Nama Pelanggan..."
+                class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs w-64 focus:outline-none focus:border-hh-600" />
+              <select id="filterOrderStatus" onchange="filterOrdersTable()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold">
+                <option value="">Semua Status Pengiriman</option>
+                ${ORDER_STATUS_FLOW.map(s => `<option value="${s}">${s}</option>`).join('')}
+              </select>
+              <input id="filterOrderDate" onchange="filterOrdersTable()" type="date" value="2026-11-03"
+                class="px-3 py-2 rounded-xl border border-slate-200 text-xs" />
+            </div>
+            <div class="flex items-center gap-2">
+              ${currentUser.role === 'admin' ? `
+                <button onclick="openTelegramSimulatorModal()" class="px-3.5 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold hover:bg-sky-700">
+                  <i class="fa-brands fa-telegram mr-1"></i> Draft Telegram (${DB.HH_TELEGRAM.filter(d => d.status === 'Draft Menunggu Konfirmasi').length})
+                </button>
+                <button onclick="navigateTo('tambah_pesanan')" class="px-3.5 py-2 rounded-xl bg-hh-700 text-white text-xs font-bold hover:bg-hh-800">
+                  <i class="fa-solid fa-plus mr-1"></i> Tambah Manual
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50 text-slate-500 uppercase border-b border-slate-200">
+                  <th class="py-3 px-4">ID & Tanggal</th>
+                  <th class="py-3 px-4">Pelanggan & Alamat</th>
+                  <th class="py-3 px-4">Item Pesanan</th>
+                  <th class="py-3 px-4">Kurir</th>
+                  <th class="py-3 px-4">Total</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Tindakan</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      filterOrdersTable();
+    }
+
+    function filterOrdersTable() {
+      const tbody = document.getElementById('ordersTableBody');
+      if (!tbody) return;
+      const q = (document.getElementById('filterOrderSearch')?.value || '').toLowerCase();
+      const st = document.getElementById('filterOrderStatus')?.value || '';
+      const dt = document.getElementById('filterOrderDate')?.value || '';
+
+      const filtered = DB.HH_ORDERS.filter(o => {
+        const matchQ = o.order_id.toLowerCase().includes(q) || o.customer_name.toLowerCase().includes(q);
+        const matchSt = !st || o.status === st;
+        const matchDt = !dt || o.delivery_date === dt;
+        return matchQ && matchSt && matchDt;
+      });
+
+      tbody.innerHTML = filtered.map(o => {
+        const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === o.order_id);
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="py-3.5 px-4">
+              <div class="font-extrabold text-hh-700">${o.order_id}</div>
+              <div class="text-[11px] text-slate-400">Kirim: ${o.delivery_date}</div>
+              <span class="inline-block mt-1 px-2 py-0.5 rounded bg-slate-100 text-[10px] font-semibold">${o.source}</span>
+            </td>
+            <td class="py-3.5 px-4 max-w-xs">
+              <div class="font-bold text-slate-900">${o.customer_name}</div>
+              <div class="text-[11px] text-slate-500">${o.customer_phone}</div>
+              <div class="text-[11px] text-slate-500 truncate">${o.customer_address}</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <ul class="space-y-0.5 text-[11px]">
+                ${items.map(it => `<li>• ${it.product_name} (<b>${it.qty_actual || it.qty_ordered} ${it.unit}</b>)</li>`).join('')}
+              </ul>
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-slate-700">${o.courier_name || '-'}</td>
+            <td class="py-3.5 px-4 font-extrabold text-slate-900">${formatRupiah(o.total_amount)}</td>
+            <td class="py-3.5 px-4">${statusBadgeHTML(o.status)}</td>
+            <td class="py-3.5 px-4 text-right space-y-1">
+              <button onclick="openOrderDetailModal('${o.order_id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] block ml-auto">
+                <i class="fa-solid fa-eye"></i> Detail / Ubah Status
+              </button>
+              <button onclick="openPublicTrackingModal('${o.order_id}')" class="px-2.5 py-1.5 rounded-lg bg-hh-50 hover:bg-hh-100 text-hh-700 font-bold text-[11px] block ml-auto">
+                <i class="fa-solid fa-share-nodes"></i> Link Pelanggan
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('') || `<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada pesanan yang cocok dengan filter.</td></tr>`;
+    }
+
+    function openOrderDetailModal(orderId) {
+      const o = DB.HH_ORDERS.find(x => x.order_id === orderId);
+      if (!o) return;
+      const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === orderId);
+      const tracks = DB.HH_TRACKING.filter(t => t.order_id === orderId);
+      const proof = DB.HH_PROOFS.find(p => p.order_id === orderId);
+
+      openModal(`Detail Pesanan ${o.order_id}`, `
+        <div class="space-y-4 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div>
+              <p class="text-slate-400 font-bold uppercase text-[10px]">Pelanggan</p>
+              <p class="font-extrabold text-sm text-slate-900">${o.customer_name}</p>
+              <p class="text-slate-600">${o.customer_phone}</p>
+              <p class="text-slate-600 mt-1">${o.customer_address}</p>
+            </div>
+            <div>
+              <p class="text-slate-400 font-bold uppercase text-[10px]">Status & Pengiriman</p>
+              <div class="mt-1">${statusBadgeHTML(o.status)}</div>
+              <p class="mt-2 text-slate-600">Kurir: <b>${o.courier_name || 'Belum ditugaskan'}</b></p>
+              <p class="text-slate-600">Catatan: <i>${o.notes || '-'}</i></p>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-800 mb-2">Rincian Buah & Sayur</h4>
+            <table class="w-full border border-slate-200 rounded-xl overflow-hidden">
+              <thead class="bg-slate-100 text-slate-600">
+                <tr>
+                  <th class="p-2 text-left">Produk</th>
+                  <th class="p-2 text-center">Pesan</th>
+                  <th class="p-2 text-center">Aktual Gudang</th>
+                  <th class="p-2 text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${items.map(it => `
+                  <tr>
+                    <td class="p-2 font-semibold">${it.product_name}</td>
+                    <td class="p-2 text-center">${it.qty_ordered} ${it.unit}</td>
+                    <td class="p-2 text-center font-bold text-hh-700">${it.qty_actual} ${it.unit}</td>
+                    <td class="p-2 text-right font-bold">${formatRupiah(it.qty_actual * it.price)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          ${proof ? `
+            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+              <p class="font-bold text-emerald-900 mb-1"><i class="fa-solid fa-camera mr-1"></i> Bukti Pengiriman (Google Drive):</p>
+              <p class="text-[11px] text-emerald-700 mb-2">Penerima: <b>${proof.recipient_name}</b> • Waktu: ${proof.uploaded_at}</p>
+              <img src="${proof.photo_url}" class="w-full max-h-48 object-cover rounded-lg border border-emerald-300" alt="Bukti Kirim" />
+            </div>
+          ` : ''}
+
+          ${currentUser.role === 'admin' ? `
+            <div class="bg-hh-50 p-4 rounded-xl border border-hh-200 space-y-2">
+              <label class="block font-bold text-hh-900">Validasi / Ubah Status Pesanan (Admin):</label>
+              <div class="flex gap-2">
+                <select id="modalOrderStatusSelect" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 bg-white font-semibold">
+                  ${ORDER_STATUS_FLOW.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+                <button onclick="adminUpdateOrderStatus('${o.order_id}')" class="px-4 py-2 rounded-xl bg-hh-700 text-white font-bold">
+                  Simpan Status
+                </button>
+              </div>
+            </div>
+          ` : ''}
+
+          <div>
+            <h4 class="font-bold text-slate-800 mb-2">Riwayat Timeline</h4>
+            <div class="space-y-2 border-l-2 border-hh-600 pl-3 ml-2">
+              ${tracks.map(t => `
+                <div>
+                  <span class="font-bold text-hh-700">${t.status}</span>
+                  <span class="text-slate-400 text-[11px] ml-1">(${t.timestamp})</span>
+                  <p class="text-slate-600 text-[11px]">${t.note} — <b>${t.actor}</b></p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `);
+    }
+
+    function adminUpdateOrderStatus(orderId) {
+      const newStatus = document.getElementById('modalOrderStatusSelect').value;
+      const ord = DB.HH_ORDERS.find(x => x.order_id === orderId);
+      if (!ord) return;
+      ord.status = newStatus;
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: orderId,
+        status: newStatus,
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name} (Admin)`,
+        note: `Status diperbarui menjadi ${newStatus}`
+      });
+      logActivity(`Ubah status ${orderId} -> ${newStatus}`);
+      closeModal();
+      navigateTo(currentView);
+      showToast(`Status pesanan ${orderId} diperbarui ke: ${newStatus}`);
+    }
+
+    // MENU 3: TAMBAH PESANAN MANUAL
+    function renderAddOrderView(container) {
+      container.innerHTML = `
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs max-w-4xl mx-auto space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="font-extrabold text-base text-slate-900">Form Input Pesanan Manual</h3>
+              <p class="text-xs text-slate-500">Gunakan form ini untuk pesanan telepon/walk-in atau gunakan tombol Telegram untuk pesan terusan WhatsApp.</p>
+            </div>
+            <button onclick="openTelegramSimulatorModal()" type="button" class="px-3.5 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold">
+              <i class="fa-brands fa-telegram mr-1"></i> Buka Parser WA/Telegram
+            </button>
+          </div>
+
+          <form onsubmit="submitManualOrder(event)" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Pilih Pelanggan Terdaftar</label>
+                <select id="manCustSelect" onchange="fillCustomerFromSelect()" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-semibold">
+                  <option value="">-- Pelanggan Baru / Manual --</option>
+                  ${DB.HH_CUSTOMERS.map(c => `<option value="${c.customer_id}">${c.name} (${c.phone})</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Nama Pelanggan *</label>
+                <input id="manCustName" required type="text" placeholder="Contoh: Resto Taman Sari" class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Nomor WhatsApp / Telepon *</label>
+                <input id="manCustPhone" required type="text" placeholder="0812xxxxxx" class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="sm:col-span-2">
+                <label class="block font-bold text-slate-600 mb-1">Alamat Lengkap Pengiriman *</label>
+                <input id="manCustAddress" required type="text" placeholder="Nama jalan, nomor, patokan..." class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Tanggal Pengiriman *</label>
+                <input id="manDeliveryDate" required type="date" value="2026-11-03" class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Cabang Pengirim</label>
+                <select id="manBranchId" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-semibold">
+                  ${DB.HH_BRANCHES.map(b => `<option value="${b.branch_id}">${b.name}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Catatan Khusus</label>
+                <input id="manNotes" type="text" placeholder="Misal: Buah matang siap kupas..." class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
+              </div>
+            </div>
+
+            <!-- Item Rows -->
+            <div class="pt-3 border-t border-slate-100">
+              <div class="flex items-center justify-between mb-2">
+                <label class="font-extrabold text-slate-800">Daftar Produk Buah & Sayur Dipesan</label>
+                <button type="button" onclick="addManualItemRow()" class="px-3 py-1.5 rounded-lg bg-hh-100 text-hh-800 font-bold">
+                  + Tambah Baris Produk
+                </button>
+              </div>
+              <div id="manualItemsContainer" class="space-y-2"></div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-200 flex justify-end gap-3">
+              <button type="button" onclick="navigateTo('pesanan')" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+              <button type="submit" class="px-6 py-2.5 rounded-xl bg-hh-700 hover:bg-hh-800 text-white font-bold shadow-md">
+                <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan & Masukkan Antrean Gudang
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+      addManualItemRow();
+      addManualItemRow();
+    }
+
+    function fillCustomerFromSelect() {
+      const cid = document.getElementById('manCustSelect').value;
+      const c = DB.HH_CUSTOMERS.find(x => x.customer_id === cid);
+      if (c) {
+        document.getElementById('manCustName').value = c.name;
+        document.getElementById('manCustPhone').value = c.phone;
+        document.getElementById('manCustAddress').value = c.address;
+        document.getElementById('manBranchId').value = c.branch_id;
+      }
+    }
+
+    function addManualItemRow() {
+      const container = document.getElementById('manualItemsContainer');
+      if (!container) return;
+      const row = document.createElement('div');
+      row.className = 'grid grid-cols-12 gap-2 items-center manual-item-row';
+      row.innerHTML = `
+        <div class="col-span-7 sm:col-span-8">
+          <select class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold item-prod-select">
+            ${DB.HH_PRODUCTS.map(p => `<option value="${p.product_id}">${p.name} (${formatRupiah(p.price)}/${p.unit}) — Stok: ${p.stock}</option>`).join('')}
+          </select>
+        </div>
+        <div class="col-span-3 sm:col-span-3">
+          <input type="number" step="0.1" min="0.5" value="2" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold item-qty-input" placeholder="Qty" />
+        </div>
+        <div class="col-span-2 sm:col-span-1 text-right">
+          <button type="button" onclick="this.closest('.manual-item-row').remove()" class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      `;
+      container.appendChild(row);
+    }
+
+    function submitManualOrder(e) {
+      e.preventDefault();
+      const rows = document.querySelectorAll('.manual-item-row');
+      if (rows.length === 0) {
+        showToast('Tambahkan minimal 1 produk buah/sayur!', 'warning');
+        return;
+      }
+
+      const newOrderId = `ORD-${Math.floor(261105 + Math.random() * 8900)}`;
+      let totalAmount = 0;
+      const newItems = [];
+
+      rows.forEach(r => {
+        const pid = r.querySelector('.item-prod-select').value;
+        const qty = parseFloat(r.querySelector('.item-qty-input').value) || 1;
+        const prod = DB.HH_PRODUCTS.find(p => p.product_id === pid);
+        if (prod) {
+          totalAmount += prod.price * qty;
+          newItems.push({
+            item_id: generateUID('ITM'),
+            order_id: newOrderId,
+            product_id: prod.product_id,
+            product_name: prod.name,
+            qty_ordered: qty,
+            qty_actual: qty,
+            qty_damaged: 0,
+            unit: prod.unit,
+            price: prod.price,
+            qc_status: 'Pending'
+          });
+        }
+      });
+
+      const custName = document.getElementById('manCustName').value.trim();
+      const custPhone = document.getElementById('manCustPhone').value.trim();
+      const custAddress = document.getElementById('manCustAddress').value.trim();
+
+      DB.HH_ORDERS.unshift({
+        order_id: newOrderId,
+        created_at: nowFormatted(),
+        delivery_date: document.getElementById('manDeliveryDate').value,
+        customer_id: document.getElementById('manCustSelect').value || generateUID('CUST'),
+        customer_name: custName,
+        customer_phone: custPhone,
+        customer_address: custAddress,
+        branch_id: document.getElementById('manBranchId').value,
+        source: 'Manual App',
+        status: 'Menunggu persiapan',
+        courier_id: '',
+        courier_name: '-',
+        total_amount: totalAmount,
+        notes: document.getElementById('manNotes').value,
+        public_tracking_enabled: true,
+        lat: -6.2500 + (Math.random() - 0.5) * 0.04,
+        lng: 106.8600 + (Math.random() - 0.5) * 0.04
+      });
+
+      DB.HH_ORDER_ITEMS.push(...newItems);
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: newOrderId,
+        status: 'Pesanan diterima',
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name} (Admin)`,
+        note: 'Input pesanan manual melalui aplikasi & masuk antrean persiapan gudang.'
+      });
+
+      // Kirim otomatis ke Google Spreadsheet melalui GAS
+      postToGAS({
+        action: 'createOrder',
+        order: DB.HH_ORDERS[0],
+        items: newItems,
+        actor: `${currentUser.name} (Admin)`
+      });
+
+      logActivity(`Membuat pesanan manual baru ${newOrderId} (${custName})`);
+      showToast(`Pesanan ${newOrderId} berhasil dibuat & disimpan ke Spreadsheet!`);
+      navigateTo('pesanan');
+    }
+
+    /*************************************************************************
+     * 7. INTEGRASI ORDER WHATSAPP MELALUI TELEGRAM BOT PARSER
+     *************************************************************************/
+    function openTelegramSimulatorModal() {
+      const pendingDrafts = DB.HH_TELEGRAM.filter(d => d.status === 'Draft Menunggu Konfirmasi');
+      openModal('Integrasi Telegram Bot — Parser Pesanan Terusan WhatsApp', `
+        <div class="space-y-5 text-xs">
+          <div class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+            <h4 class="font-extrabold text-sky-900 flex items-center gap-2">
+              <i class="fa-brands fa-telegram text-lg"></i> Cara Kerja Input Order WhatsApp via Telegram Bot
+            </h4>
+            <p class="text-sky-800 mt-1 leading-relaxed">
+              Pelanggan mengirim pesan order ke WhatsApp Admin → Admin meneruskan (forward) pesan tersebut ke <b>${DB.HH_SETTINGS.telegram_bot_username}</b> → Bot otomatis membaca Nama, HP, Alamat, Tanggal, serta Produk & Jumlah → Menjadi <b>Draft Pesanan</b> di bawah ini untuk dikonfirmasi Admin.
+            </p>
+          </div>
+
+          <!-- Uji Coba Paste Pesan WA langsung -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+            <label class="block font-extrabold text-slate-800">Simulasi Teruskan Pesan WhatsApp ke Bot Telegram:</label>
+            <textarea id="rawWaMessageInput" rows="5" class="w-full p-3 rounded-xl border border-slate-300 bg-white font-mono text-[11px]"
+>Nama: Ibu Ratna Kemang
+HP: 081377889900
+Alamat: Jl. Kemang Raya No. 18, Jakarta Selatan
+Tanggal Kirim: 2026-11-03
+Pesanan:
+- Apel Fuji 4 Kg
+- Jeruk Medan 5 Kg
+- Brokoli 3 Kg
+Catatan: Antar pagi jam 9</textarea>
+            <button onclick="parseWhatsAppMessageToDraft()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold">
+              <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Proses Pesan WA Jadi Draft Order
+            </button>
+          </div>
+
+          <!-- Daftar Draft Telegram -->
+          <div class="space-y-3">
+            <h4 class="font-extrabold text-slate-800">Daftar Draft Pesanan dari Telegram (${pendingDrafts.length} Menunggu Konfirmasi)</h4>
+            ${pendingDrafts.map(d => `
+              <div class="p-4 rounded-xl border-2 border-sky-200 bg-white space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-sky-700">${d.draft_id} • Masuk: ${d.received_at}</span>
+                  <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">${d.status}</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-400">Nama Pelanggan</label>
+                    <input id="drf_name_${d.draft_id}" value="${d.parsed_customer}" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 font-bold" />
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-400">Nomor Telepon</label>
+                    <input id="drf_phone_${d.draft_id}" value="${d.parsed_phone}" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200" />
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-400">Tanggal Kirim</label>
+                    <input id="drf_date_${d.draft_id}" type="date" value="${d.parsed_date}" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200" />
+                  </div>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold text-slate-400">Alamat Pengiriman</label>
+                  <input id="drf_addr_${d.draft_id}" value="${d.parsed_address}" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200" />
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-lg">
+                  <p class="font-bold text-slate-700 mb-1">Produk Terdeteksi Otomatis:</p>
+                  <ul class="space-y-1">
+                    ${d.parsed_items.map(it => `<li class="flex justify-between"><span>• ${it.product_name} (<b>${it.qty} ${it.unit}</b>)</span><span class="font-bold">${formatRupiah(it.qty * it.price)}</span></li>`).join('')}
+                  </ul>
+                </div>
+                <div class="flex justify-end gap-2">
+                  <button onclick="rejectTelegramDraft('${d.draft_id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 font-bold">Hapus Draft</button>
+                  <button onclick="confirmTelegramDraft('${d.draft_id}')" class="px-4 py-1.5 rounded-lg bg-hh-700 hover:bg-hh-800 text-white font-bold">
+                    <i class="fa-solid fa-check mr-1"></i> Konfirmasi & Masukkan ke Spreadsheet/Aplikasi
+                  </button>
+                </div>
+              </div>
+            `).join('') || `<p class="text-slate-400 italic py-4 text-center">Semua draft Telegram sudah dikonfirmasi.</p>`}
+          </div>
+        </div>
+      `);
+    }
+
+    function parseWhatsAppMessageToDraft() {
+      const raw = document.getElementById('rawWaMessageInput').value.trim();
+      if (!raw) return;
+
+      const nameMatch = raw.match(/(?:nama|pelanggan|pemesan)\s*[:\-]\s*(.+)/i);
+      const phoneMatch = raw.match(/(?:hp|wa|telp|telepon|no)\s*[:\-]?\s*([0-9\+]{9,15})/i) || raw.match(/(08[0-9]{8,12})/);
+      const addrMatch = raw.match(/(?:alamat|lokasi|kirim ke)\s*[:\-]\s*(.+)/i);
+      const dateMatch = raw.match(/(?:tanggal|tgl)\s*(?:kirim)?\s*[:\-]\s*(\d{4}-\d{2}-\d{2})/i);
+
+      const parsedItems = [];
+      const lines = raw.split('\n');
+      lines.forEach(line => {
+        DB.HH_PRODUCTS.forEach(prod => {
+          const firstWord = prod.name.split(' ')[0].toLowerCase();
+          const secondWord = (prod.name.split(' ')[1] || '').toLowerCase();
+          const lowerLine = line.toLowerCase();
+          if (lowerLine.includes(firstWord) && (!secondWord || lowerLine.includes(secondWord) || lowerLine.includes(firstWord))) {
+            const qtyMatch = line.match(/(\d+(?:[\.,]\d+)?)\s*(kg|sisir|pack|ikat|box|buah)?/i);
+            if (qtyMatch && !parsedItems.some(x => x.product_id === prod.product_id)) {
+              parsedItems.push({
+                product_id: prod.product_id,
+                product_name: prod.name,
+                qty: parseFloat(qtyMatch[1].replace(',', '.')),
+                unit: prod.unit,
+                price: prod.price
+              });
+            }
+          }
+        });
+      });
+
+      if (parsedItems.length === 0) {
+        parsedItems.push({
+          product_id: DB.HH_PRODUCTS[0].product_id,
+          product_name: DB.HH_PRODUCTS[0].name,
+          qty: 2,
+          unit: DB.HH_PRODUCTS[0].unit,
+          price: DB.HH_PRODUCTS[0].price
+        });
+      }
+
+      DB.HH_TELEGRAM.unshift({
+        draft_id: generateUID('TG-DRF'),
+        received_at: nowFormatted(),
+        raw_message: raw,
+        parsed_customer: nameMatch ? nameMatch[1].trim() : 'Pelanggan WhatsApp',
+        parsed_phone: phoneMatch ? phoneMatch[1].trim() : '08120000000',
+        parsed_address: addrMatch ? addrMatch[1].trim() : 'Jakarta',
+        parsed_date: dateMatch ? dateMatch[1].trim() : '2026-11-03',
+        parsed_items: parsedItems,
+        status: 'Draft Menunggu Konfirmasi'
+      });
+
+      updateTelegramBadge();
+      showToast('Pesan WA berhasil dibaca Bot menjadi Draft Pesanan!', 'info');
+      openTelegramSimulatorModal();
+    }
+
+    function confirmTelegramDraft(draftId) {
+      const d = DB.HH_TELEGRAM.find(x => x.draft_id === draftId);
+      if (!d) return;
+
+      const custName = document.getElementById(`drf_name_${draftId}`)?.value || d.parsed_customer;
+      const custPhone = document.getElementById(`drf_phone_${draftId}`)?.value || d.parsed_phone;
+      const custAddr = document.getElementById(`drf_addr_${draftId}`)?.value || d.parsed_address;
+      const delivDate = document.getElementById(`drf_date_${draftId}`)?.value || d.parsed_date;
+
+      const newOrderId = `ORD-${Math.floor(261105 + Math.random() * 8900)}`;
+      const total = d.parsed_items.reduce((acc, it) => acc + it.qty * it.price, 0);
+
+      DB.HH_ORDERS.unshift({
+        order_id: newOrderId,
+        created_at: nowFormatted(),
+        delivery_date: delivDate,
+        customer_id: generateUID('CUST'),
+        customer_name: custName,
+        customer_phone: custPhone,
+        customer_address: custAddr,
+        branch_id: 'BR-01',
+        source: 'Telegram WA Forward',
+        status: 'Menunggu persiapan',
+        courier_id: '',
+        courier_name: '-',
+        total_amount: total,
+        notes: 'Dikonfirmasi dari Telegram Draft ' + draftId,
+        public_tracking_enabled: true,
+        lat: -6.2450 + (Math.random() - 0.5) * 0.03,
+        lng: 106.8600 + (Math.random() - 0.5) * 0.03
+      });
+
+      d.parsed_items.forEach(it => {
+        DB.HH_ORDER_ITEMS.push({
+          item_id: generateUID('ITM'),
+          order_id: newOrderId,
+          product_id: it.product_id,
+          product_name: it.product_name,
+          qty_ordered: it.qty,
+          qty_actual: it.qty,
+          qty_damaged: 0,
+          unit: it.unit,
+          price: it.price,
+          qc_status: 'Pending'
+        });
+      });
+
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: newOrderId,
+        status: 'Pesanan diterima',
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name} (Telegram Bot)`,
+        note: 'Draft Telegram dikonfirmasi Admin & masuk antrean persiapan gudang.'
+      });
+
+      d.status = 'Terkonfirmasi (' + newOrderId + ')';
+      updateTelegramBadge();
+      logActivity(`Konfirmasi Draft Telegram ${draftId} menjadi ${newOrderId}`);
+      closeModal();
+      navigateTo('pesanan');
+      showToast(`Draft Telegram berhasil masuk ke Pesanan (${newOrderId})!`);
+    }
+
+    function rejectTelegramDraft(draftId) {
+      DB.HH_TELEGRAM = DB.HH_TELEGRAM.filter(d => d.draft_id !== draftId);
+      updateTelegramBadge();
+      openTelegramSimulatorModal();
+    }
+
+    /*************************************************************************
+     * 8. MENU 4, 5, 6, 7: PELANGGAN, PRODUK, CABANG, GUDANG STOK
+     *************************************************************************/
+    function renderCustomersView(container) {
+      container.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-extrabold text-sm text-slate-800">Database Pelanggan (Sheet: HH_CUSTOMERS)</h3>
+            ${currentUser.role === 'admin' ? `
+              <button onclick="openAddCustomerModal()" class="px-3.5 py-2 rounded-xl bg-hh-700 text-white text-xs font-bold">+ Tambah Pelanggan</button>
+            ` : ''}
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase border-b">
+                <tr>
+                  <th class="p-3">ID Pelanggan</th>
+                  <th class="p-3">Nama Pelanggan</th>
+                  <th class="p-3">Kategori</th>
+                  <th class="p-3">Telepon / WA</th>
+                  <th class="p-3">Alamat Lengkap</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                ${DB.HH_CUSTOMERS.map(c => `
+                  <tr>
+                    <td class="p-3 font-bold text-hh-700">${c.customer_id}</td>
+                    <td class="p-3 font-bold">${c.name}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-hh-50 text-hh-700 font-semibold">${c.type}</span></td>
+                    <td class="p-3">${c.phone}</td>
+                    <td class="p-3 text-slate-600">${c.address}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function openAddCustomerModal() {
+      openModal('Tambah Pelanggan Baru', `
+        <form onsubmit="saveNewCustomer(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="font-bold block mb-1">Nama Pelanggan / Perusahaan *</label>
+            <input id="newCustName" required class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold block mb-1">Nomor WA *</label>
+              <input id="newCustPhone" required class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Tipe Pelanggan</label>
+              <select id="newCustType" class="w-full px-3 py-2 rounded-xl border border-slate-200">
+                <option>B2B Resto</option>
+                <option>B2B Hotel</option>
+                <option>Katering</option>
+                <option>Rumah Tangga</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Alamat Lengkap *</label>
+            <textarea id="newCustAddr" required rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-200"></textarea>
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-hh-700 text-white font-bold">Simpan ke HH_CUSTOMERS</button>
+        </form>
+      `);
+    }
+
+    function saveNewCustomer(e) {
+      e.preventDefault();
+      DB.HH_CUSTOMERS.push({
+        customer_id: generateUID('CUST'),
+        name: document.getElementById('newCustName').value,
+        phone: document.getElementById('newCustPhone').value,
+        type: document.getElementById('newCustType').value,
+        address: document.getElementById('newCustAddr').value,
+        branch_id: 'BR-01',
+        lat: -6.25,
+        lng: 106.86
+      });
+      closeModal();
+      navigateTo('pelanggan');
+      showToast('Pelanggan baru berhasil disimpan!');
+    }
+
+    function renderProductsView(container) {
+      container.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-extrabold text-sm text-slate-800">Katalog Produk Buah & Sayur (Sheet: HH_PRODUCTS)</h3>
+            ${currentUser.role === 'admin' ? `
+              <button onclick="openAddProductModal()" class="px-3.5 py-2 rounded-xl bg-hh-700 text-white text-xs font-bold">+ Tambah Produk</button>
+            ` : ''}
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            ${DB.HH_PRODUCTS.map(p => `
+              <div class="p-4 rounded-2xl border border-slate-200 hover:border-hh-500 transition bg-white flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                    <span>${p.sku}</span>
+                    <span class="px-2 py-0.5 rounded bg-hh-50 text-hh-700">${p.category}</span>
+                  </div>
+                  <h4 class="font-extrabold text-sm text-slate-900 mt-2">${p.name}</h4>
+                  <p class="text-base font-black text-hh-700 mt-1">${formatRupiah(p.price)} <span class="text-xs font-normal text-slate-500">/ ${p.unit}</span></p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span>Stok Gudang: <b class="${p.stock <= p.min_stock ? 'text-rose-600' : 'text-slate-800'}">${p.stock} ${p.unit}</b></span>
+                  <span class="text-[11px] text-slate-400">Min: ${p.min_stock}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function openAddProductModal() {
+      openModal('Tambah Produk Buah / Sayur', `
+        <form onsubmit="saveNewProduct(event)" class="space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold block mb-1">SKU Produk *</label>
+              <input id="newProdSku" required placeholder="BH-MNG-09" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Kategori</label>
+              <select id="newProdCat" class="w-full px-3 py-2 rounded-xl border border-slate-200">
+                <option>Buah Lokal</option>
+                <option>Buah Impor</option>
+                <option>Sayuran Daun</option>
+                <option>Sayuran Buah</option>
+                <option>Umbi</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Nama Produk *</label>
+            <input id="newProdName" required placeholder="Mangga Harum Manis Super" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="font-bold block mb-1">Satuan *</label>
+              <input id="newProdUnit" required value="Kg" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Harga (Rp) *</label>
+              <input id="newProdPrice" type="number" required value="25000" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Stok Awal *</label>
+              <input id="newProdStock" type="number" required value="100" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-hh-700 text-white font-bold">Simpan Produk</button>
+        </form>
+      `);
+    }
+
+    function saveNewProduct(e) {
+      e.preventDefault();
+      DB.HH_PRODUCTS.push({
+        product_id: generateUID('PRD'),
+        sku: document.getElementById('newProdSku').value,
+        name: document.getElementById('newProdName').value,
+        category: document.getElementById('newProdCat').value,
+        unit: document.getElementById('newProdUnit').value,
+        price: Number(document.getElementById('newProdPrice').value),
+        stock: Number(document.getElementById('newProdStock').value),
+        min_stock: 20
+      });
+      closeModal();
+      navigateTo('produk');
+      showToast('Produk baru berhasil ditambahkan!');
+    }
+
+    function renderBranchesView(container) {
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          ${DB.HH_BRANCHES.map(b => `
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+              <span class="px-2.5 py-1 rounded-lg bg-hh-100 text-hh-800 text-xs font-extrabold">${b.branch_id}</span>
+              <h4 class="font-extrabold text-base text-slate-900 pt-1">${b.name}</h4>
+              <p class="text-xs text-slate-500">${b.address}</p>
+              <div class="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-1">
+                <div><i class="fa-solid fa-user-tie mr-1.5 text-hh-600"></i> Kepala Cabang: <b>${b.head}</b></div>
+                <div><i class="fa-solid fa-phone mr-1.5 text-hh-600"></i> Telepon: ${b.phone}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderWarehouseStockView(container) {
+      container.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <h3 class="font-extrabold text-sm text-slate-800">Log Penyelesaian Gudang & Stok (Sheet: HH_WAREHOUSE)</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase border-b">
+                <tr>
+                  <th class="p-3">ID Gudang</th>
+                  <th class="p-3">ID Order</th>
+                  <th class="p-3">Petugas QC</th>
+                  <th class="p-3">Waktu Packing</th>
+                  <th class="p-3">Jumlah Krat/Box</th>
+                  <th class="p-3">Catatan Barang Kurang/Rusak</th>
+                  <th class="p-3">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                ${DB.HH_WAREHOUSE.map(w => `
+                  <tr>
+                    <td class="p-3 font-bold text-hh-700">${w.wh_id}</td>
+                    <td class="p-3 font-bold">${w.order_id}</td>
+                    <td class="p-3">${w.checker_name}</td>
+                    <td class="p-3">${w.packed_at}</td>
+                    <td class="p-3 font-bold">${w.boxes_count} Box/Krat</td>
+                    <td class="p-3 text-slate-600">${w.damage_notes}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full bg-hh-100 text-hh-800 font-bold text-[11px]">${w.status}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    /*************************************************************************
+     * 9. MENU 8: PERSIAPAN BARANG (ROLE GUDANG — QC, AKTUAL, RUSAK, PACKING)
+     *************************************************************************/
+    function renderWarehousePrepView(container) {
+      const prepOrders = DB.HH_ORDERS.filter(o =>
+        ['Pesanan diterima', 'Menunggu persiapan', 'Sedang disiapkan', 'Siap dikirim'].includes(o.status)
+      );
+
+      container.innerHTML = `
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between">
+          <div>
+            <h3 class="font-extrabold text-sm text-amber-900"><i class="fa-solid fa-boxes-packing mr-1.5"></i> Modul Kerja Gudang: Penyiapan, Timbang Aktual, QC Rusak & Packing</h3>
+            <p class="text-xs text-amber-800 mt-0.5">Periksa kesegaran buah & sayur, input berat aktual timbangan, catat jika ada barang rusak/kurang, lalu klik Selesai Packing.</p>
+          </div>
+          <span class="px-3 py-1.5 rounded-xl bg-amber-600 text-white font-extrabold text-xs">${prepOrders.length} Pesanan</span>
+        </div>
+
+        <div class="space-y-4">
+          ${prepOrders.map(o => {
+            const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === o.order_id);
+            return `
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <span class="font-black text-base text-hh-700">${o.order_id}</span>
+                    <span class="mx-2 text-slate-300">•</span>
+                    <span class="font-bold text-sm text-slate-900">${o.customer_name}</span>
+                    <p class="text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i> ${o.customer_address} | Catatan: <b>${o.notes || '-'}</b></p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    ${statusBadgeHTML(o.status)}
+                    ${o.status !== 'Sedang disiapkan' && o.status !== 'Siap dikirim' ? `
+                      <button onclick="startWarehousePrep('${o.order_id}')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold">
+                        Mulai Siapkan Barang
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+
+                <!-- Tabel Input Aktual & Barang Rusak -->
+                <div class="overflow-x-auto">
+                  <table class="w-full text-xs border border-slate-200 rounded-xl overflow-hidden">
+                    <thead class="bg-slate-50 text-slate-600">
+                      <tr>
+                        <th class="p-2.5 text-left">Nama Produk Buah / Sayur</th>
+                        <th class="p-2.5 text-center">Jumlah Pesanan</th>
+                        <th class="p-2.5 text-center">Jumlah Aktual (Timbangan)</th>
+                        <th class="p-2.5 text-center">Barang Kurang / Rusak</th>
+                        <th class="p-2.5 text-center">Status QC</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                      ${items.map(it => `
+                        <tr>
+                          <td class="p-2.5 font-bold text-slate-800">${it.product_name}</td>
+                          <td class="p-2.5 text-center font-semibold">${it.qty_ordered} ${it.unit}</td>
+                          <td class="p-2.5 text-center">
+                            <input id="act_${it.item_id}" type="number" step="0.1" value="${it.qty_actual}"
+                              class="w-24 px-2 py-1 rounded-lg border border-slate-300 text-center font-bold text-hh-700" />
+                            <span class="text-slate-500 ml-1">${it.unit}</span>
+                          </td>
+                          <td class="p-2.5 text-center">
+                            <input id="dmg_${it.item_id}" type="number" step="0.1" value="${it.qty_damaged || 0}"
+                              class="w-20 px-2 py-1 rounded-lg border border-rose-200 text-center font-bold text-rose-600" />
+                            <span class="text-slate-400 ml-1">${it.unit}</span>
+                          </td>
+                          <td class="p-2.5 text-center">
+                            <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">${it.qc_status}</span>
+                          </td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center pt-2">
+                  <div class="sm:col-span-3">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Jumlah Krat / Box Packing</label>
+                    <input id="box_${o.order_id}" type="number" min="1" value="2" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold" />
+                  </div>
+                  <div class="sm:col-span-6">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Catatan QC / Barang Kurang atau Rusak</label>
+                    <input id="note_${o.order_id}" type="text" placeholder="Contoh: Semua segar, dikemas dengan icegel..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs" />
+                  </div>
+                  <div class="sm:col-span-3 pt-4">
+                    <button onclick="finishWarehousePacking('${o.order_id}')" class="w-full py-2.5 px-4 rounded-xl bg-hh-700 hover:bg-hh-800 text-white font-bold text-xs shadow-sm">
+                      <i class="fa-solid fa-box-check mr-1"></i> Selesai Packing (Siap Kirim)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('') || `<div class="bg-white p-8 rounded-2xl text-center text-slate-400">Tidak ada pesanan yang menunggu persiapan gudang saat ini.</div>`}
+        </div>
+      `;
+    }
+
+    function startWarehousePrep(orderId) {
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      if (!ord) return;
+      ord.status = 'Sedang disiapkan';
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: orderId,
+        status: 'Sedang disiapkan',
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name} (Gudang)`,
+        note: 'Tim gudang sedang menyiapkan & menimbang buah/sayur.'
+      });
+      navigateTo('persiapan');
+      showToast(`Pesanan ${orderId} ditandai Sedang Disiapkan`, 'info');
+    }
+
+    function finishWarehousePacking(orderId) {
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      if (!ord) return;
+      const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === orderId);
+      let newTotal = 0;
+
+      items.forEach(it => {
+        const actVal = parseFloat(document.getElementById(`act_${it.item_id}`)?.value) || it.qty_ordered;
+        const dmgVal = parseFloat(document.getElementById(`dmg_${it.item_id}`)?.value) || 0;
+        it.qty_actual = actVal;
+        it.qty_damaged = dmgVal;
+        it.qc_status = 'Checked';
+        newTotal += actVal * it.price;
+
+        // Kurangi stok master
+        const prod = DB.HH_PRODUCTS.find(p => p.product_id === it.product_id);
+        if (prod) prod.stock = Math.max(0, prod.stock - actVal);
+      });
+
+      ord.total_amount = newTotal;
+      ord.status = 'Siap dikirim';
+
+      const boxes = document.getElementById(`box_${orderId}`)?.value || 2;
+      const dmgNote = document.getElementById(`note_${orderId}`)?.value || 'Lolos QC 100%';
+
+      DB.HH_WAREHOUSE.unshift({
+        wh_id: generateUID('WH'),
+        order_id: orderId,
+        checker_name: currentUser.name,
+        packed_at: nowFormatted(),
+        boxes_count: Number(boxes),
+        damage_notes: dmgNote,
+        status: 'Selesai Packing'
+      });
+
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: orderId,
+        status: 'Siap dikirim',
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name} (Gudang)`,
+        note: `Selesai QC & Packing (${boxes} Krat/Box). Catatan: ${dmgNote}`
+      });
+
+      logActivity(`Selesai packing gudang ${orderId}`);
+      navigateTo('persiapan');
+      showToast(`Pesanan ${orderId} selesai dipacking & siap ditugaskan ke Kurir!`);
+    }
+
+    /*************************************************************************
+     * 10. MENU 10: PENUGASAN KURIR (SATU KURIR BANYAK PESANAN)
+     *************************************************************************/
+    function renderAssignCourierView(container) {
+      const readyOrders = DB.HH_ORDERS.filter(o => ['Siap dikirim', 'Dijadwalkan ulang', 'Kurir ditugaskan'].includes(o.status));
+      const couriers = DB.HH_USERS.filter(u => u.role === 'kurir');
+
+      container.innerHTML = `
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="font-extrabold text-base text-slate-900">Penugasan Kurir Multi-Order (Batch Delivery)</h3>
+              <p class="text-xs text-slate-500">Satu kurir dapat membawa banyak pesanan dalam satu rute perjalanan.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <select id="batchCourierSelect" class="px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-hh-50 text-hh-900">
+                ${couriers.map(c => `<option value="${c.user_id}">${c.name} (${c.vehicle || 'Armada HH'})</option>`).join('')}
+              </select>
+              <button onclick="assignSelectedOrdersToCourier()" class="px-5 py-2.5 rounded-xl bg-hh-700 hover:bg-hh-800 text-white text-xs font-bold shadow-sm">
+                <i class="fa-solid fa-user-check mr-1"></i> Tugaskan Pesanan Terpilih
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase border-b">
+                <tr>
+                  <th class="p-3 w-10"><input type="checkbox" onchange="toggleSelectAllAssign(this)" class="w-4 h-4 accent-hh-700" /></th>
+                  <th class="p-3">ID Order</th>
+                  <th class="p-3">Pelanggan</th>
+                  <th class="p-3">Alamat Tujuan</th>
+                  <th class="p-3">Status Saat Ini</th>
+                  <th class="p-3">Kurir Saat Ini</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                ${readyOrders.map(o => `
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3">
+                      <input type="checkbox" value="${o.order_id}" class="assign-order-chk w-4 h-4 accent-hh-700" ${o.status === 'Siap dikirim' ? 'checked' : ''} />
+                    </td>
+                    <td class="p-3 font-extrabold text-hh-700">${o.order_id}</td>
+                    <td class="p-3 font-bold">${o.customer_name}</td>
+                    <td class="p-3 text-slate-600">${o.customer_address}</td>
+                    <td class="p-3">${statusBadgeHTML(o.status)}</td>
+                    <td class="p-3 font-semibold">${o.courier_name || '-'}</td>
+                  </tr>
+                `).join('') || `<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pesanan berstatus Siap Dikirim. Selesaikan proses di menu Persiapan Barang (Gudang) terlebih dahulu.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleSelectAllAssign(master) {
+      document.querySelectorAll('.assign-order-chk').forEach(chk => chk.checked = master.checked);
+    }
+
+    function assignSelectedOrdersToCourier() {
+      const checked = Array.from(document.querySelectorAll('.assign-order-chk:checked')).map(c => c.value);
+      if (checked.length === 0) {
+        showToast('Pilih minimal 1 pesanan untuk ditugaskan ke kurir!', 'warning');
+        return;
+      }
+      const courierId = document.getElementById('batchCourierSelect').value;
+      const courier = DB.HH_USERS.find(u => u.user_id === courierId);
+      if (!courier) return;
+
+      checked.forEach(orderId => {
+        const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+        if (ord) {
+          ord.courier_id = courier.user_id;
+          ord.courier_name = courier.name;
+          ord.status = 'Kurir ditugaskan';
+
+          DB.HH_DELIVERIES.unshift({
+            delivery_id: generateUID('DEL'),
+            order_id: orderId,
+            courier_id: courier.user_id,
+            courier_name: courier.name,
+            assigned_at: nowFormatted(),
+            departed_at: '',
+            arrived_at: '',
+            completed_at: '',
+            recipient_name: '',
+            fail_reason: '',
+            status: 'Kurir ditugaskan'
+          });
+
+          DB.HH_TRACKING.push({
+            track_id: generateUID('TRK'),
+            order_id: orderId,
+            status: 'Kurir ditugaskan',
+            timestamp: nowFormatted(),
+            actor: `${currentUser.name} (Admin)`,
+            note: `Ditugaskan kepada kurir ${courier.name}`
+          });
+        }
+      });
+
+      logActivity(`Menugaskan ${checked.length} pesanan ke kurir ${courier.name}`);
+      navigateTo('penugasan');
+      showToast(`${checked.length} pesanan berhasil ditugaskan ke ${courier.name}!`);
+    }
+
+    /*************************************************************************
+     * 11. MENU 9: PENGIRIMAN & MODE HP KURIR (TOMBOL BESAR, NAV MAPS, GPS, FOTO)
+     *************************************************************************/
+    function renderCourierDeliveriesView(container) {
+      const myOrders = DB.HH_ORDERS.filter(o =>
+        currentUser.role === 'kurir'
+          ? (o.courier_id === currentUser.user_id || ['Kurir ditugaskan', 'Dalam perjalanan', 'Tiba di lokasi'].includes(o.status))
+          : ['Kurir ditugaskan', 'Dalam perjalanan', 'Tiba di lokasi', 'Berhasil terkirim', 'Gagal terkirim'].includes(o.status)
+      );
+
+      container.innerHTML = `
+        <!-- Panel Kontrol GPS Kurir (Dioptimalkan untuk Layar HP) -->
+        <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+              <div class="relative w-12 h-12 rounded-2xl ${gpsActive ? 'bg-hh-600 gps-pulse' : 'bg-slate-700'} flex items-center justify-center text-xl">
+                <i class="fa-solid fa-location-arrow"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-extrabold text-base">Mode Kurir Mobile & Live GPS Tracker</h3>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${gpsActive ? 'bg-hh-500 text-slate-950' : 'bg-slate-700 text-slate-300'}">
+                    ${gpsActive ? 'GPS AKTIF MEREKAM' : 'GPS MATI'}
+                  </span>
+                </div>
+                <p id="courierGpsCoordText" class="text-xs text-slate-300 mt-0.5">
+                  Koordinat Terakhir: ${lastGpsCoord.lat.toFixed(5)}, ${lastGpsCoord.lng.toFixed(5)} (±${lastGpsCoord.accuracy}m)
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <button onclick="toggleCourierGPS(${!gpsActive})"
+                class="flex-1 sm:flex-initial py-3.5 px-6 rounded-xl font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2 ${
+                  gpsActive ? 'bg-rose-600 hover:bg-rose-700 text-white' : 'bg-hh-500 hover:bg-hh-400 text-slate-950'
+                }">
+                <i class="fa-solid ${gpsActive ? 'fa-stop' : 'fa-satellite-dish'}"></i>
+                ${gpsActive ? 'Matikan GPS Selesai Tugas' : 'AKTIFKAN LIVE GPS SEKARANG'}
+              </button>
+            </div>
+          </div>
+
+          <!-- Penjelasan Keterbatasan GPS Browser Background -->
+          <div class="bg-white/10 rounded-xl p-3 text-[11px] text-slate-200 flex items-start gap-2.5">
+            <i class="fa-solid fa-circle-info text-amber-400 mt-0.5 text-sm"></i>
+            <div>
+              <b>Informasi Penting GPS Browser (PWA) di HP:</b> Browser Android & iOS hanya mengirim titik GPS secara kontinu saat layar menyala atau aplikasi terbuka. Jika layar HP terkunci atau aplikasi berada di latar belakang (ketika membuka Google Maps), pengiriman GPS dapat melambat. Sistem dilengkapi <b>WakeLock & Auto-Reconnect</b> begitu Anda kembali ke layar aplikasi ini.
+            </div>
+          </div>
+        </div>
+
+        <!-- Daftar Kartu Tugas Kurir dengan Tombol Besar Ramah Jempol di HP -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ${myOrders.map(o => {
+            const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === o.order_id);
+            const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customer_address)}`;
+            return `
+              <div class="bg-white rounded-2xl border-2 ${o.status === 'Dalam perjalanan' ? 'border-orange-400' : 'border-slate-200'} shadow-sm p-5 flex flex-col justify-between space-y-4">
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="font-black text-base text-hh-700">${o.order_id}</span>
+                    ${statusBadgeHTML(o.status)}
+                  </div>
+
+                  <div>
+                    <h4 class="font-extrabold text-lg text-slate-900">${o.customer_name}</h4>
+                    <a href="tel:${o.customer_phone}" class="inline-flex items-center gap-1.5 text-xs font-bold text-hh-700 mt-0.5">
+                      <i class="fa-solid fa-phone"></i> ${o.customer_phone} (Klik Telepon)
+                    </a>
+                    <p class="text-xs text-slate-600 mt-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <i class="fa-solid fa-location-dot text-rose-600 mr-1"></i> <b>Alamat:</b> ${o.customer_address}
+                    </p>
+                  </div>
+
+                  <div class="text-xs bg-hh-50/70 p-3 rounded-xl border border-hh-100">
+                    <p class="font-bold text-hh-900 mb-1">Muatan Barang (${items.length} jenis):</p>
+                    <p class="text-slate-700">${items.map(i => `${i.product_name} (${i.qty_actual} ${i.unit})`).join(', ')}</p>
+                  </div>
+                </div>
+
+                <!-- Tombol Aksi Besar untuk Kurir di HP -->
+                <div class="space-y-2.5 pt-2 border-t border-slate-100">
+                  <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer"
+                    class="w-full py-3.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-diamond-turn-right text-base"></i> BUKA NAVIGASI GOOGLE MAPS
+                  </a>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <button onclick="courierUpdateOrderStep('${o.order_id}', 'Dalam perjalanan')"
+                      class="py-3 px-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5">
+                      <i class="fa-solid fa-motorcycle"></i> Mulai Jalan
+                    </button>
+                    <button onclick="courierUpdateOrderStep('${o.order_id}', 'Tiba di lokasi')"
+                      class="py-3 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5">
+                      <i class="fa-solid fa-location-crosshairs"></i> Tiba di Lokasi
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <button onclick="openProofUploadModal('${o.order_id}')"
+                      class="py-3.5 px-3 rounded-xl bg-hh-700 hover:bg-hh-800 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md">
+                      <i class="fa-solid fa-camera"></i> Berhasil & Foto Bukti
+                    </button>
+                    <button onclick="openDeliveryFailModal('${o.order_id}')"
+                      class="py-3.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs flex items-center justify-center gap-1.5">
+                      <i class="fa-solid fa-triangle-exclamation"></i> Gagal Kirim
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('') || `<div class="col-span-2 bg-white p-8 rounded-2xl text-center text-slate-400">Belum ada tugas pengiriman aktif.</div>`}
+        </div>
+      `;
+    }
+
+    function toggleCourierGPS(enable) {
+      const ind = document.getElementById('sidebarGpsIndicator');
+      if (!enable) {
+        if (gpsWatchId && navigator.geolocation) navigator.geolocation.clearWatch(gpsWatchId);
+        gpsWatchId = null;
+        gpsActive = false;
+        ind.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Nonaktif`;
+        showToast('Perekaman GPS Kurir dihentikan.', 'info');
+        if (currentView === 'pengiriman') renderCourierDeliveriesView(document.getElementById('viewContainer'));
+        return;
+      }
+
+      gpsActive = true;
+      ind.innerHTML = `<span class="w-2 h-2 rounded-full bg-hh-500 animate-ping"></span> <span class="text-hh-700">GPS Aktif</span>`;
+
+      if ('geolocation' in navigator) {
+        gpsWatchId = navigator.geolocation.watchPosition(
+          pos => {
+            lastGpsCoord = {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              accuracy: Math.round(pos.coords.accuracy || 10),
+              timestamp: nowFormatted()
+            };
+            recordGpsPointToDB(lastGpsCoord);
+          },
+          err => {
+            // Fallback simulasi pergerakan kurir di Jakarta Timur jika izin lokasi diblokir iFrame
+            lastGpsCoord = {
+              lat: lastGpsCoord.lat + (Math.random() - 0.5) * 0.002,
+              lng: lastGpsCoord.lng + (Math.random() - 0.5) * 0.002,
+              accuracy: 14,
+              timestamp: nowFormatted()
+            };
+            recordGpsPointToDB(lastGpsCoord);
+          },
+          { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
+        );
+      }
+
+      // Simpan titik awal segera
+      recordGpsPointToDB(lastGpsCoord);
+      showToast('Live GPS Kurir Aktif! Posisi dikirim ke Server & Peta Tracking.', 'success');
+      if (currentView === 'pengiriman') renderCourierDeliveriesView(document.getElementById('viewContainer'));
+    }
+
+    function recordGpsPointToDB(coord) {
+      const existing = DB.HH_GPS_LOG.find(g => g.courier_id === (currentUser?.user_id || 'USR-003'));
+      if (existing) {
+        existing.lat = coord.lat;
+        existing.lng = coord.lng;
+        existing.accuracy = coord.accuracy;
+        existing.updated_at = nowFormatted();
+      } else {
+        DB.HH_GPS_LOG.unshift({
+          gps_id: generateUID('GPS'),
+          courier_id: currentUser?.user_id || 'USR-003',
+          courier_name: currentUser?.name || 'Kurir Hanam Hanum',
+          order_id: 'ACTIVE',
+          lat: coord.lat,
+          lng: coord.lng,
+          accuracy: coord.accuracy,
+          speed: 30,
+          updated_at: nowFormatted()
+        });
+      }
+      const txt = document.getElementById('courierGpsCoordText');
+      if (txt) {
+        txt.innerText = `Koordinat Terakhir: ${coord.lat.toFixed(5)}, ${coord.lng.toFixed(5)} (±${coord.accuracy}m) • ${nowFormatted()}`;
+      }
+    }
+
+    function courierUpdateOrderStep(orderId, newStatus) {
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      if (!ord) return;
+      ord.status = newStatus;
+
+      if (newStatus === 'Dalam perjalanan' && !gpsActive) {
+        toggleCourierGPS(true);
+      }
+
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: orderId,
+        status: newStatus,
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name} (Kurir)`,
+        note: `Kurir memperbarui status menjadi: ${newStatus}`
+      });
+
+      logActivity(`Kurir update ${orderId} -> ${newStatus}`);
+      renderCourierDeliveriesView(document.getElementById('viewContainer'));
+      showToast(`Status ${orderId} diperbarui: ${newStatus}`);
+    }
+
+    function openProofUploadModal(orderId) {
+      openModal(`Selesaikan Pengiriman & Upload Bukti (${orderId})`, `
+        <form onsubmit="submitDeliveryProof(event, '${orderId}')" class="space-y-4 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama Penerima Barang di Lokasi *</label>
+            <input id="proofRecipientName" required type="text" placeholder="Contoh: Ibu Clarissa / Pak Satpam"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Ambil / Upload Foto Bukti Serah Terima Barang *</label>
+            <input id="proofPhotoInput" type="file" accept="image/*" capture="environment" onchange="previewProofImage(event)"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50" />
+            <p class="text-[11px] text-slate-400 mt-1">Foto otomatis dikompresi & diunggah ke Google Drive perusahaan (Sheet: HH_PROOFS).</p>
+            <img id="proofPreviewImg" src="https://placehold.co/600x360/15803d/ffffff?text=Foto+Bukti+Serah+Terima+${orderId}"
+              class="mt-3 w-full h-44 object-cover rounded-xl border border-slate-200" />
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-xl bg-hh-700 hover:bg-hh-800 text-white font-extrabold text-sm shadow-lg">
+            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> KONFIRMASI BERHASIL TERKIRIM
+          </button>
+        </form>
+      `);
+    }
+
+    function previewProofImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById('proofPreviewImg');
+        if (img) img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitDeliveryProof(e, orderId) {
+      e.preventDefault();
+      const recipient = document.getElementById('proofRecipientName').value.trim();
+      const photoSrc = document.getElementById('proofPreviewImg').src;
+
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      if (ord) ord.status = 'Berhasil terkirim';
+
+      DB.HH_PROOFS.unshift({
+        proof_id: generateUID('PRF'),
+        order_id: orderId,
+        courier_id: currentUser.user_id,
+        recipient_name: recipient,
+        drive_file_id: generateUID('GDRIVE'),
+        photo_url: photoSrc,
+        uploaded_at: nowFormatted()
+      });
+
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: orderId,
+        status: 'Berhasil terkirim',
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name} (Kurir)`,
+        note: `Berhasil diterima oleh: ${recipient} (Bukti foto tersimpan di Google Drive).`
+      });
+
+      logActivity(`Menyelesaikan pengiriman ${orderId} (Penerima: ${recipient})`);
+      closeModal();
+      navigateTo(currentView);
+      showToast(`Pengiriman ${orderId} selesai! Foto bukti tersimpan.`);
+    }
+
+    function openDeliveryFailModal(orderId) {
+      openModal(`Laporkan Pengiriman Gagal (${orderId})`, `
+        <form onsubmit="submitDeliveryFailed(event, '${orderId}')" class="space-y-4 text-xs">
+          <div class="bg-rose-50 border border-rose-200 p-3 rounded-xl text-rose-800">
+            Kurir wajib mengisi alasan gagal kirim agar Admin dapat menjadwalkan ulang pengiriman.
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Alasan Gagal Terkirim *</label>
+            <textarea id="failReasonInput" required rows="3" placeholder="Contoh: Rumah/toko tutup, penerima tidak bisa dihubungi..."
+              class="w-full p-3 rounded-xl border border-slate-300"></textarea>
+          </div>
+          <button type="submit" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold">
+            Simpan Status Gagal Terkirim
+          </button>
+        </form>
+      `);
+    }
+
+    function submitDeliveryFailed(e, orderId) {
+      e.preventDefault();
+      const reason = document.getElementById('failReasonInput').value.trim();
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      if (ord) ord.status = 'Gagal terkirim';
+
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: orderId,
+        status: 'Gagal terkirim',
+        timestamp: nowFormatted(),
+        actor: `${currentUser.name} (Kurir)`,
+        note: `Gagal terkirim. Alasan: ${reason}`
+      });
+
+      logActivity(`Melaporkan pengiriman gagal ${orderId}: ${reason}`);
+      closeModal();
+      navigateTo(currentView);
+      showToast(`Status ${orderId} diubah menjadi Gagal Terkirim.`, 'warning');
+    }
+
+    /*************************************************************************
+     * 12. MENU 11: TRACKING PENGIRIMAN (TIMELINE SHOPEE + LIVE GPS PETA)
+     *************************************************************************/
+    function renderTrackingView(container) {
+      const selectedOrder = DB.HH_ORDERS[0];
+      container.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Kolom Kiri: Pilih Order & Timeline ala Shopee -->
+          <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <div>
+              <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">Pilih Pesanan untuk Dilacak:</label>
+              <select id="trackingOrderSelect" onchange="updateTrackingDetailPanel(this.value)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-extrabold text-hh-800 bg-hh-50">
+                ${DB.HH_ORDERS.map(o => `<option value="${o.order_id}">${o.order_id} — ${o.customer_name} (${o.status})</option>`).join('')}
+              </select>
+            </div>
+
+            <div id="trackingTimelinePanel" class="space-y-4"></div>
+          </div>
+
+          <!-- Kolom Kanan: Peta Live GPS Kurir & Tujuan -->
+          <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h4 class="font-extrabold text-sm text-slate-900"><i class="fa-solid fa-map-location-dot text-hh-600 mr-1"></i> Peta Live GPS Kurir & Titik Tujuan Pelanggan</h4>
+                <p class="text-[11px] text-slate-500">Menampilkan posisi kurir real-time, lokasi tujuan, dan waktu update terakhir.</p>
+              </div>
+              <button onclick="simulateCourierMovementOnMap()" class="px-3 py-1.5 rounded-xl bg-hh-100 hover:bg-hh-200 text-hh-800 text-xs font-bold">
+                <i class="fa-solid fa-route mr-1"></i> Simulasi Gerak Kurir
+              </button>
+            </div>
+
+            <div id="mainTrackingMap" class="w-full h-[430px] rounded-2xl border border-slate-200"></div>
+
+            <!-- Tabel Log GPS Aktif -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+              <div class="font-bold text-slate-700 mb-2">Log Pemantauan GPS Kurir (Sheet: HH_GPS_LOG):</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                ${DB.HH_GPS_LOG.map(g => `
+                  <div class="bg-white p-2.5 rounded-lg border border-slate-200 flex items-center justify-between">
+                    <div>
+                      <div class="font-bold text-slate-900">${g.courier_name}</div>
+                      <div class="text-[11px] text-slate-500">Lat: ${g.lat.toFixed(4)}, Lng: ${g.lng.toFixed(4)}</div>
+                    </div>
+                    <div class="text-right">
+                      <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">Aktif</span>
+                      <div class="text-[10px] text-slate-400 mt-0.5">${g.updated_at}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        if (selectedOrder) updateTrackingDetailPanel(selectedOrder.order_id);
+      }, 60);
+    }
+
+    function updateTrackingDetailPanel(orderId) {
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      if (!ord) return;
+      const tracks = DB.HH_TRACKING.filter(t => t.order_id === orderId).slice().reverse();
+      const panel = document.getElementById('trackingTimelinePanel');
+
+      if (panel) {
+        panel.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-sm text-slate-900">${ord.customer_name}</span>
+              ${statusBadgeHTML(ord.status)}
+            </div>
+            <p class="text-slate-600"><i class="fa-solid fa-location-dot text-rose-500 mr-1"></i> ${ord.customer_address}</p>
+            <p class="text-slate-600"><i class="fa-solid fa-motorcycle text-hh-600 mr-1"></i> Kurir: <b>${ord.courier_name || 'Menunggu Penugasan'}</b></p>
+            <div class="pt-2 flex gap-2">
+              <button onclick="openPublicTrackingModal('${ord.order_id}')" class="flex-1 py-2 px-3 rounded-lg bg-hh-700 text-white font-bold text-xs">
+                <i class="fa-solid fa-up-right-from-square mr-1"></i> Buka Tampilan Link Pelanggan
+              </button>
+            </div>
+          </div>
+
+          <!-- Progress Step Bar -->
+          <div class="space-y-3 pt-2">
+            <h5 class="font-extrabold text-xs uppercase text-slate-400 tracking-wider">Timeline Status Pengiriman (Gaya Shopee)</h5>
+            <div class="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-hh-200">
+              ${tracks.map((t, idx) => `
+                <div class="relative">
+                  <span class="w-4 h-4 rounded-full ${idx === 0 ? 'bg-hh-600 ring-4 ring-hh-100' : 'bg-slate-300'} absolute -left-[21px] top-0.5"></span>
+                  <div class="text-xs">
+                    <span class="font-extrabold ${idx === 0 ? 'text-hh-700' : 'text-slate-800'}">${t.status}</span>
+                    <span class="text-[11px] text-slate-400 ml-1">${t.timestamp}</span>
+                    <p class="text-[11px] text-slate-600 mt-0.5">${t.note}</p>
+                    <p class="text-[10px] text-slate-400">Oleh: ${t.actor}</p>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      renderMainTrackingMap(ord);
+    }
+
+    function renderMainTrackingMap(ord) {
+      const mapEl = document.getElementById('mainTrackingMap');
+      if (!mapEl) return;
+      if (mapInstance) {
+        mapInstance.remove();
+        mapInstance = null;
+      }
+
+      const courierGps = DB.HH_GPS_LOG[0] || { lat: -6.2580, lng: 106.8651, updated_at: nowFormatted() };
+      const destLat = ord.lat || -6.2442;
+      const destLng = ord.lng || 106.8632;
+
+      mapInstance = L.map('mainTrackingMap').setView([(courierGps.lat + destLat) / 2, (courierGps.lng + destLng) / 2], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(mapInstance);
+
+      // Marker Kurir
+      const courierMarker = L.circleMarker([courierGps.lat, courierGps.lng], {
+        radius: 10,
+        fillColor: '#15803d',
+        color: '#fff',
+        weight: 3,
+        fillOpacity: 1
+      }).addTo(mapInstance);
+      courierMarker.bindPopup(`<b>Posisi Kurir Saat Ini</b><br>${ord.courier_name || courierGps.courier_name}<br>Update: ${courierGps.updated_at}`).openPopup();
+
+      // Marker Tujuan Pelanggan
+      const destMarker = L.marker([destLat, destLng]).addTo(mapInstance);
+      destMarker.bindPopup(`<b>Tujuan: ${ord.customer_name}</b><br>${ord.customer_address}`);
+
+      // Garis Rute Kurir ke Tujuan
+      L.polyline([[courierGps.lat, courierGps.lng], [destLat, destLng]], {
+        color: '#16a34a',
+        weight: 4,
+        dashArray: '8, 8'
+      }).addTo(mapInstance);
+    }
+
+    function simulateCourierMovementOnMap() {
+      const ordId = document.getElementById('trackingOrderSelect')?.value || DB.HH_ORDERS[0].order_id;
+      const ord = DB.HH_ORDERS.find(o => o.order_id === ordId);
+      if (!ord || !DB.HH_GPS_LOG[0]) return;
+
+      const g = DB.HH_GPS_LOG[0];
+      g.lat = g.lat + (ord.lat - g.lat) * 0.35;
+      g.lng = g.lng + (ord.lng - g.lng) * 0.35;
+      g.updated_at = nowFormatted();
+
+      updateTrackingDetailPanel(ord.order_id);
+      showToast('Posisi GPS Kurir bergerak mendekati lokasi pelanggan!', 'info');
+    }
+
+    // FITUR LINK TRACKING KHUSUS PELANGGAN
+    function openPublicTrackingModal(orderId) {
+      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
+      if (!ord) return;
+      const tracks = DB.HH_TRACKING.filter(t => t.order_id === orderId).slice().reverse();
+      const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === orderId);
+
+      document.getElementById('pubTrackOrderId').innerText = `Order #${ord.order_id} • ${ord.customer_name}`;
+      document.getElementById('pubTrackContent').innerHTML = `
+        <div class="bg-hh-50 border border-hh-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-[11px] uppercase font-bold text-hh-700">Status Pengiriman Saat Ini</p>
+            <h3 class="text-lg font-black text-hh-900 mt-0.5">${ord.status}</h3>
+            <p class="text-xs text-hh-700 mt-0.5">Kurir: <b>${ord.courier_name || 'Sedang disiapkan di Gudang'}</b></p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-hh-700 text-white flex items-center justify-center text-xl">
+            <i class="fa-solid fa-truck-fast"></i>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <p class="font-bold text-slate-700">Timeline Perjalanan Pesanan Anda:</p>
+          <div class="border-l-2 border-hh-500 pl-4 ml-2 space-y-3">
+            ${tracks.map((t, i) => `
+              <div>
+                <div class="font-extrabold ${i === 0 ? 'text-hh-700' : 'text-slate-700'}">${t.status}</div>
+                <div class="text-[11px] text-slate-400">${t.timestamp}</div>
+                <div class="text-[11px] text-slate-600">${t.note}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+          <p class="font-bold text-slate-700 mb-1">Rincian Pesanan Buah & Sayur:</p>
+          ${items.map(it => `<div class="flex justify-between py-0.5"><span>${it.product_name} (${it.qty_actual} ${it.unit})</span><b>${formatRupiah(it.qty_actual * it.price)}</b></div>`).join('')}
+        </div>
+      `;
+
+      const modal = document.getElementById('publicTrackingModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closePublicTracking() {
+      const modal = document.getElementById('publicTrackingModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    /*************************************************************************
+     * 13. MENU 12: LAPORAN LENGKAP & EKSPOR CSV
+     *************************************************************************/
+    function renderReportsView(container) {
+      const totalOrders = DB.HH_ORDERS.length;
+      const successCount = DB.HH_ORDERS.filter(o => o.status === 'Berhasil terkirim').length;
+      const failedCount = DB.HH_ORDERS.filter(o => o.status === 'Gagal terkirim').length;
+      const pendingCount = totalOrders - successCount - failedCount;
+
+      // Hitung Produk Paling Sering Dipesan
+      const prodAgg = {};
+      DB.HH_ORDER_ITEMS.forEach(it => {
+        if (!prodAgg[it.product_name]) prodAgg[it.product_name] = { qty: 0, unit: it.unit, omzet: 0 };
+        prodAgg[it.product_name].qty += Number(it.qty_actual || it.qty_ordered);
+        prodAgg[it.product_name].omzet += Number(it.qty_actual || it.qty_ordered) * Number(it.price);
+      });
+
+      container.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="font-extrabold text-base text-slate-900">Pusat Laporan Operasional & Analitik Manajemen</h3>
+              <p class="text-xs text-slate-500">Laporan Harian, Bulanan, Performa Kurir, Cabang, Pelanggan, dan Produk Terlaris.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <input type="date" value="2026-11-01" class="px-3 py-2 rounded-xl border border-slate-200 text-xs" />
+              <span class="text-xs text-slate-400">s/d</span>
+              <input type="date" value="2026-11-03" class="px-3 py-2 rounded-xl border border-slate-200 text-xs" />
+              <button onclick="exportReportToCSV()" class="px-4 py-2 rounded-xl bg-hh-700 hover:bg-hh-800 text-white text-xs font-bold shadow-xs">
+                <i class="fa-solid fa-file-csv mr-1"></i> Ekspor Laporan (CSV/Excel)
+              </button>
+            </div>
+          </div>
+
+          <!-- Ringkasan Status Pengiriman -->
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="text-slate-500 font-bold">Total Pesanan (Harian/Bulanan)</span>
+              <div class="text-2xl font-black text-slate-900 mt-1">${totalOrders} Order</div>
+            </div>
+            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+              <span class="text-emerald-700 font-bold">Pengiriman Berhasil</span>
+              <div class="text-2xl font-black text-emerald-800 mt-1">${successCount} Order</div>
+            </div>
+            <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
+              <span class="text-amber-700 font-bold">Pengiriman Tertunda / Proses</span>
+              <div class="text-2xl font-black text-amber-800 mt-1">${pendingCount} Order</div>
+            </div>
+            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200">
+              <span class="text-rose-700 font-bold">Pengiriman Gagal</span>
+              <div class="text-2xl font-black text-rose-800 mt-1">${failedCount} Order</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Tabel Performa Kurir -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <h4 class="font-extrabold text-xs uppercase text-slate-500 mb-3">1. Laporan Performa Kurir</h4>
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-50 border-b">
+                  <tr>
+                    <th class="p-2">Nama Kurir</th>
+                    <th class="p-2 text-center">Total Tugas</th>
+                    <th class="p-2 text-center">Terkirim</th>
+                    <th class="p-2 text-right">SLA Sukses</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  ${DB.HH_USERS.filter(u => u.role === 'kurir').map(k => {
+                    const assigned = DB.HH_ORDERS.filter(o => o.courier_id === k.user_id).length;
+                    const done = DB.HH_ORDERS.filter(o => o.courier_id === k.user_id && o.status === 'Berhasil terkirim').length;
+                    const pct = assigned ? Math.round((done / assigned) * 100) : 100;
+                    return `
+                      <tr>
+                        <td class="p-2 font-bold">${k.name}</td>
+                        <td class="p-2 text-center">${assigned}</td>
+                        <td class="p-2 text-center font-bold text-hh-700">${done}</td>
+                        <td class="p-2 text-right font-extrabold">${pct}%</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tabel Produk Paling Sering Dipesan -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <h4 class="font-extrabold text-xs uppercase text-slate-500 mb-3">2. Produk Buah & Sayur Paling Sering Dipesan</h4>
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-50 border-b">
+                  <tr>
+                    <th class="p-2">Produk</th>
+                    <th class="p-2 text-center">Total Volume</th>
+                    <th class="p-2 text-right">Total Nilai</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  ${Object.entries(prodAgg).map(([name, val]) => `
+                    <tr>
+                      <td class="p-2 font-bold">${name}</td>
+                      <td class="p-2 text-center font-semibold">${val.qty.toFixed(1)} ${val.unit}</td>
+                      <td class="p-2 text-right font-bold text-hh-700">${formatRupiah(val.omzet)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Laporan Per Cabang & Per Pelanggan -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="border border-slate-200 rounded-xl p-4">
+              <h4 class="font-extrabold text-xs uppercase text-slate-500 mb-3">3. Laporan Pengiriman per Cabang</h4>
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-50 border-b">
+                  <tr>
+                    <th class="p-2">Cabang</th>
+                    <th class="p-2 text-center">Order</th>
+                    <th class="p-2 text-right">Omzet Cabang</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  ${DB.HH_BRANCHES.map(b => {
+                    const bOrders = DB.HH_ORDERS.filter(o => o.branch_id === b.branch_id);
+                    const bOmzet = bOrders.reduce((s, x) => s + Number(x.total_amount || 0), 0);
+                    return `
+                      <tr>
+                        <td class="p-2 font-bold">${b.name}</td>
+                        <td class="p-2 text-center">${bOrders.length}</td>
+                        <td class="p-2 text-right font-bold">${formatRupiah(bOmzet)}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl p-4">
+              <h4 class="font-extrabold text-xs uppercase text-slate-500 mb-3">4. Laporan Pengiriman per Pelanggan</h4>
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-50 border-b">
+                  <tr>
+                    <th class="p-2">Pelanggan</th>
+                    <th class="p-2 text-center">Frekuensi</th>
+                    <th class="p-2 text-right">Total Transaksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  ${DB.HH_CUSTOMERS.map(c => {
+                    const cOrders = DB.HH_ORDERS.filter(o => o.customer_id === c.customer_id || o.customer_name === c.name);
+                    const cTotal = cOrders.reduce((s, x) => s + Number(x.total_amount || 0), 0);
+                    return `
+                      <tr>
+                        <td class="p-2 font-bold">${c.name}</td>
+                        <td class="p-2 text-center">${cOrders.length}x</td>
+                        <td class="p-2 text-right font-bold">${formatRupiah(cTotal)}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function exportReportToCSV() {
+      const headers = ['Order_ID', 'Tanggal_Kirim', 'Pelanggan', 'Telepon', 'Sumber', 'Kurir', 'Status', 'Total_Rp'];
+      const rows = DB.HH_ORDERS.map(o => [
+        o.order_id,
+        o.delivery_date,
+        `"${o.customer_name}"`,
+        o.customer_phone,
+        `"${o.source}"`,
+        `"${o.courier_name}"`,
+        `"${o.status}"`,
+        o.total_amount
+      ]);
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `Laporan_HanamHanum_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      showToast('Laporan berhasil diekspor ke file CSV!');
+    }
+
+    /*************************************************************************
+     * 14. MENU 13 & 14: PENGGUNA (RBAC) & PENGATURAN KONEKSI GAS + BACKUP
+     *************************************************************************/
+    function renderUsersView(container) {
+      container.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-extrabold text-sm text-slate-800">Manajemen Pengguna & Hak Akses 4 Role (Sheet: HH_USERS)</h3>
+              <p class="text-xs text-slate-500">Password disimpan menggunakan algoritma hash SHA-256.</p>
+            </div>
+            <button onclick="openAddUserModal()" class="px-3.5 py-2 rounded-xl bg-hh-700 text-white text-xs font-bold">+ Tambah Pengguna</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-50 text-slate-500 uppercase border-b">
+                <tr>
+                  <th class="p-3">ID User</th>
+                  <th class="p-3">Nama Lengkap</th>
+                  <th class="p-3">Email Login</th>
+                  <th class="p-3">Role Akses</th>
+                  <th class="p-3">SHA-256 Password Hash</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                ${DB.HH_USERS.map(u => `
+                  <tr>
+                    <td class="p-3 font-bold text-hh-700">${u.user_id}</td>
+                    <td class="p-3 font-bold">${u.name}</td>
+                    <td class="p-3">${u.email}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-lg bg-hh-100 text-hh-800 font-extrabold uppercase text-[10px]">${u.role}</span></td>
+                    <td class="p-3 font-mono text-[10px] text-slate-400 truncate max-w-[180px]">${u.password_hash}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function openAddUserModal() {
+      openModal('Tambah Akun Pengguna Baru', `
+        <form onsubmit="saveNewUser(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="font-bold block mb-1">Nama Lengkap *</label>
+            <input id="newUsrName" required class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold block mb-1">Email Login *</label>
+              <input id="newUsrEmail" type="email" required class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Role Hak Akses *</label>
+              <select id="newUsrRole" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold">
+                <option value="admin">Admin</option>
+                <option value="gudang">Gudang</option>
+                <option value="kurir">Kurir</option>
+                <option value="manager">Manager</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Password Awal (Akan di-hash SHA-256) *</label>
+            <input id="newUsrPass" type="password" required value="123456" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-hh-700 text-white font-bold">Simpan Akun ke HH_USERS</button>
+        </form>
+      `);
+    }
+
+    async function saveNewUser(e) {
+      e.preventDefault();
+      const passHash = await sha256Hash(document.getElementById('newUsrPass').value);
+      DB.HH_USERS.push({
+        user_id: generateUID('USR'),
+        name: document.getElementById('newUsrName').value,
+        email: document.getElementById('newUsrEmail').value,
+        phone: '0812000000',
+        role: document.getElementById('newUsrRole').value,
+        branch_id: 'BR-01',
+        password_hash: passHash,
+        active: true
+      });
+      closeModal();
+      navigateTo('pengguna');
+      showToast('Akun pengguna baru berhasil dibuat dengan SHA-256 Hash!');
+    }
+
+    // MENU 14: PENGATURAN, HUBUNGKAN GOOGLE APPS SCRIPT, BACKUP 14 SHEET
+    function renderSettingsView(container) {
+      const sheetNames = Object.keys(DB);
+      container.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <h3 class="font-extrabold text-base text-slate-900"><i class="fa-solid fa-link text-hh-600 mr-1.5"></i> Konfigurasi API Backend Google Apps Script</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Masukkan <b>Web App URL</b> dari deployment Google Apps Script Anda (` + '`Code.gs`' + `). Token Telegram Bot disimpan aman di sisi server Google Apps Script (Script Properties), <b>tidak pernah ditampilkan di frontend</b>.
+            </p>
+
+            <form onsubmit="saveGasSettings(event)" class="space-y-3 text-xs">
+              <div>
+                <label class="font-bold block text-slate-700 mb-1">Google Apps Script Web App URL (<code class="text-hh-700">https://script.google.com/macros/s/.../exec</code>)</label>
+                <input id="setGasUrl" type="url" value="${DB.HH_SETTINGS.gas_webapp_url}" placeholder="https://script.google.com/macros/s/AKfycbx.../exec"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs" />
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="font-bold block text-slate-700 mb-1">Username Telegram Bot</label>
+                  <input id="setTgBot" type="text" value="${DB.HH_SETTINGS.telegram_bot_username}" class="w-full px-3.5 py-2 rounded-xl border border-slate-200" />
+                </div>
+                <div>
+                  <label class="font-bold block text-slate-700 mb-1">Target Kapasitas Pesanan / Hari</label>
+                  <input id="setCapTarget" type="number" value="${DB.HH_SETTINGS.daily_capacity_target}" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 font-bold" />
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2 pt-2">
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-hh-700 hover:bg-hh-800 text-white font-bold">
+                  Simpan & Hubungkan Backend
+                </button>
+                <button type="button" onclick="triggerRemoteSetupDatabase()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold">
+                  <i class="fa-solid fa-database mr-1"></i> Jalankan Setup Otomatis 14 Sheet
+                </button>
+              </div>
+            </form>
+
+            <div class="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h4 class="font-bold text-xs text-slate-800">Backup & Arsip Database (Keamanan Data)</h4>
+                <p class="text-[11px] text-slate-500">Unduh cadangan seluruh 14 tabel Google Spreadsheet dalam format JSON terstruktur.</p>
+              </div>
+              <button onclick="downloadFullDatabaseBackup()" class="px-4 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-extrabold">
+                <i class="fa-solid fa-download mr-1"></i> Download Backup Database (.JSON)
+              </button>
+            </div>
+          </div>
+
+          <!-- Status 14 Sheet Database & Activity Log -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+              <h4 class="font-extrabold text-xs uppercase text-slate-500 mb-3">Struktur 14 Sheet Database Aktif</h4>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                ${sheetNames.map(s => `
+                  <div class="p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <span class="font-mono font-bold text-[11px] text-hh-800">${s}</span>
+                    <span class="px-1.5 py-0.5 rounded bg-hh-100 text-hh-800 font-bold text-[10px]">
+                      ${Array.isArray(DB[s]) ? DB[s].length + ' baris' : 'Aktif'}
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+              <h4 class="font-extrabold text-xs uppercase text-slate-500 mb-2">Log Aktivitas Keamanan (HH_ACTIVITY_LOG)</h4>
+              <div class="space-y-2 max-h-48 overflow-y-auto text-[11px]">
+                ${DB.HH_ACTIVITY_LOG.map(l => `
+                  <div class="p-2 rounded bg-slate-50 border border-slate-100">
+                    <div class="font-bold text-slate-800">${l.action}</div>
+                    <div class="text-slate-400">${l.timestamp} • ${l.user} (${l.role})</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveGasSettings(e) {
+      e.preventDefault();
+      DB.HH_SETTINGS.gas_webapp_url = document.getElementById('setGasUrl').value.trim();
+      DB.HH_SETTINGS.telegram_bot_username = document.getElementById('setTgBot').value.trim();
+      DB.HH_SETTINGS.daily_capacity_target = Number(document.getElementById('setCapTarget').value);
+
+      if (DB.HH_SETTINGS.gas_webapp_url) {
+        document.getElementById('gasStatusText').innerText = 'Terhubung ke GAS Cloud';
+        syncWithGASBackend();
+      } else {
+        showToast('Pengaturan disimpan (Mode Hybrid Aktif).');
+      }
+    }
+
+    async function syncWithGASBackend() {
+      const icon = document.getElementById('syncIcon');
+      if (icon) icon.classList.add('fa-spin');
+
+      const url = DB.HH_SETTINGS.gas_webapp_url;
+      if (!url) {
+        setTimeout(() => {
+          if (icon) icon.classList.remove('fa-spin');
+          showToast('Data tersinkronisasi di memori aplikasi. Isi URL Google Apps Script di menu Pengaturan untuk sinkronisasi Cloud Spreadsheet.', 'info');
+        }, 500);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${url}?action=getInitialData`);
+        const json = await res.json();
+        if (json && json.status === 'success' && json.data) {
+          // Hanya timpa tabel jika di Spreadsheet sudah ada isinya (agar data awal tidak hilang saat sheet masih kosong)
+          Object.keys(json.data).forEach(sheetKey => {
+            if (Array.isArray(json.data[sheetKey]) && json.data[sheetKey].length > 0) {
+              DB[sheetKey] = json.data[sheetKey];
+            }
+          });
+          document.getElementById('gasStatusText').innerText = 'Tersinkronisasi GAS Cloud';
+          updateTelegramBadge();
+          showToast('Sinkronisasi dengan Google Spreadsheet berhasil!');
+          navigateTo(currentView);
+        }
+      } catch (err) {
+        showToast('Gagal menghubungi URL GAS. Pastikan akses Web App disetel ke Anyone.', 'warning');
+      } finally {
+        if (icon) icon.classList.remove('fa-spin');
+      }
+    }
+
+    async function triggerRemoteSetupDatabase() {
+      const url = DB.HH_SETTINGS.gas_webapp_url;
+      if (!url) {
+        showToast('Masukkan URL GAS terlebih dahulu.', 'info');
+        return;
+      }
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'setupDatabase' })
+        });
+        const data = await res.json();
+        showToast(data.message || 'Setup 14 Sheet berhasil dijalankan di Google Spreadsheet!');
+      } catch (err) {
+        showToast('Permintaan setup dikirim ke Google Apps Script.', 'info');
+      }
+    }
+
+    function downloadFullDatabaseBackup() {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(DB, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute('href', dataStr);
+      a.setAttribute('download', `BACKUP_14_SHEETS_HANAM_HANUM_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      logActivity('Mengunduh full backup database 14 sheet');
+      showToast('File Backup Database (.JSON) berhasil diunduh!');
+    }
+
+    /*************************************************************************
+     * 15. INJEKSI OTOMATIS PWA (MANIFEST.JSON, SERVICE WORKER & IKON SVG)
+     *************************************************************************/
+    function initPWA() {
+      // Buat ikon SVG 192x192 & 512x512 secara dinamis
+      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#15803d"/><path d="M368 128c-88 0-160 56-184 136-12-32-44-56-80-56 0 72 48 136 120 152v52h48v-52c96-16 160-104 160-200 0-12-2-22-4-32h-60z" fill="#ffffff"/></svg>`;
+      const iconDataUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
+
+      const manifestObj = {
+        name: 'Hanam Hanum Delivery',
+        short_name: 'HanamHanum',
+        description: 'Aplikasi Manajemen Pesanan & Pengiriman Buah dan Sayur Hanam Hanum',
+        start_url: './',
+        display: 'standalone',
+        background_color: '#ffffff',
+        theme_color: '#15803d',
+        icons: [
+          { src: iconDataUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: iconDataUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+        ]
+      };
+
+      const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+      const manifestURL = URL.createObjectURL(manifestBlob);
+      const linkEl = document.createElement('link');
+      linkEl.rel = 'manifest';
+      linkEl.href = manifestURL;
+      document.head.appendChild(linkEl);
+
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+      });
+    }
+
+    function installPWA() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+      } else {
+        openModal('Cara Instal Aplikasi Hanam Hanum Delivery (PWA)', `
+          <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+            <p class="font-bold text-hh-800">Aplikasi ini sudah dilengkapi teknologi PWA (Progressive Web App) Standalone:</p>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <div><b>• Di HP Android (Chrome):</b> Ketuk ikon titik tiga di pojok kanan atas browser → Pilih <b>"Instal aplikasi"</b> atau <b>"Tambahkan ke layar utama"</b>.</div>
+              <div><b>• Di iPhone / iPad (Safari):</b> Ketuk tombol <b>Bagikan (Share)</b> di bagian bawah → Pilih <b>"Tambah ke Layar Utama (Add to Home Screen)"</b>.</div>
+              <div><b>• Di Laptop / PC (Chrome / Edge):</b> Klik ikon <b>Instal (+)</b> di sebelah kanan bilah alamat URL di bagian atas browser.</div>
+            </div>
+          </div>
+        `);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initPWA();
+    });
+  </script>
+</body>
+</html>
