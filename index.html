@@ -46,7 +46,7 @@
   </script>
 
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow: hidden; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
@@ -78,9 +78,38 @@
         background: #ffffff;
       }
     }
+    /* Login Custom Ornaments */
+    .login-leaf-tl {
+      position: absolute; top: -5%; left: -10%; width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(215,244,220,1) 0%, rgba(215,244,220,0) 70%);
+      z-index: 0; pointer-events: none;
+    }
+    .login-leaf-br {
+      position: absolute; bottom: -10%; right: -15%; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(215,244,220,1) 0%, rgba(215,244,220,0) 70%);
+      z-index: 0; pointer-events: none;
+    }
+    .login-leaf-mr {
+      position: absolute; top: 30%; right: -5%; width: 120px; height: 180px;
+      background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg"><path d="M100,50 C60,50 30,10 0,0 C30,40 40,90 100,100 Z" fill="%23d7f4dc" /><path d="M100,150 C50,140 20,110 0,90 C40,110 60,130 100,110 Z" fill="%23c2ecc9" /></svg>');
+      background-repeat: no-repeat; background-size: contain; z-index: 0; pointer-events: none; opacity: 0.8;
+    }
+    .fade-out { opacity: 0; visibility: hidden; transition: opacity 0.5s ease, visibility 0.5s ease; }
   </style>
 </head>
 <body class="text-slate-800 antialiased selection:bg-hh-yellow selection:text-hh-500">
+
+  <!-- SPLASH SCREEN -->
+  <div id="splashScreen" class="fixed inset-0 z-[99999] bg-white flex flex-col items-center justify-center">
+    <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1793773677/j5_zcrpmu.png" 
+         alt="Mascot Hanam Hanum" 
+         class="w-48 sm:w-56 h-auto object-contain mix-blend-multiply animate-bounce" />
+    <div class="mt-4 flex flex-col items-center animate-pulse">
+      <h2 class="text-2xl font-black text-[#138a54] tracking-tight">HANAM HANUM</h2>
+      <div class="w-10 h-1.5 bg-[#fde002] rounded-full mt-1.5 mb-1.5"></div>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Delivery System</p>
+    </div>
+  </div>
 
   <!-- PRINT CONTAINER FOR INVOICE & SURAT JALAN -->
   <div id="printArea" class="hidden"></div>
@@ -101,7 +130,7 @@
     </div>
   </div>
 
-  <!-- CUSTOMER PUBLIC TRACKING MODAL VIEW (Preview & Copy Link Pelanggan) -->
+  <!-- CUSTOMER PUBLIC TRACKING MODAL VIEW -->
   <div id="publicTrackingModal" class="fixed inset-0 bg-slate-900/80 z-[9500] hidden items-center justify-center p-2 sm:p-6">
     <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
       <div class="bg-hh-500 text-white px-5 py-4 flex items-center justify-between border-b-2 border-hh-yellow">
@@ -123,179 +152,162 @@
     </div>
   </div>
 
-  <!-- LOGIN & DAFTAR USER SCREEN (MODERN, BERSIH, ELEGAN DENGAN HIJAU #053f28, KUNING #fde002, PUTIH #ffffff) -->
-  <div id="loginScreen" class="min-h-screen flex flex-col lg:flex-row bg-white">
-    <!-- Left Branding Panel -->
-    <div class="lg:w-5/12 bg-gradient-to-br from-[#053f28] via-[#043320] to-[#021d12] text-white p-8 lg:p-14 flex flex-col justify-between relative overflow-hidden border-b-4 lg:border-b-0 lg:border-r-4 border-[#fde002]">
-      <!-- Decorative Subtle Circles -->
-      <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-[#fde002]/10 blur-2xl pointer-events-none"></div>
-      <div class="absolute bottom-10 -right-20 w-80 h-80 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none"></div>
+  <!-- LOGIN & DAFTAR USER SCREEN -->
+  <div id="loginScreen" class="h-[100dvh] w-full relative flex items-center justify-center bg-white overflow-hidden hidden">
+    <!-- Decorative Ornaments -->
+    <div class="login-leaf-tl"></div>
+    <div class="login-leaf-br"></div>
+    <div class="login-leaf-mr hidden sm:block"></div>
 
-      <div class="relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left my-auto">
-        <!-- Logo Resmi Hanam Hanum -->
-        <div class="p-4 rounded-3xl bg-white/10 backdrop-blur-md border border-[#fde002]/40 shadow-2xl mb-8 inline-block">
-          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
-               alt="Hanam Hanum Logo"
-               class="w-44 sm:w-52 h-auto object-contain drop-shadow-xl"
-               onerror="this.src='https://placehold.co/300x180/053f28/fde002?text=H%26H+DELIVERY'" />
-        </div>
-
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#fde002] text-[#053f28] font-extrabold text-xs uppercase tracking-wider mb-4 shadow-md">
-          <i class="fa-solid fa-leaf"></i> Hanam Hanum Delivery
-        </div>
-
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight text-white">
-          Sistem Manajemen Pesanan & Pengiriman Buah & Sayur Segar
-        </h1>
+    <!-- Container Utama -->
+    <div class="w-full max-w-md px-6 relative z-10 flex flex-col items-center">
+      
+      <!-- Logo Section (Tanpa Maskot) -->
+      <div class="flex flex-col items-center mb-10">
+        <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1793770702/3x3_r3h8mg.png" 
+             alt="Hanam Hanum Delivery" 
+             class="w-48 sm:w-56 h-auto object-contain z-20" />
+        <p class="text-[12px] font-bold text-[#138a54] mt-3 tracking-tight text-center">Buah & Sayur Segar, Langsung diantar!</p>
       </div>
 
-      <div class="relative z-10 pt-6 border-t border-white/15 flex items-center justify-between text-xs font-bold text-[#fde002] tracking-wider">
-        <span><i class="fa-solid fa-circle-check mr-1.5"></i>OPERATIONAL SYSTEM</span>
-        <span class="px-3 py-1 rounded-full bg-white/10 text-white">versi. 1.0</span>
+      <!-- Dummy buttons untuk mencegah error JS switchAuthTab -->
+      <div class="hidden">
+        <button id="tabBtnLogin"></button>
+        <button id="tabBtnRegister"></button>
       </div>
-    </div>
 
-    <!-- Right Form Panel -->
-    <div class="lg:w-7/12 flex items-center justify-center p-6 sm:p-12 bg-slate-50/50">
-      <div class="max-w-md w-full bg-white p-7 sm:p-9 rounded-3xl shadow-xl border border-slate-100 space-y-6">
-
-        <!-- Tab Switcher: Masuk vs Daftar User -->
-        <div class="grid grid-cols-2 p-1.5 bg-slate-100 rounded-2xl">
-          <button type="button" id="tabBtnLogin" onclick="switchAuthTab('login')"
-            class="py-2.5 px-4 rounded-xl font-extrabold text-xs transition-all bg-[#053f28] text-[#fde002] shadow-sm">
-            <i class="fa-solid fa-right-to-bracket mr-1.5"></i>Masuk Aplikasi
-          </button>
-          <button type="button" id="tabBtnRegister" onclick="switchAuthTab('register')"
-            class="py-2.5 px-4 rounded-xl font-extrabold text-xs transition-all text-slate-600 hover:text-[#053f28]">
-            <i class="fa-solid fa-user-plus mr-1.5"></i>Daftar User
-          </button>
-        </div>
-
-        <!-- FORM 1: MASUK (LOGIN) -->
-        <div id="loginTabPanel" class="space-y-5">
+      <!-- FORM 1: MASUK (LOGIN) -->
+      <div id="loginTabPanel" class="w-full">
+        <!-- Header Identitas Form -->
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-14 h-14 rounded-full bg-[#138a54] text-white flex items-center justify-center text-3xl shadow-sm shrink-0">
+            <i class="fa-solid fa-user"></i>
+          </div>
           <div>
-            <h2 class="text-2xl font-extrabold text-[#053f28]">Masuk ke Portal</h2>
-            <p class="text-xs text-slate-500 mt-1">Silakan masuk menggunakan akun divisi Anda.</p>
+            <h1 class="text-3xl font-black text-slate-800 tracking-tight">Login</h1>
+            <p class="text-[13px] font-medium text-slate-500 mt-0.5">Masuk ke akun Anda untuk melanjutkan</p>
+          </div>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 w-full">
+          <!-- Email -->
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-5 top-4 text-slate-400 text-lg"></i>
+            <input id="loginEmail" type="email" required value="admin@hanamhanum.id"
+              class="w-full pl-12 pr-5 py-3.5 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none text-[15px] font-medium transition"
+              placeholder="Email" />
           </div>
 
-          <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-            <div>
-              <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Email Pengguna</label>
-              <div class="relative">
-                <i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-400"></i>
-                <input id="loginEmail" type="email" required value="admin@hanamhanum.id"
-                  class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-[#053f28] focus:ring-2 focus:ring-[#053f28]/15 outline-none text-sm font-medium"
-                  placeholder="nama@hanamhanum.id" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Password</label>
-              <div class="relative">
-                <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400"></i>
-                <input id="loginPassword" type="password" required value="123456"
-                  class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-[#053f28] focus:ring-2 focus:ring-[#053f28]/15 outline-none text-sm font-medium"
-                  placeholder="••••••••" />
-              </div>
-            </div>
-
-            <button type="submit"
-              class="w-full py-3.5 px-6 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold text-sm shadow-lg shadow-[#053f28]/25 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
-            </button>
-          </form>
-        </div>
-
-        <!-- FORM 2: DAFTAR USER BARU (Nama, Email, Phone, Role, Password) -->
-        <div id="registerTabPanel" class="space-y-4 hidden">
-          <div>
-            <h2 class="text-2xl font-extrabold text-[#053f28]">Pendaftaran User Baru</h2>
-            <p class="text-xs text-slate-500 mt-1">Akun langsung tersimpan ke database pengguna.</p>
+          <!-- Password -->
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-5 top-4 text-slate-400 text-lg"></i>
+            <input id="loginPassword" type="password" required value="123456"
+              class="w-full pl-12 pr-12 py-3.5 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none text-[15px] font-medium transition"
+              placeholder="Password" />
+            <i class="fa-solid fa-eye-slash absolute right-5 top-4 text-slate-400 text-lg cursor-pointer"></i>
           </div>
 
-          <form id="registerForm" onsubmit="handleRegisterUser(event)" class="space-y-3.5 text-xs">
-            <div>
-              <label class="block font-bold uppercase text-slate-600 mb-1">Nama Lengkap *</label>
-              <div class="relative">
-                <i class="fa-solid fa-user absolute left-3.5 top-3 text-slate-400"></i>
-                <input id="regName" type="text" required placeholder="Contoh: Andi Saputra"
-                  class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#053f28] outline-none font-medium text-sm" />
-              </div>
-            </div>
+          <!-- Button Login -->
+          <button type="submit"
+            class="w-full py-4 px-6 rounded-full bg-[#138a54] hover:bg-[#0e6b41] text-white font-extrabold text-[15px] shadow-lg shadow-[#138a54]/30 transition flex items-center justify-center gap-2 mt-2">
+            <i class="fa-solid fa-arrow-right-to-bracket text-lg"></i> Login
+          </button>
+        </form>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-bold uppercase text-slate-600 mb-1">Email *</label>
-                <input id="regEmail" type="email" required placeholder="andi@hanamhanum.id"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#053f28] outline-none font-medium text-sm" />
-              </div>
-              <div>
-                <label class="block font-bold uppercase text-slate-600 mb-1">No. HP / WhatsApp *</label>
-                <input id="regPhone" type="text" required placeholder="0812xxxxxxxx"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#053f28] outline-none font-medium text-sm" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-bold uppercase text-slate-600 mb-1">Pilih Role Divisi *</label>
-                <select id="regRole" required
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#053f28] outline-none font-bold text-sm bg-white text-[#053f28]">
-                  <option value="admin">Admin</option>
-                  <option value="gudang">Gudang (QC & Packing)</option>
-                  <option value="kurir">Kurir Pengiriman</option>
-                  <option value="manager">Manager</option>
-                  <option value="pengembang">Pengembang (Developer)</option>
-                </select>
-              </div>
-              <div>
-                <label class="block font-bold uppercase text-slate-600 mb-1">Password *</label>
-                <input id="regPassword" type="password" required placeholder="Minimal 6 karakter"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#053f28] outline-none font-medium text-sm" />
-              </div>
-            </div>
-
-            <button type="submit"
-              class="w-full py-3.5 px-6 rounded-xl bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-sm shadow-md transition flex items-center justify-center gap-2 mt-2">
-              <i class="fa-solid fa-user-check"></i> Daftar & Simpan ke Database
-            </button>
-          </form>
+        <!-- Divider -->
+        <div class="flex items-center justify-center gap-3 text-[13px] font-medium text-slate-500 mt-6">
+          <span class="h-px flex-1 bg-slate-200"></span>
+          <span>Belum punya akun? <button type="button" onclick="switchAuthTab('register')" class="text-[#138a54] font-extrabold hover:underline">Daftar</button></span>
+          <span class="h-px flex-1 bg-slate-200"></span>
         </div>
 
-        <!-- Footer Login: copyright arpra 2026 -->
-        <div class="pt-4 border-t border-slate-100 text-center text-xs text-slate-400 font-semibold">
-          copyright arpra 2026
+        <!-- Portal Admin Shortcut -->
+        <div class="mt-6 border border-green-200 bg-green-50/70 rounded-2xl p-3.5 flex items-center justify-between cursor-pointer hover:bg-green-100 transition shadow-sm" onclick="document.getElementById('loginEmail').value='admin@hanamhanum.id'; document.getElementById('loginPassword').value='123456';">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-full bg-[#138a54] text-white flex items-center justify-center shadow-md">
+              <i class="fa-solid fa-gear"></i>
+            </div>
+            <div>
+              <h4 class="font-extrabold text-[#138a54] text-sm">Portal Admin</h4>
+              <p class="text-[11px] font-medium text-green-700 mt-0.5">Akses khusus untuk administrator</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-green-600 text-sm mr-2"></i>
         </div>
       </div>
+
+      <!-- FORM 2: DAFTAR USER BARU -->
+      <div id="registerTabPanel" class="w-full hidden">
+        <!-- Header Identitas Form -->
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-14 h-14 rounded-full bg-[#138a54] text-white flex items-center justify-center text-2xl shadow-sm shrink-0">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div>
+            <h1 class="text-3xl font-black text-slate-800 tracking-tight">Daftar</h1>
+            <p class="text-[13px] font-medium text-slate-500 mt-0.5">Buat akun baru untuk bergabung</p>
+          </div>
+        </div>
+
+        <form id="registerForm" onsubmit="handleRegisterUser(event)" class="space-y-3.5 w-full">
+          <!-- Inputs Styled as Pills -->
+          <div class="relative">
+            <i class="fa-solid fa-user absolute left-5 top-3.5 text-slate-400"></i>
+            <input id="regName" type="text" required placeholder="Nama Lengkap"
+              class="w-full pl-12 pr-5 py-3 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none font-medium text-[14px] transition" />
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-5 top-3.5 text-slate-400"></i>
+            <input id="regEmail" type="email" required placeholder="Email Login"
+              class="w-full pl-12 pr-5 py-3 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none font-medium text-[14px] transition" />
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-phone absolute left-5 top-3.5 text-slate-400"></i>
+            <input id="regPhone" type="text" required placeholder="No. HP / WhatsApp"
+              class="w-full pl-12 pr-5 py-3 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none font-medium text-[14px] transition" />
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-id-badge absolute left-5 top-3.5 text-slate-400"></i>
+            <select id="regRole" required
+              class="w-full pl-12 pr-10 py-3 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none font-bold text-[14px] bg-white text-[#138a54] transition appearance-none">
+              <option value="admin">Admin</option>
+              <option value="gudang">Gudang (QC & Packing)</option>
+              <option value="kurir">Kurir Pengiriman</option>
+              <option value="manager">Manager</option>
+              <option value="pengembang">Pengembang (Developer)</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-5 top-4 text-slate-400 pointer-events-none"></i>
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-5 top-3.5 text-slate-400"></i>
+            <input id="regPassword" type="password" required placeholder="Buat Password"
+              class="w-full pl-12 pr-5 py-3 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none font-medium text-[14px] transition" />
+          </div>
+
+          <button type="submit"
+            class="w-full py-4 px-6 rounded-full bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-extrabold text-[15px] shadow-lg shadow-yellow-200 transition flex items-center justify-center gap-2 mt-4">
+            <i class="fa-solid fa-user-check text-lg"></i> Daftar & Simpan
+          </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="flex items-center justify-center gap-3 text-[13px] font-medium text-slate-500 mt-6">
+          <span class="h-px flex-1 bg-slate-200"></span>
+          <span>Sudah punya akun? <button type="button" onclick="switchAuthTab('login')" class="text-[#138a54] font-extrabold hover:underline">Masuk</button></span>
+          <span class="h-px flex-1 bg-slate-200"></span>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- MAIN APPLICATION SHELL -->
-  <div id="appShell" class="hidden min-h-screen flex flex-col lg:flex-row bg-slate-50">
-
-    <!-- MOBILE HEADER -->
-    <header class="lg:hidden bg-[#053f28] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-md border-b-2 border-[#fde002]">
-      <div class="flex items-center gap-3">
-        <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg text-[#fde002]">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-        <div class="flex items-center gap-2.5">
-          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
-               alt="Logo"
-               class="w-9 h-9 rounded-lg object-contain bg-black/40 p-0.5 border border-[#fde002]/50"
-               onerror="this.src='https://placehold.co/80x80/053f28/fde002?text=H%26H'" />
-          <span class="font-extrabold tracking-tight text-sm text-[#fde002]">HANAM HANUM</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <span id="mobileRoleBadge" class="px-2.5 py-1 rounded-lg bg-[#fde002] text-[#053f28] text-xs font-extrabold uppercase">ADMIN</span>
-      </div>
-    </header>
+  <!-- MAIN APPLICATION SHELL (LAYOUT BARU UNTUK SCROLLING YANG MULUS) -->
+  <div id="appShell" class="hidden h-[100dvh] w-full flex overflow-hidden bg-slate-50 relative">
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out">
-      <!-- Brand Header Sesuai Warna Menu Login -->
-      <div class="p-4 bg-[#053f28] text-white flex items-center justify-between border-b-2 border-[#fde002]">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 lg:relative transition-transform duration-200 ease-in-out shrink-0">
+      <!-- Brand Header -->
+      <div class="p-4 bg-[#053f28] text-white flex items-center justify-between border-b-2 border-[#fde002] shrink-0">
         <div class="flex items-center gap-3">
           <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
                alt="Logo Hanam Hanum"
@@ -311,8 +323,8 @@
         </button>
       </div>
 
-      <!-- Active User Info (Tanpa tulisan Uji Hak Akses Role) -->
-      <div class="p-4 border-b border-slate-100 bg-hh-50/70">
+      <!-- Active User Info -->
+      <div class="p-4 border-b border-slate-100 bg-hh-50/70 shrink-0">
         <div class="flex items-center justify-between">
           <div class="min-w-0">
             <div id="userNameDisplay" class="font-extrabold text-sm text-[#053f28] truncate">Budi Santoso</div>
@@ -322,11 +334,11 @@
         </div>
       </div>
 
-      <!-- Menu List (Tanpa Nomor 1 s/d 14) -->
+      <!-- Menu List -->
       <nav id="sidebarNav" class="flex-1 overflow-y-auto p-3 space-y-1"></nav>
 
       <!-- Sidebar Footer -->
-      <div class="p-4 border-t border-slate-200 space-y-2 bg-slate-50">
+      <div class="p-4 border-t border-slate-200 space-y-2 bg-slate-50 shrink-0">
         <div class="flex items-center justify-between text-xs">
           <span class="text-slate-500 font-medium">Status GPS Kurir:</span>
           <span id="sidebarGpsIndicator" class="inline-flex items-center gap-1.5 font-bold text-slate-500">
@@ -339,43 +351,76 @@
       </div>
     </aside>
 
-    <!-- MAIN CONTENT WORKSPACE -->
-    <main class="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-      <!-- Top Bar -->
-      <div class="bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 id="pageHeaderTitle" class="text-xl font-extrabold text-[#053f28]">Dashboard Operasional</h2>
-          <p id="pageHeaderSubtitle" class="text-xs text-slate-500">Semua perubahan langsung tersimpan & terhubung ke Database.</p>
+    <!-- RIGHT CONTENT AREA (HEADER + MAIN VIEW) -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      
+      <!-- MOBILE HEADER -->
+      <header class="lg:hidden shrink-0 bg-[#053f28] text-white px-4 py-3 flex items-center justify-between shadow-md border-b-2 border-[#fde002]">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg text-[#fde002]">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="flex items-center gap-2.5">
+            <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
+                 alt="Logo"
+                 class="w-9 h-9 rounded-lg object-contain bg-black/40 p-0.5 border border-[#fde002]/50"
+                 onerror="this.src='https://placehold.co/80x80/053f28/fde002?text=H%26H'" />
+            <span class="font-extrabold tracking-tight text-sm text-[#fde002]">HANAM HANUM</span>
+          </div>
         </div>
+        <div class="flex items-center gap-2">
+          <span id="mobileRoleBadge" class="px-2.5 py-1 rounded-lg bg-[#fde002] text-[#053f28] text-xs font-extrabold uppercase">ADMIN</span>
+        </div>
+      </header>
 
-        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <!-- Connection Status Badge -->
-          <div id="gasStatusBadge" onclick="navigateTo('pengaturan')" class="cursor-pointer px-3 py-1.5 rounded-xl bg-hh-50 border border-hh-200 text-[#053f28] text-xs font-bold flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span id="gasStatusText">Database Terhubung</span>
+      <!-- SCROLLABLE MAIN CONTENT -->
+      <main class="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
+        
+        <!-- Top Bar (Scrollable along with content) -->
+        <div class="shrink-0 bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 id="pageHeaderTitle" class="text-xl font-extrabold text-[#053f28]">Dashboard Operasional</h2>
+            <p id="pageHeaderSubtitle" class="text-xs text-slate-500">Semua perubahan langsung tersimpan & terhubung ke Database.</p>
           </div>
 
-          <!-- Telegram Draft Quick Button -->
-          <button id="topBtnTelegram" onclick="openTelegramSimulatorModal()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition">
-            <i class="fa-brands fa-telegram text-sm"></i>
-            <span>Proses WA / Telegram (<span id="badgeTelegramCount">0</span>)</span>
-          </button>
-
-          <!-- Sync Button -->
-          <button onclick="syncWithGASBackend()" class="px-3.5 py-2 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] text-xs font-bold flex items-center gap-1.5 transition" title="Sinkronisasi dengan Google Spreadsheet">
-            <i id="syncIcon" class="fa-solid fa-rotate"></i>
-            <span class="hidden sm:inline">Sinkron Database</span>
-          </button>
+          <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div id="gasStatusBadge" onclick="navigateTo('pengaturan')" class="cursor-pointer px-3 py-1.5 rounded-xl bg-hh-50 border border-hh-200 text-[#053f28] text-xs font-bold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span id="gasStatusText">Database Terhubung</span>
+            </div>
+            <button id="topBtnTelegram" onclick="openTelegramSimulatorModal()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition">
+              <i class="fa-brands fa-telegram text-sm"></i>
+              <span>Proses WA / Telegram (<span id="badgeTelegramCount">0</span>)</span>
+            </button>
+            <button onclick="syncWithGASBackend()" class="px-3.5 py-2 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] text-xs font-bold flex items-center gap-1.5 transition" title="Sinkronisasi dengan Google Spreadsheet">
+              <i id="syncIcon" class="fa-solid fa-rotate"></i>
+              <span class="hidden sm:inline">Sinkron Database</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <!-- Dynamic View Container -->
-      <div id="viewContainer" class="p-4 sm:p-8 flex-1 space-y-6 max-w-7xl w-full mx-auto"></div>
-    </main>
+        <!-- Dynamic View Container -->
+        <div id="viewContainer" class="p-4 sm:p-8 space-y-6 max-w-7xl w-full mx-auto pb-12"></div>
+      </main>
+    </div>
   </div>
 
   <!-- APPLICATION JAVASCRIPT ENGINE -->
   <script>
+    // LOGIC SPLASH SCREEN (1 Detik)
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        splash.classList.add('fade-out');
+        setTimeout(() => {
+          splash.remove();
+          // Hapus hide class dan hapus overflow body agar login form muncul utuh
+          document.getElementById('loginScreen').classList.remove('hidden');
+          document.body.style.overflow = 'auto';
+        }, 500); // 0.5s durasi animasi fade out
+      }, 1000); // 1 detik waktu tampil
+    });
+
     /*************************************************************************
      * 1. KONFIGURASI MENU TANPA NOMOR 1 - 14 & HAK AKSES ROLE
      *************************************************************************/
@@ -844,19 +889,20 @@
     function switchAuthTab(tab) {
       const loginPanel = document.getElementById('loginTabPanel');
       const regPanel = document.getElementById('registerTabPanel');
+      
+      // Update the dummy buttons just in case to prevent console errors
       const btnLogin = document.getElementById('tabBtnLogin');
       const btnReg = document.getElementById('tabBtnRegister');
+      
+      if (btnLogin) btnLogin.className = 'dummy-login';
+      if (btnReg) btnReg.className = 'dummy-reg';
 
       if (tab === 'login') {
         loginPanel.classList.remove('hidden');
         regPanel.classList.add('hidden');
-        btnLogin.className = 'py-2.5 px-4 rounded-xl font-extrabold text-xs transition-all bg-[#053f28] text-[#fde002] shadow-sm';
-        btnReg.className = 'py-2.5 px-4 rounded-xl font-extrabold text-xs transition-all text-slate-600 hover:text-[#053f28]';
       } else {
         loginPanel.classList.add('hidden');
         regPanel.classList.remove('hidden');
-        btnReg.className = 'py-2.5 px-4 rounded-xl font-extrabold text-xs transition-all bg-[#053f28] text-[#fde002] shadow-sm';
-        btnLogin.className = 'py-2.5 px-4 rounded-xl font-extrabold text-xs transition-all text-slate-600 hover:text-[#053f28]';
       }
     }
 
