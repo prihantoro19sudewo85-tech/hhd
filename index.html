@@ -99,13 +99,21 @@
       background-repeat: no-repeat; background-size: contain; z-index: 0; pointer-events: none; opacity: 0.8;
     }
     .fade-out { opacity: 0; visibility: hidden; transition: opacity 0.5s ease, visibility 0.5s ease; }
+
+    /* Courier Bottom Nav Active State */
+    .courier-nav-btn.active {
+      color: #053f28 !important;
+    }
+    .courier-nav-btn.active i {
+      color: #053f28 !important;
+    }
   </style>
 </head>
 <body class="text-slate-800 antialiased selection:bg-hh-yellow selection:text-hh-500">
 
   <!-- SPLASH SCREEN -->
   <div id="splashScreen" class="fixed inset-0 z-[99999] bg-white flex flex-col items-center justify-center">
-    <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1793773677/j5_zcrpmu.png" 
+    <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1793780861/logo_bulet1_cueaxq.png" 
          alt="Mascot Hanam Hanum" 
          class="w-48 sm:w-56 h-auto object-contain mix-blend-multiply animate-bounce" />
     <div class="mt-4 flex flex-col items-center animate-pulse">
@@ -157,14 +165,14 @@
   </div>
 
   <!-- LOGIN & DAFTAR USER SCREEN -->
-  <div id="loginScreen" class="h-[100dvh] w-full relative flex items-center justify-center bg-white overflow-hidden hidden">
+  <div id="loginScreen" class="h-[100dvh] w-full relative flex items-center justify-center bg-white overflow-y-auto hidden">
     <!-- Decorative Ornaments -->
     <div class="login-leaf-tl"></div>
     <div class="login-leaf-br"></div>
     <div class="login-leaf-mr hidden sm:block"></div>
 
     <!-- Container Utama -->
-    <div class="w-full max-w-md px-6 relative z-10 flex flex-col items-center">
+    <div class="w-full max-w-md px-6 py-8 relative z-10 flex flex-col items-center my-auto">
       
       <!-- Logo Section (Tanpa Maskot) -->
       <div class="flex flex-col items-center mb-10">
@@ -197,7 +205,7 @@
           <!-- Email -->
           <div class="relative">
             <i class="fa-solid fa-envelope absolute left-5 top-4 text-slate-400 text-lg"></i>
-            <input id="loginEmail" type="email" required value="admin@hanamhanum.id"
+            <input id="loginEmail" type="email" required value=""
               class="w-full pl-12 pr-5 py-3.5 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none text-[15px] font-medium transition"
               placeholder="Email" />
           </div>
@@ -205,10 +213,12 @@
           <!-- Password -->
           <div class="relative">
             <i class="fa-solid fa-lock absolute left-5 top-4 text-slate-400 text-lg"></i>
-            <input id="loginPassword" type="password" required value="123456"
+            <input id="loginPassword" type="password" required value=""
               class="w-full pl-12 pr-12 py-3.5 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none text-[15px] font-medium transition"
               placeholder="Password" />
-            <i class="fa-solid fa-eye-slash absolute right-5 top-4 text-slate-400 text-lg cursor-pointer"></i>
+            <button type="button" onclick="togglePasswordVisibility('loginPassword', 'loginPassIcon')" class="absolute right-5 top-3.5 text-slate-400 hover:text-[#138a54] text-lg cursor-pointer focus:outline-none">
+              <i id="loginPassIcon" class="fa-solid fa-eye-slash"></i>
+            </button>
           </div>
 
           <!-- Button Login -->
@@ -225,18 +235,12 @@
           <span class="h-px flex-1 bg-slate-200"></span>
         </div>
 
-        <!-- Portal Admin Shortcut -->
-        <div class="mt-6 border border-green-200 bg-green-50/70 rounded-2xl p-3.5 flex items-center justify-between cursor-pointer hover:bg-green-100 transition shadow-sm" onclick="document.getElementById('loginEmail').value='admin@hanamhanum.id'; document.getElementById('loginPassword').value='123456';">
-          <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-full bg-[#138a54] text-white flex items-center justify-center shadow-md">
-              <i class="fa-solid fa-gear"></i>
-            </div>
-            <div>
-              <h4 class="font-extrabold text-[#138a54] text-sm">Portal Admin</h4>
-              <p class="text-[11px] font-medium text-green-700 mt-0.5">Akses khusus untuk administrator</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-chevron-right text-green-600 text-sm mr-2"></i>
+        <!-- Footer Copyright & Syarat Ketentuan -->
+        <div class="mt-8 text-center flex flex-col items-center justify-center space-y-1.5">
+          <p class="text-[12px] font-bold text-slate-400">Arpra CopyRight | 2026 Versi 1.3</p>
+          <button type="button" onclick="openTermsAndConditionsModal()" class="text-[11px] font-bold text-[#138a54] hover:underline cursor-pointer">
+            Syarat & Ketentuan Berlaku
+          </button>
         </div>
       </div>
 
@@ -285,7 +289,10 @@
           <div class="relative">
             <i class="fa-solid fa-lock absolute left-5 top-3.5 text-slate-400"></i>
             <input id="regPassword" type="password" required placeholder="Buat Password"
-              class="w-full pl-12 pr-5 py-3 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none font-medium text-[14px] transition" />
+              class="w-full pl-12 pr-12 py-3 rounded-full border border-slate-300 focus:border-[#138a54] focus:ring-1 focus:ring-[#138a54] outline-none font-medium text-[14px] transition" />
+            <button type="button" onclick="togglePasswordVisibility('regPassword', 'regPassIcon')" class="absolute right-5 top-3 text-slate-400 hover:text-[#138a54] text-base cursor-pointer focus:outline-none">
+              <i id="regPassIcon" class="fa-solid fa-eye-slash"></i>
+            </button>
           </div>
 
           <button type="submit"
@@ -300,6 +307,14 @@
           <span>Sudah punya akun? <button type="button" onclick="switchAuthTab('login')" class="text-[#138a54] font-extrabold hover:underline">Masuk</button></span>
           <span class="h-px flex-1 bg-slate-200"></span>
         </div>
+
+        <!-- Footer Copyright & Syarat Ketentuan -->
+        <div class="mt-8 text-center flex flex-col items-center justify-center space-y-1.5">
+          <p class="text-[12px] font-bold text-slate-400">Arpra CopyRight | 2026 Versi 1.3</p>
+          <button type="button" onclick="openTermsAndConditionsModal()" class="text-[11px] font-bold text-[#138a54] hover:underline cursor-pointer">
+            Syarat & Ketentuan Berlaku
+          </button>
+        </div>
       </div>
 
     </div>
@@ -307,6 +322,25 @@
 
   <!-- MAIN APPLICATION SHELL (LAYOUT BARU UNTUK SCROLLING YANG MULUS) -->
   <div id="appShell" class="hidden h-[100dvh] w-full flex overflow-hidden bg-slate-50 relative">
+
+    <!-- BOTTOM NAV FOR KURIR (Khusus Mobile App Kurir) -->
+    <nav id="courierBottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-[60] flex justify-around items-center px-1 pb-1 pt-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+      <button onclick="navigateTo('kurir_home')" id="nav_kurir_home" class="courier-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 transition-colors">
+        <i class="fa-solid fa-house text-xl mb-0.5"></i><span class="text-[10px] font-bold">Home</span>
+      </button>
+      <button onclick="navigateTo('kurir_pesanan')" id="nav_kurir_pesanan" class="courier-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 transition-colors">
+        <i class="fa-solid fa-clipboard-list text-xl mb-0.5"></i><span class="text-[10px] font-bold">Pesanan</span>
+      </button>
+      <button onclick="navigateTo('kurir_pengiriman')" id="nav_kurir_pengiriman" class="courier-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 transition-colors">
+        <i class="fa-solid fa-map-location-dot text-xl mb-0.5"></i><span class="text-[10px] font-bold">Pengiriman</span>
+      </button>
+      <button onclick="navigateTo('kurir_riwayat')" id="nav_kurir_riwayat" class="courier-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 transition-colors">
+        <i class="fa-solid fa-clock-rotate-left text-xl mb-0.5"></i><span class="text-[10px] font-bold">Riwayat</span>
+      </button>
+      <button onclick="navigateTo('kurir_profile')" id="nav_kurir_profile" class="courier-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 transition-colors">
+        <i class="fa-solid fa-user text-xl mb-0.5"></i><span class="text-[10px] font-bold">Profile</span>
+      </button>
+    </nav>
 
     <!-- SIDEBAR NAVIGATION -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 lg:relative transition-transform duration-200 ease-in-out shrink-0">
@@ -359,9 +393,9 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
       
       <!-- MOBILE HEADER -->
-      <header class="lg:hidden shrink-0 bg-[#053f28] text-white px-4 py-3 flex items-center justify-between shadow-md border-b-2 border-[#fde002]">
+      <header id="mobileTopHeader" class="lg:hidden shrink-0 bg-[#053f28] text-white px-4 py-3 flex items-center justify-between shadow-md border-b-2 border-[#fde002]">
         <div class="flex items-center gap-3">
-          <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg text-[#fde002]">
+          <button id="mobileHamburgerBtn" onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg text-[#fde002]">
             <i class="fa-solid fa-bars"></i>
           </button>
           <div class="flex items-center gap-2.5">
@@ -378,11 +412,11 @@
       </header>
 
       <!-- SCROLLABLE MAIN CONTENT -->
-      <main class="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
+      <main id="mainScrollArea" class="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
         
         <!-- Top Bar (Scrollable along with content) -->
-        <div class="shrink-0 bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
-          <div>
+        <div id="topBarNav" class="shrink-0 bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div id="topBarTitleWrap">
             <h2 id="pageHeaderTitle" class="text-xl font-extrabold text-[#053f28]">Dashboard Operasional</h2>
             <p id="pageHeaderSubtitle" class="text-xs text-slate-500">Semua perubahan langsung tersimpan & terhubung ke Database.</p>
           </div>
@@ -398,7 +432,7 @@
             </button>
             <button onclick="syncWithGASBackend()" class="px-3.5 py-2 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] text-xs font-bold flex items-center gap-1.5 transition" title="Sinkronisasi dengan Google Spreadsheet">
               <i id="syncIcon" class="fa-solid fa-rotate"></i>
-              <span class="hidden sm:inline">Sinkron Database</span>
+              <span>Sinkron Database</span>
             </button>
           </div>
         </div>
@@ -424,6 +458,69 @@
         }, 500); // 0.5s durasi animasi fade out
       }, 1000); // 1 detik waktu tampil
     });
+
+    // FUNGSI LIHAT / SEMBUNYIKAN PASSWORD
+    function togglePasswordVisibility(inputId, iconId) {
+      const inp = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!inp || !icon) return;
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      } else {
+        inp.type = 'password';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      }
+    }
+
+    // FUNGSI POP-UP SYARAT & KETENTUAN STANDAR PERUSAHAAN
+    function openTermsAndConditionsModal() {
+      openModal('Syarat & Ketentuan Standar Operasional Perusahaan', `
+        <div class="space-y-4 text-xs leading-relaxed text-slate-700">
+          <div class="p-3.5 rounded-xl bg-hh-50 border border-hh-200 text-[#053f28]">
+            <h4 class="font-extrabold text-sm"><i class="fa-solid fa-shield-halved mr-1.5"></i> Standar Kepatuhan Hanam Hanum Delivery</h4>
+            <p class="mt-1 text-[11px]">Seluruh pengguna (Admin, Gudang, Kurir, dan Manajemen) wajib mematuhi standar operasional berikut demi menjaga kualitas layanan dan kesegaran produk buah & sayur.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2">
+              <h5 class="font-extrabold text-emerald-800 flex items-center gap-1.5 text-xs">
+                <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i> HAL YANG WAJIB / BOLEH DILAKUKAN
+              </h5>
+              <ul class="space-y-1.5 text-[11px] text-emerald-950 list-disc pl-4">
+                <li>Menjaga kualitas, kebersihan, dan kesegaran buah & sayur selama proses QC, packing, hingga pengantaran.</li>
+                <li>Mengaktifkan <b>Live GPS</b> selama kurir bertugas mengantar pesanan pelanggan.</li>
+                <li>Mengunggah foto bukti serah terima barang yang jelas beserta nama penerima yang valid.</li>
+                <li>Memastikan timbangan aktual di gudang sesuai dengan pesanan dan mencatat jujur bila ada produk rusak/kurang.</li>
+                <li>Bersikap sopan, ramah, berpakaian rapi, dan menjaga nama baik perusahaan di hadapan pelanggan.</li>
+              </ul>
+            </div>
+
+            <div class="p-4 rounded-xl bg-rose-50/70 border border-rose-200 space-y-2">
+              <h5 class="font-extrabold text-rose-800 flex items-center gap-1.5 text-xs">
+                <i class="fa-solid fa-circle-xmark text-rose-600 text-sm"></i> HAL YANG DILARANG / TIDAK BOLEH
+              </h5>
+              <ul class="space-y-1.5 text-[11px] text-rose-950 list-disc pl-4">
+                <li>Dilarang membagikan akun, email, atau password internal kepada pihak luar yang tidak berwenang.</li>
+                <li>Dilarang memanipulasi status pengiriman, timbangan gudang, atau mengunggah foto bukti pengiriman palsu.</li>
+                <li>Dilarang mematikan GPS secara sengaja saat sedang dalam perjalanan mengantar pesanan.</li>
+                <li>Dilarang menyalahgunakan data pribadi pelanggan (nomor telepon dan alamat) untuk kepentingan pribadi.</li>
+                <li>Dilarang meminta biaya tambahan di luar tagihan resmi invoice Hanam Hanum Delivery.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-100 text-slate-600 text-[11px] flex items-center justify-between">
+            <span>Pelanggaran atas ketentuan di atas dapat dikenakan sanksi sesuai peraturan perusahaan.</span>
+            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg bg-[#053f28] text-[#fde002] font-extrabold shrink-0 ml-3">
+              Saya Mengerti
+            </button>
+          </div>
+        </div>
+      `);
+    }
 
     /*************************************************************************
      * 1. KONFIGURASI MENU TANPA NOMOR 1 - 14 & HAK AKSES ROLE
@@ -965,7 +1062,7 @@
       renderSidebarMenu();
 
       if (user.role === 'kurir') {
-        navigateTo('pengiriman');
+        navigateTo('kurir_home');
       } else if (user.role === 'gudang') {
         navigateTo('persiapan');
       } else {
@@ -983,20 +1080,47 @@
       document.getElementById('mobileRoleBadge').innerText = currentUser.role.toUpperCase();
 
       const btnTg = document.getElementById('topBtnTelegram');
-      if (currentUser.role === 'admin' || currentUser.role === 'pengembang') {
-        btnTg.classList.remove('hidden');
-      } else {
-        btnTg.classList.add('hidden');
-      }
-
       const gasBadge = document.getElementById('gasStatusBadge');
-      if (gasBadge) {
-        if (currentUser.role === 'pengembang') {
-          gasBadge.onclick = () => navigateTo('pengaturan');
-          gasBadge.classList.add('cursor-pointer');
-        } else {
+      const sidebar = document.getElementById('sidebar');
+      const mobileHeader = document.getElementById('mobileTopHeader');
+      const bottomNav = document.getElementById('courierBottomNav');
+      const mainScrollArea = document.getElementById('mainScrollArea');
+      const topBarTitleWrap = document.getElementById('topBarTitleWrap');
+
+      if (currentUser.role === 'kurir') {
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('lg:relative');
+        if (mobileHeader) mobileHeader.classList.add('hidden');
+        if (bottomNav) bottomNav.classList.remove('hidden');
+        if (mainScrollArea) mainScrollArea.classList.add('pb-20');
+        if (topBarTitleWrap) topBarTitleWrap.classList.add('hidden');
+        if (btnTg) btnTg.classList.add('hidden');
+        if (gasBadge) {
           gasBadge.onclick = null;
           gasBadge.classList.remove('cursor-pointer');
+        }
+      } else {
+        sidebar.classList.remove('hidden');
+        sidebar.classList.add('lg:relative');
+        if (mobileHeader) mobileHeader.classList.remove('hidden');
+        if (bottomNav) bottomNav.classList.add('hidden');
+        if (mainScrollArea) mainScrollArea.classList.remove('pb-20');
+        if (topBarTitleWrap) topBarTitleWrap.classList.remove('hidden');
+
+        if (currentUser.role === 'admin' || currentUser.role === 'pengembang') {
+          btnTg.classList.remove('hidden');
+        } else {
+          btnTg.classList.add('hidden');
+        }
+
+        if (gasBadge) {
+          if (currentUser.role === 'pengembang') {
+            gasBadge.onclick = () => navigateTo('pengaturan');
+            gasBadge.classList.add('cursor-pointer');
+          } else {
+            gasBadge.onclick = null;
+            gasBadge.classList.remove('cursor-pointer');
+          }
         }
       }
 
@@ -1058,6 +1182,28 @@
     }
 
     function navigateTo(viewId) {
+      const container = document.getElementById('viewContainer');
+
+      // KHUSUS TAMPILAN MOBILE KURIR (TAHAP 2)
+      if (currentUser && currentUser.role === 'kurir') {
+        if (!viewId.startsWith('kurir_')) {
+          viewId = 'kurir_home';
+        }
+        currentView = viewId;
+        document.querySelectorAll('.courier-nav-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById(`nav_${viewId}`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        switch (viewId) {
+          case 'kurir_home': renderKurirMobileHome(container); break;
+          case 'kurir_pesanan': renderKurirMobilePesanan(container); break;
+          case 'kurir_pengiriman': renderKurirMobilePengiriman(container); break;
+          case 'kurir_riwayat': renderKurirMobileRiwayat(container); break;
+          case 'kurir_profile': renderKurirMobileProfile(container); break;
+        }
+        return;
+      }
+
       const menuObj = MENU_CONFIG.find(m => m.id === viewId);
       if (!menuObj || !menuObj.roles.includes(currentUser.role)) {
         showToast('Role Anda tidak memiliki akses ke menu tersebut.', 'warning');
@@ -1072,7 +1218,6 @@
       }
 
       document.getElementById('pageHeaderTitle').innerText = menuObj.label;
-      const container = document.getElementById('viewContainer');
 
       switch (viewId) {
         case 'dashboard': renderDashboard(container); break;
@@ -1090,6 +1235,295 @@
         case 'pengguna': renderUsersView(container); break;
         case 'pengaturan': renderSettingsView(container); break;
       }
+    }
+
+    /*************************************************************************
+     * TAHAP 2: 5 MENU KHUSUS KURIR HANDPHONE (HOME, PESANAN, PENGIRIMAN, RIWAYAT, PROFILE)
+     *************************************************************************/
+    function renderKurirMobileHome(container) {
+      const totalOrders = DB.HH_ORDERS.length;
+      const pendingPrep = DB.HH_ORDERS.filter(o => ['Pesanan diterima', 'Menunggu persiapan', 'Sedang disiapkan', 'Siap dikirim'].includes(o.status)).length;
+      const inTransit = DB.HH_ORDERS.filter(o => ['Kurir ditugaskan', 'Dalam perjalanan', 'Tiba di lokasi'].includes(o.status)).length;
+      const completed = DB.HH_ORDERS.filter(o => o.status === 'Berhasil terkirim').length;
+
+      container.innerHTML = `
+        <div class="bg-gradient-to-r from-[#053f28] to-[#043320] rounded-2xl p-5 text-white shadow-lg border-l-8 border-[#fde002]">
+          <span class="px-2.5 py-0.5 rounded-full bg-[#fde002] text-[#053f28] text-[11px] font-black uppercase tracking-wider">Kurir</span>
+          <h3 class="text-xl font-black mt-2 text-white">Halo, ${currentUser.name}!</h3>
+          <p class="text-xs text-white/80 mt-0.5">Selamat bertugas, pastikan pengiriman tepat waktu dan aman.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-bold uppercase text-slate-400">Total Pesanan</p>
+              <p class="text-2xl font-black text-[#053f28] mt-1">${totalOrders}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-[#053f28] text-[#fde002] flex items-center justify-center text-lg">
+              <i class="fa-solid fa-basket-shopping"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-bold uppercase text-slate-400">Persiapan dan Gudang</p>
+              <p class="text-2xl font-black text-amber-600 mt-1">${pendingPrep}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-boxes-packing"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-bold uppercase text-slate-400">Dalam Pengiriman</p>
+              <p class="text-2xl font-black text-orange-600 mt-1">${inTransit}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-truck-fast"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-bold uppercase text-slate-400">Berhasil Dikirim</p>
+              <p class="text-2xl font-black text-emerald-700 mt-1">${completed}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-extrabold text-sm text-[#053f28]"><i class="fa-solid fa-chart-column mr-1.5"></i> Grafik Aktivitas Pengiriman & Produk Terlaris</h4>
+            <span class="px-2.5 py-0.5 rounded-full bg-hh-50 text-[#053f28] text-[10px] font-bold">Real-Time</span>
+          </div>
+          <div class="h-60">
+            <canvas id="dashboardChart"></canvas>
+          </div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        initDashboardChart();
+      }, 60);
+    }
+
+    function renderKurirMobilePesanan(container) {
+      const orders = DB.HH_ORDERS.filter(o =>
+        o.courier_id === currentUser.user_id ||
+        ['Kurir ditugaskan', 'Dalam perjalanan', 'Tiba di lokasi'].includes(o.status)
+      );
+
+      container.innerHTML = `
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <h3 class="font-extrabold text-base text-[#053f28]"><i class="fa-solid fa-address-card mr-1.5"></i> Tentang Customer</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Informasi pelanggan, kontak WhatsApp/Telepon, alamat tujuan, dan catatan pesanan.</p>
+        </div>
+
+        <div class="space-y-4">
+          ${orders.map(o => {
+            const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === o.order_id);
+            const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customer_address)}`;
+            return `
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <span class="font-black text-sm text-[#053f28]">${o.order_id}</span>
+                  ${statusBadgeHTML(o.status)}
+                </div>
+
+                <div class="space-y-1.5">
+                  <p class="text-[10px] font-bold uppercase text-slate-400">Nama Pelanggan</p>
+                  <h4 class="font-extrabold text-base text-slate-900">${o.customer_name}</h4>
+                  <div class="flex flex-wrap gap-2 pt-1">
+                    <a href="tel:${o.customer_phone}" class="px-3 py-1.5 rounded-xl bg-hh-50 text-[#053f28] font-bold text-xs inline-flex items-center gap-1.5">
+                      <i class="fa-solid fa-phone"></i> ${o.customer_phone}
+                    </a>
+                    <a href="https://wa.me/${o.customer_phone.replace(/^0/, '62')}" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs inline-flex items-center gap-1.5">
+                      <i class="fa-brands fa-whatsapp"></i> Chat WA
+                    </a>
+                  </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+                  <p class="font-bold text-slate-700"><i class="fa-solid fa-location-dot text-rose-600 mr-1"></i> Alamat Pengiriman:</p>
+                  <p class="text-slate-600">${o.customer_address}</p>
+                  <p class="text-[11px] text-slate-500 pt-1"><b>Catatan Customer:</b> ${o.notes || '-'}</p>
+                </div>
+
+                <div class="text-xs bg-hh-50/60 p-3 rounded-xl border border-hh-100">
+                  <p class="font-bold text-[#053f28] mb-1">Item Pesanan (${items.length} produk):</p>
+                  <p class="text-slate-700">${items.map(i => `${i.product_name} (${i.qty_actual} ${i.unit})`).join(', ')}</p>
+                </div>
+
+                <div class="pt-2 flex flex-col gap-2">
+                  <a href="${gmapsUrl}" target="_blank" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-diamond-turn-right"></i> Buka Navigasi Google Maps
+                  </a>
+                </div>
+              </div>
+            `;
+          }).join('') || `<div class="bg-white p-8 rounded-2xl text-center text-slate-400">Belum ada data pesanan customer aktif.</div>`}
+        </div>
+      `;
+    }
+
+    function renderKurirMobilePengiriman(container) {
+      const activeOrders = DB.HH_ORDERS.filter(o =>
+        o.courier_id === currentUser.user_id ||
+        ['Kurir ditugaskan', 'Dalam perjalanan', 'Tiba di lokasi'].includes(o.status)
+      );
+
+      container.innerHTML = `
+        <div class="bg-[#053f28] text-white rounded-2xl p-4 shadow-md border-b-4 border-[#fde002] flex items-center justify-between gap-3">
+          <div>
+            <h3 class="font-extrabold text-sm text-[#fde002]"><i class="fa-solid fa-map-location-dot mr-1.5"></i> Live Tracking Peta</h3>
+            <p id="courierGpsCoordText" class="text-[11px] text-white/80 mt-0.5">
+              GPS: ${lastGpsCoord.lat.toFixed(4)}, ${lastGpsCoord.lng.toFixed(4)}
+            </p>
+          </div>
+          <button onclick="toggleCourierGPS(${!gpsActive})"
+            class="py-2.5 px-4 rounded-xl font-extrabold text-xs shadow-md transition flex items-center gap-1.5 shrink-0 ${
+              gpsActive ? 'bg-rose-600 text-white' : 'bg-[#fde002] text-[#053f28]'
+            }">
+            <i class="fa-solid ${gpsActive ? 'fa-stop' : 'fa-satellite-dish'}"></i>
+            ${gpsActive ? 'Matikan GPS' : 'Aktifkan GPS'}
+          </button>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-xs font-extrabold text-[#053f28]">Pilih Rute Pesanan:</label>
+            <button onclick="simulateCourierMovementOnMap()" class="px-3 py-1 rounded-lg bg-[#fde002] text-[#053f28] text-[11px] font-extrabold">
+              <i class="fa-solid fa-route mr-1"></i> Simulasi Gerak
+            </button>
+          </div>
+          <select id="trackingOrderSelect" onchange="updateTrackingDetailPanel(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-[#053f28] bg-hh-50">
+            ${(activeOrders.length ? activeOrders : DB.HH_ORDERS).map(o => `<option value="${o.order_id}">${o.order_id} — ${o.customer_name} (${o.status})</option>`).join('')}
+          </select>
+
+          <div id="mainTrackingMap" class="w-full h-[320px] rounded-2xl border border-slate-200"></div>
+        </div>
+
+        <div class="space-y-3">
+          ${activeOrders.map(o => `
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-black text-xs text-[#053f28]">${o.order_id}</span>
+                  <h4 class="font-extrabold text-sm text-slate-900">${o.customer_name}</h4>
+                </div>
+                ${statusBadgeHTML(o.status)}
+              </div>
+              <div class="grid grid-cols-1 gap-2">
+                ${o.status === 'Dalam perjalanan' ? `
+                  <button onclick="courierUpdateOrderStep('${o.order_id}', 'Tiba di lokasi')"
+                    class="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-location-crosshairs"></i> Konfirmasi Tiba di Lokasi
+                  </button>
+                ` : o.status === 'Tiba di lokasi' ? `
+                  <button onclick="openProofUploadModal('${o.order_id}')"
+                    class="w-full py-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-camera"></i> Ambil Foto Bukti Kirim
+                  </button>
+                ` : `
+                  <button onclick="courierUpdateOrderStep('${o.order_id}', 'Dalam perjalanan')"
+                    class="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-motorcycle"></i> Mulai Jalan Sekarang
+                  </button>
+                `}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      setTimeout(() => {
+        const firstOrd = (activeOrders.length ? activeOrders[0] : DB.HH_ORDERS[0]);
+        if (firstOrd) renderMainTrackingMap(firstOrd);
+      }, 60);
+    }
+
+    function renderKurirMobileRiwayat(container) {
+      const finishedOrders = DB.HH_ORDERS.filter(o => o.status === 'Berhasil terkirim');
+
+      container.innerHTML = `
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <h3 class="font-extrabold text-base text-[#053f28]"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Daftar Pesanan Selesai Terbaru</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Riwayat pengiriman yang telah berhasil diselesaikan.</p>
+          </div>
+          <span class="px-3 py-1 rounded-xl bg-emerald-100 text-[#053f28] font-black text-xs">${finishedOrders.length} Selesai</span>
+        </div>
+
+        <div class="space-y-3">
+          ${finishedOrders.map(o => {
+            const proof = DB.HH_PROOFS.find(p => p.order_id === o.order_id);
+            return `
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-black text-sm text-[#053f28]">${o.order_id}</span>
+                  ${statusBadgeHTML(o.status)}
+                </div>
+                <div>
+                  <h4 class="font-extrabold text-sm text-slate-900">${o.customer_name}</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">${o.customer_address}</p>
+                </div>
+                <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                  <span class="text-slate-500">Tanggal: <b>${o.delivery_date}</b></span>
+                  <span class="font-extrabold text-[#053f28]">${formatRupiah(o.total_amount)}</span>
+                </div>
+                ${proof ? `
+                  <div class="text-[11px] text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+                    <i class="fa-solid fa-user-check mr-1"></i> Diterima oleh: <b>${proof.recipient_name}</b> (${proof.uploaded_at})
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('') || `<div class="bg-white p-8 rounded-2xl text-center text-slate-400">Belum ada pesanan yang selesai dikirim.</div>`}
+        </div>
+      `;
+    }
+
+    function renderKurirMobileProfile(container) {
+      const branch = DB.HH_BRANCHES.find(b => b.branch_id === currentUser.branch_id) || DB.HH_BRANCHES[0];
+      container.innerHTML = `
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col items-center text-center space-y-4">
+          <div class="w-20 h-20 rounded-full bg-[#053f28] text-[#fde002] flex items-center justify-center text-3xl font-black shadow-md">
+            <i class="fa-solid fa-user-astronaut"></i>
+          </div>
+          <div>
+            <span class="px-3 py-0.5 rounded-full bg-[#fde002] text-[#053f28] font-black text-[10px] uppercase">KURIR RESMI</span>
+            <h3 class="text-xl font-black text-slate-900 mt-1.5">${currentUser.name}</h3>
+            <p class="text-xs text-slate-500">${currentUser.email}</p>
+          </div>
+
+          <div class="w-full bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2.5">
+            <div class="flex justify-between border-b border-slate-200 pb-2">
+              <span class="text-slate-500 font-bold">ID Pengguna</span>
+              <span class="font-extrabold text-[#053f28]">${currentUser.user_id}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-200 pb-2">
+              <span class="text-slate-500 font-bold">No. HP / WhatsApp</span>
+              <span class="font-extrabold text-slate-800">${currentUser.phone || '-'}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-200 pb-2">
+              <span class="text-slate-500 font-bold">Kendaraan Operasional</span>
+              <span class="font-extrabold text-slate-800">${currentUser.vehicle || 'Armada Kurir HH'}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500 font-bold">Cabang Penugasan</span>
+              <span class="font-extrabold text-slate-800">${branch ? branch.name : currentUser.branch_id}</span>
+            </div>
+          </div>
+
+          <button onclick="handleLogout()" class="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-power-off"></i> Keluar Akun Kurir
+          </button>
+        </div>
+      `;
     }
 
     /*************************************************************************
@@ -2854,14 +3288,14 @@ Catatan: Antar pagi jam 9</textarea>
         if (gpsWatchId && navigator.geolocation) navigator.geolocation.clearWatch(gpsWatchId);
         gpsWatchId = null;
         gpsActive = false;
-        ind.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Nonaktif`;
+        if (ind) ind.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Nonaktif`;
         showToast('Perekaman GPS Kurir dihentikan.', 'info');
-        if (currentView === 'pengiriman') renderCourierDeliveriesView(document.getElementById('viewContainer'));
+        if (currentView === 'pengiriman' || currentView === 'kurir_pengiriman') navigateTo(currentView);
         return;
       }
 
       gpsActive = true;
-      ind.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> <span class="text-[#053f28]">GPS Aktif</span>`;
+      if (ind) ind.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> <span class="text-[#053f28]">GPS Aktif</span>`;
 
       if ('geolocation' in navigator) {
         gpsWatchId = navigator.geolocation.watchPosition(
@@ -2889,7 +3323,7 @@ Catatan: Antar pagi jam 9</textarea>
 
       recordGpsPointToDB(lastGpsCoord);
       showToast('Live GPS Kurir Aktif!', 'success');
-      if (currentView === 'pengiriman') renderCourierDeliveriesView(document.getElementById('viewContainer'));
+      if (currentView === 'pengiriman' || currentView === 'kurir_pengiriman') navigateTo(currentView);
     }
 
     function recordGpsPointToDB(coord) {
@@ -2939,7 +3373,7 @@ Catatan: Antar pagi jam 9</textarea>
 
       commitDatabaseChange('updateOrder', { order: ord });
       logActivity(`Kurir update ${orderId} -> ${newStatus}`);
-      renderCourierDeliveriesView(document.getElementById('viewContainer'));
+      navigateTo(currentView);
       showToast(`Status ${orderId} diperbarui: ${newStatus}`);
     }
 
