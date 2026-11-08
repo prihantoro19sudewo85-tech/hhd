@@ -444,12 +444,19 @@
         </div>
 
         <!-- Dynamic View Container -->
-        <div id="viewContainer" class="p-4 sm:p-8 space-y-6 max-w-7xl w-full mx-auto pb-24"></div>
+        <div id="viewContainer" class="p-4 sm:p-8 space-y-6 max-w-7xl w-full mx-auto pb-28"></div>
       </main>
 
-      <!-- Bottom Navigation Bar Khusus Kurir -->
+      <!-- Floating Quick Scan Barcode Button Khusus Kurir (Selalu Muncul di Layar Kurir) -->
+      <button id="courierFloatingScanBtn" type="button" onclick="openCourierBarcodeScannerModal()"
+        class="hidden fixed bottom-20 right-4 z-50 px-4 py-3 rounded-full bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-xs shadow-2xl border-2 border-[#053f28] items-center gap-2 animate-bounce">
+        <i class="fa-solid fa-barcode text-base"></i>
+        <span>SCAN SURAT JALAN</span>
+      </button>
+
+      <!-- Bottom Navigation Bar Khusus Kurir (Dilengkapi Tombol Tengah SCAN SJ) -->
       <nav id="courierBottomNav" class="hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t-2 border-[#053f28]/15 shadow-2xl px-2 py-1.5">
-        <div class="max-w-md mx-auto grid grid-cols-5 gap-1">
+        <div class="max-w-md mx-auto grid grid-cols-6 gap-1 items-center">
           <button type="button" id="bnav_kurir_home" onclick="navigateTo('kurir_home')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-extrabold transition bg-[#053f28] text-[#fde002]">
             <i class="fa-solid fa-house text-sm mb-0.5"></i>
             <span>Home</span>
@@ -457,11 +464,15 @@
           <button type="button" id="bnav_kurir_pesanan" onclick="navigateTo('kurir_pesanan')" class="relative flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-bold transition text-slate-500">
             <i class="fa-solid fa-address-book text-sm mb-0.5"></i>
             <span>Pesanan</span>
-            <span id="courierNewOrderBadge" class="hidden absolute top-1 right-3 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-black items-center justify-center shadow">0</span>
+            <span id="courierNewOrderBadge" class="hidden absolute top-1 right-2 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-black items-center justify-center shadow">0</span>
+          </button>
+          <button type="button" id="bnav_kurir_scan" onclick="openCourierBarcodeScannerModal()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-black transition bg-[#fde002] text-[#053f28] border border-[#053f28] shadow-md">
+            <i class="fa-solid fa-barcode text-base mb-0.5"></i>
+            <span>Scan SJ</span>
           </button>
           <button type="button" id="bnav_kurir_pengiriman" onclick="navigateTo('kurir_pengiriman')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-bold transition text-slate-500">
             <i class="fa-solid fa-map-location-dot text-sm mb-0.5"></i>
-            <span>Pengiriman</span>
+            <span>Kirim</span>
           </button>
           <button type="button" id="bnav_kurir_riwayat" onclick="navigateTo('kurir_riwayat')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-bold transition text-slate-500">
             <i class="fa-solid fa-clock-rotate-left text-sm mb-0.5"></i>
@@ -781,7 +792,7 @@
       HH_ACTIVITY_LOG: [],
       HH_SETTINGS: {
         company_name: 'Hanam Hanum Delivery',
-        gas_webapp_url: 'https://script.google.com/macros/s/AKfycby0c2v5XOEHEu4Cr57EuWjp9bkoXvAOdfsVI5pU-9tCX3lcy0OnI9nHDYSlEITCUIL94w/exec',
+        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbz2eSOZbx1hGhi2jgM3bRaZmkraZOv8YlIiYS-dxucxv6XMRdOwnEl3lMNy77QN3NlSnw/exec',
         spreadsheet_id: '1xZF01_8HbPIcjomang4XHhmKVFx_EXSRLEo12Zpw49E',
         drive_folder_id: '13gCbISldFvaTHSQdJ0e023Ry2DQ9U0jJ',
         telegram_bot_username: '@HanamHanumOrderBot',
@@ -2127,10 +2138,10 @@
         const m = cleanCode.match(/track=([^&]+)/);
         if (m) cleanCode = decodeURIComponent(m[1]);
       }
-      executeCourierBarcodeDispatch(cleanCode);
+      executeCourierBarcodeDispatch(cleanCode, true);
     }
 
-    function executeCourierBarcodeDispatch(scannedCode) {
+    function executeCourierBarcodeDispatch(scannedCode, autoRedirectToMaps = true) {
       const code = String(scannedCode || '').trim();
       if (!code) {
         showToast('Masukkan atau scan kode Barcode Surat Jalan terlebih dahulu!', 'warning');
@@ -2171,20 +2182,46 @@
         note: `Kurir melakukan Scan Barcode Surat Jalan (${code}) dan langsung berangkat menuju lokasi ${ord.customer_name}.`
       });
 
-      commitDatabaseChange('updateOrder', { order: ord });
+      // Simpan ke Database & Panggil endpoint scanBarcodeDispatch di Code.gs
+      commitDatabaseChange('scanBarcodeDispatch', {
+        order_id: ord.order_id,
+        courier_id: ord.courier_id || (currentUser ? currentUser.user_id : ''),
+        courier_name: ord.courier_name || (currentUser ? currentUser.name : 'Kurir')
+      });
+      postToGAS({ action: 'updateOrder', order: ord });
+
       playCourierOrderSound();
 
-      const gmapsDestinationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ord.customer_address)}`;
+      const destQuery = (ord.customer_address && ord.customer_address !== '-')
+        ? `${ord.customer_name}, ${ord.customer_address}`
+        : `${ord.lat || -6.25},${ord.lng || 106.86}`;
+      const gmapsDestinationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destQuery)}&travelmode=driving`;
 
-      openModal(`Barcode Surat Jalan Terverifikasi (${ord.order_id})`, `
+      showToast(`Barcode ${ord.order_id} Terverifikasi! Membuka Rute Google Maps ke ${ord.customer_name}...`, 'success');
+
+      // Langsung buka Google Maps Navigasi otomatis begitu selesai scan!
+      if (autoRedirectToMaps) {
+        setTimeout(() => {
+          const newWin = window.open(gmapsDestinationUrl, '_blank');
+          if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+            window.location.href = gmapsDestinationUrl;
+          }
+        }, 450);
+      }
+
+      openModal(`Scan Berhasil! Langsung Jalan ke Tujuan (${ord.order_id})`, `
         <div class="space-y-4 text-xs text-center py-2">
-          <div class="w-16 h-16 rounded-full bg-emerald-100 text-[#053f28] flex items-center justify-center text-3xl mx-auto shadow-sm">
-            <i class="fa-solid fa-truck-fast"></i>
+          <div class="w-16 h-16 rounded-full bg-emerald-100 text-[#053f28] flex items-center justify-center text-3xl mx-auto shadow-sm animate-bounce">
+            <i class="fa-solid fa-motorcycle"></i>
           </div>
           <div>
             <span class="px-3 py-1 rounded-full bg-[#053f28] text-[#fde002] font-black text-[10px] uppercase">Status Otomatis: DALAM PERJALANAN & LIVE GPS ON</span>
             <h4 class="text-lg font-black text-slate-900 mt-2">${ord.customer_name}</h4>
             <p class="text-slate-600 mt-1 max-w-md mx-auto"><i class="fa-solid fa-location-dot text-rose-600 mr-1"></i> ${ord.customer_address}</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-bold text-[11px]">
+            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengarahkan otomatis ke Google Maps Navigasi... (Klik tombol biru di bawah jika belum terbuka otomatis)
           </div>
 
           <div class="p-3.5 rounded-xl bg-hh-50 border border-hh-200 text-left space-y-1">
@@ -2450,6 +2487,7 @@
       const btnImp = document.getElementById('topBtnImportDoc');
       const sidebar = document.getElementById('sidebar');
       const bnav = document.getElementById('courierBottomNav');
+      const floatScanBtn = document.getElementById('courierFloatingScanBtn');
       const hamburger = document.getElementById('mobileHamburgerBtn');
       const titleBox = document.getElementById('topBarTitleBox');
 
@@ -2458,11 +2496,19 @@
         if (btnImp) btnImp.classList.add('hidden');
         if (sidebar) sidebar.classList.add('hidden');
         if (bnav) bnav.classList.remove('hidden');
+        if (floatScanBtn) {
+          floatScanBtn.classList.remove('hidden');
+          floatScanBtn.classList.add('flex');
+        }
         if (hamburger) hamburger.classList.add('hidden');
         if (titleBox) titleBox.classList.add('hidden');
       } else {
         if (sidebar) sidebar.classList.remove('hidden');
         if (bnav) bnav.classList.add('hidden');
+        if (floatScanBtn) {
+          floatScanBtn.classList.add('hidden');
+          floatScanBtn.classList.remove('flex');
+        }
         if (hamburger) hamburger.classList.remove('hidden');
         if (titleBox) titleBox.classList.remove('hidden');
         if (currentUser.role === 'admin' || currentUser.role === 'pengembang') {
