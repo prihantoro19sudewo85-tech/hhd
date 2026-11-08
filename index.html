@@ -114,7 +114,29 @@
       border-radius: 50%;
       animation: shadow-drop 0.9s infinite;
     }
+    /* Efek Responsif Instan Saat Semua Tombol Diklik */
+    button, a[href] {
+      transition: transform 0.08s ease, filter 0.08s ease, background-color 0.15s ease !important;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active:not(:disabled), a[href]:active {
+      transform: scale(0.96) !important;
+      filter: brightness(0.92);
+    }
     @media print {
+      @page {
+        size: A5 portrait;
+        margin: 5mm 6mm;
+      }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
       body * { visibility: hidden !important; }
       #printArea, #printArea * { visibility: visible !important; }
       #printArea {
@@ -123,8 +145,10 @@
         left: 0;
         top: 0;
         width: 100%;
-        padding: 16px;
+        padding: 0 !important;
+        margin: 0 !important;
         background: #ffffff;
+        page-break-inside: avoid;
       }
     }
     .login-leaf-tl {
@@ -182,7 +206,7 @@
     <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
       <div class="bg-hh-500 text-white px-5 py-4 flex items-center justify-between border-b-2 border-hh-yellow">
         <div class="flex items-center gap-3">
-          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
+          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
                alt="Logo Hanam Hanum"
                class="w-11 h-11 rounded-xl object-contain bg-black p-1 border border-hh-yellow"
                onerror="this.src='https://placehold.co/100x100/053f28/fde002?text=H%26H'" />
@@ -249,9 +273,9 @@
             </button>
           </div>
 
-          <button type="submit"
-            class="w-full py-4 px-6 rounded-full bg-[#138a54] hover:bg-[#0e6b41] text-white font-extrabold text-[15px] shadow-lg shadow-[#138a54]/30 transition flex items-center justify-center gap-2 mt-2">
-            <i class="fa-solid fa-arrow-right-to-bracket text-lg"></i> Login
+          <button id="btnLoginSubmit" type="submit"
+            class="w-full py-4 px-6 rounded-full bg-[#138a54] hover:bg-[#0e6b41] active:scale-95 text-white font-extrabold text-[15px] shadow-lg shadow-[#138a54]/30 transition flex items-center justify-center gap-2 mt-2">
+            <i class="fa-solid fa-arrow-right-to-bracket text-lg"></i> <span>Login</span>
           </button>
         </form>
 
@@ -351,7 +375,7 @@
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 lg:relative transition-transform duration-200 ease-in-out shrink-0">
       <div class="p-4 bg-[#053f28] text-white flex items-center justify-between border-b-2 border-[#fde002] shrink-0">
         <div class="flex items-center gap-3">
-          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
+          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
                alt="Logo Hanam Hanum"
                class="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-[#fde002]/60 shadow-md"
                onerror="this.src='https://placehold.co/100x100/053f28/fde002?text=H%26H'" />
@@ -399,7 +423,7 @@
             <i class="fa-solid fa-bars"></i>
           </button>
           <div class="flex items-center gap-2.5">
-            <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
+            <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
                  alt="Logo"
                  class="w-9 h-9 rounded-lg object-contain bg-black/40 p-0.5 border border-[#fde002]/50"
                  onerror="this.src='https://placehold.co/80x80/053f28/fde002?text=H%26H'" />
@@ -407,9 +431,6 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="openCourierBarcodeScannerModal()" class="px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-[#fde002] text-xs font-extrabold flex items-center gap-1">
-            <i class="fa-solid fa-barcode"></i> Scan SJ
-          </button>
           <span id="mobileRoleBadge" class="px-2.5 py-1 rounded-lg bg-[#fde002] text-[#053f28] text-xs font-extrabold uppercase">ADMIN</span>
         </div>
       </header>
@@ -428,10 +449,6 @@
               <i class="fa-solid fa-file-import text-sm"></i>
               <span>Import PDF / JPEG</span>
             </button>
-            <button id="topBtnScanBarcode" onclick="openCourierBarcodeScannerModal()" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-[#fde002] text-xs font-extrabold flex items-center gap-2 shadow-xs transition">
-              <i class="fa-solid fa-barcode text-sm"></i>
-              <span>Scan Barcode SJ</span>
-            </button>
             <button id="topBtnTelegram" onclick="openTelegramSimulatorModal()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition">
               <i class="fa-brands fa-telegram text-sm"></i>
               <span>Proses WA (<span id="badgeTelegramCount">0</span>)</span>
@@ -447,16 +464,9 @@
         <div id="viewContainer" class="p-4 sm:p-8 space-y-6 max-w-7xl w-full mx-auto pb-28"></div>
       </main>
 
-      <!-- Floating Quick Scan Barcode Button Khusus Kurir (Selalu Muncul di Layar Kurir) -->
-      <button id="courierFloatingScanBtn" type="button" onclick="openCourierBarcodeScannerModal()"
-        class="hidden fixed bottom-20 right-4 z-50 px-4 py-3 rounded-full bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-xs shadow-2xl border-2 border-[#053f28] items-center gap-2 animate-bounce">
-        <i class="fa-solid fa-barcode text-base"></i>
-        <span>SCAN SURAT JALAN</span>
-      </button>
-
-      <!-- Bottom Navigation Bar Khusus Kurir (Dilengkapi Tombol Tengah SCAN SJ) -->
+      <!-- Bottom Navigation Bar Khusus Kurir (Tanpa Tombol Scan Tambahan) -->
       <nav id="courierBottomNav" class="hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t-2 border-[#053f28]/15 shadow-2xl px-2 py-1.5">
-        <div class="max-w-md mx-auto grid grid-cols-6 gap-1 items-center">
+        <div class="max-w-md mx-auto grid grid-cols-5 gap-1 items-center">
           <button type="button" id="bnav_kurir_home" onclick="navigateTo('kurir_home')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-extrabold transition bg-[#053f28] text-[#fde002]">
             <i class="fa-solid fa-house text-sm mb-0.5"></i>
             <span>Home</span>
@@ -465,10 +475,6 @@
             <i class="fa-solid fa-address-book text-sm mb-0.5"></i>
             <span>Pesanan</span>
             <span id="courierNewOrderBadge" class="hidden absolute top-1 right-2 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-black items-center justify-center shadow">0</span>
-          </button>
-          <button type="button" id="bnav_kurir_scan" onclick="openCourierBarcodeScannerModal()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-black transition bg-[#fde002] text-[#053f28] border border-[#053f28] shadow-md">
-            <i class="fa-solid fa-barcode text-base mb-0.5"></i>
-            <span>Scan SJ</span>
           </button>
           <button type="button" id="bnav_kurir_pengiriman" onclick="navigateTo('kurir_pengiriman')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-bold transition text-slate-500">
             <i class="fa-solid fa-map-location-dot text-sm mb-0.5"></i>
@@ -764,7 +770,7 @@
       'Dijadwalkan ulang'
     ];
 
-    const LOGO_URL = 'https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png';
+    const LOGO_URL = 'https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png';
 
     /*************************************************************************
      * 2. DATABASE 14 SHEET
@@ -792,7 +798,7 @@
       HH_ACTIVITY_LOG: [],
       HH_SETTINGS: {
         company_name: 'Hanam Hanum Delivery',
-        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbz2eSOZbx1hGhi2jgM3bRaZmkraZOv8YlIiYS-dxucxv6XMRdOwnEl3lMNy77QN3NlSnw/exec',
+        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbwGlgxjC3rqQO-oeDpRDv1vVIcQ065mZFZN9FaVdKttUyLwPKAsVmsGfDR3Gj9DxsP96w/exec',
         spreadsheet_id: '1xZF01_8HbPIcjomang4XHhmKVFx_EXSRLEo12Zpw49E',
         drive_folder_id: '13gCbISldFvaTHSQdJ0e023Ry2DQ9U0jJ',
         telegram_bot_username: '@HanamHanumOrderBot',
@@ -1051,11 +1057,11 @@
       return Number(num || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
     }
 
-    // CETAK INVOICE PENJUALAN & SURAT JALAN (DELIVERY ORDER) LENGKAP DENGAN BARCODE & QR SCAN KURIR
+    // CETAK INVOICE PENJUALAN & SURAT JALAN (DELIVERY ORDER) PAS UKURAN A5 (MAKS 20 BARIS) & BARCODE TAJAM DI POJOK KANAN
     function printOrderDocument(orderId, docType = 'INVOICE') {
       const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
       if (!ord) return;
-      const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === orderId);
+      const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === orderId).slice(0, 20);
       const branch = DB.HH_BRANCHES.find(b => b.branch_id === ord.branch_id) || DB.HH_BRANCHES[0] || {
         name: 'Cabang Jakarta',
         address: 'Jalan Raya Bogor KM 21, No 14, Ciracas, Jakarta Timur, DKI Jakarta, Indonesia',
@@ -1070,26 +1076,29 @@
       const terminDays = ord.termin_days || 7;
       const dueDateFormatted = addDaysToDate(docDateSource, terminDays);
       const isSuratJalan = docType === 'SURAT_JALAN';
-      const logoPrint = 'https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png';
+      const logoPrint = 'https://res.cloudinary.com/div5frz9v/image/upload/v1793770702/3x3_r3h8mg.png';
 
-      // Buat SVG Barcode 1D (Code128) untuk di-scan kurir
+      // Buat SVG Barcode 1D (Code128) dengan kontras & ketajaman tinggi agar mudah di-scan
       let barcodeDataUrl = '';
       try {
         const svgNode = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         JsBarcode(svgNode, ord.order_id, {
           format: 'CODE128',
           lineColor: '#000000',
-          width: 1.8,
-          height: 44,
+          background: '#ffffff',
+          width: 2.1,
+          height: 36,
           displayValue: true,
-          fontSize: 12,
+          fontSize: 10,
+          fontOptions: 'bold',
+          textMargin: 2,
           margin: 4
         });
         const svgXml = new XMLSerializer().serializeToString(svgNode);
         barcodeDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgXml)));
       } catch (e) {}
 
-      // QR Code URL agar bila kurir scan pakai kamera HP langsung membuka rute tujuan & otomatis set Dalam Perjalanan
+      // QR Code URL untuk Surat Jalan
       const baseUrl = window.location.href.split('?')[0];
       const qrScanTarget = `${baseUrl}?courier_scan=${encodeURIComponent(ord.order_id)}`;
       const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(qrScanTarget)}`;
@@ -1097,50 +1106,50 @@
       const printEl = document.getElementById('printArea');
 
       if (isSuratJalan) {
-        // TEMPLATE SURAT JALAN (DELIVERY ORDER) SESUAI TEMPLATE + BARCODE KURIR SCAN
+        // TEMPLATE SURAT JALAN (DELIVERY ORDER) KOMPAK A5 + BARCODE KURIR SCAN
         printEl.innerHTML = `
-          <div style="font-family: Arial, Helvetica, sans-serif; color: #000000; max-width: 820px; margin: 0 auto; padding: 16px; background: #ffffff;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px;">
-              <div style="display: flex; align-items: flex-start; gap: 16px; max-width: 55%;">
-                <img src="${logoPrint}" style="width: 78px; height: auto; object-fit: contain;" onerror="this.src='${LOGO_URL}'" />
+          <div style="font-family: Arial, Helvetica, sans-serif; color: #000000; max-width: 100%; margin: 0 auto; padding: 4px 6px; background: #ffffff; font-size: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+              <div style="display: flex; align-items: flex-start; gap: 10px; max-width: 56%;">
+                <img src="${logoPrint}" style="width: 54px; height: auto; object-fit: contain;" onerror="this.src='${LOGO_URL}'" />
                 <div>
-                  <div style="font-size: 18px; font-weight: 800; color: #000000; margin-bottom: 4px;">Ranum Induk Buah, CV</div>
-                  <div style="font-size: 13px; line-height: 1.35; color: #111111;">
+                  <div style="font-size: 13px; font-weight: 800; color: #000000; margin-bottom: 2px;">Ranum Induk Buah, CV</div>
+                  <div style="font-size: 9.5px; line-height: 1.3; color: #111111;">
                     Jalan Raya Bogor KM 21, No 14, Ciracas, Jakarta<br/>
                     Timur, DKI Jakarta, Indonesia
                   </div>
                 </div>
               </div>
 
-              <div style="display: flex; align-items: flex-start; gap: 14px; max-width: 43%; font-size: 13px;">
+              <div style="display: flex; align-items: flex-start; gap: 8px; max-width: 42%; font-size: 9.5px;">
                 <div style="font-weight: 800; white-space: nowrap;">Ship to :</div>
-                <div style="text-align: right; line-height: 1.35;">
+                <div style="text-align: right; line-height: 1.3;">
                   <div style="font-weight: 700;">${ord.customer_name}</div>
                   <div>${ord.customer_address || '-'}</div>
                 </div>
               </div>
             </div>
 
-            <div style="text-align: center; margin: 14px 0 8px;">
-              <div style="font-size: 22px; font-weight: 800; letter-spacing: 0.3px;">Delivery Order ${docNumber}</div>
-              <div style="display: inline-block; border-bottom: 1px solid #000; padding: 3px 56px; font-size: 15px; font-weight: 800; margin-top: 2px;">
+            <div style="text-align: center; margin: 6px 0 4px;">
+              <div style="font-size: 15px; font-weight: 800; letter-spacing: 0.2px;">Delivery Order ${docNumber}</div>
+              <div style="display: inline-block; border-bottom: 1px solid #000; padding: 1px 32px; font-size: 11px; font-weight: 800; margin-top: 1px;">
                 Document Date ${doDateFormatted}
               </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
-              <div style="font-size: 13px; font-weight: 700;">PO : ${ord.po_number || ord.notes || '-'}</div>
-              <div style="font-size: 11px; color: #333;">ID Order: <b>${ord.order_id}</b> | Kurir: <b>${ord.courier_name || '-'}</b></div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px;">
+              <div style="font-size: 9.5px; font-weight: 700;">PO : ${ord.po_number || ord.notes || '-'}</div>
+              <div style="font-size: 9px; color: #333;">ID Order: <b>${ord.order_id}</b> | Kurir: <b>${ord.courier_name || '-'}</b></div>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; font-size: 13px; border: 1.5px solid #000000;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; border: 1px solid #000000;">
               <thead>
-                <tr style="border-bottom: 1.5px solid #000000; background: #ffffff;">
-                  <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center; width: 42px; font-weight: 700;">No</th>
-                  <th style="border: 1px solid #000000; padding: 6px 10px; text-align: center; width: 175px; font-weight: 700;">Item Code</th>
-                  <th style="border: 1px solid #000000; padding: 6px 10px; text-align: center; font-weight: 700;">Item Description</th>
-                  <th style="border: 1px solid #000000; padding: 6px 10px; text-align: center; width: 100px; font-weight: 700;">Quantity</th>
-                  <th style="border: 1px solid #000000; padding: 6px 10px; text-align: center; width: 85px; font-weight: 700;">Uom</th>
+                <tr style="border-bottom: 1px solid #000000; background: #ffffff;">
+                  <th style="border: 1px solid #000000; padding: 3px 5px; text-align: center; width: 28px; font-weight: 700;">No</th>
+                  <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 115px; font-weight: 700;">Item Code</th>
+                  <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; font-weight: 700;">Item Description</th>
+                  <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 65px; font-weight: 700;">Quantity</th>
+                  <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 55px; font-weight: 700;">Uom</th>
                 </tr>
               </thead>
               <tbody>
@@ -1149,11 +1158,11 @@
                   const itemCode = it.item_code || generateProductItemCode(it.product_name, branchPrefix);
                   return `
                     <tr>
-                      <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${idx + 1}</td>
-                      <td style="border: 1px solid #000000; padding: 6px 10px; text-align: left;">${itemCode}</td>
-                      <td style="border: 1px solid #000000; padding: 6px 10px; text-align: left;">${it.product_name}</td>
-                      <td style="border: 1px solid #000000; padding: 6px 10px; text-align: center;">${qtyVal}</td>
-                      <td style="border: 1px solid #000000; padding: 6px 10px; text-align: center;">${String(it.unit || 'KG').toUpperCase()}</td>
+                      <td style="border: 1px solid #000000; padding: 2.5px 5px; text-align: center;">${idx + 1}</td>
+                      <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: left;">${itemCode}</td>
+                      <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: left;">${it.product_name}</td>
+                      <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: center;">${qtyVal}</td>
+                      <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: center;">${String(it.unit || 'KG').toUpperCase()}</td>
                     </tr>
                   `;
                 }).join('')}
@@ -1161,44 +1170,42 @@
             </table>
 
             <!-- KOTAK BARCODE & QR SCAN KHUSUS KURIR -->
-            <div style="margin-top: 18px; padding: 10px 14px; border: 1.5px dashed #053f28; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; background: #f9fdfa;">
-              <div style="display: flex; align-items: center; gap: 14px;">
-                ${barcodeDataUrl ? `<img src="${barcodeDataUrl}" style="height: 62px; width: auto;" alt="Barcode ${ord.order_id}" />` : ''}
-                <div style="font-size: 11px; line-height: 1.45;">
-                  <div style="font-weight: 800; color: #053f28; font-size: 12px;">SCAN BARCODE KURIR — LANGSUNG JALAN KE TUJUAN</div>
-                  <div>1. Buka menu <b>Scan Barcode SJ</b> di Aplikasi Kurir atau Kamera HP.</div>
-                  <div>2. Saat di-scan, status otomatis berubah menjadi <b>Dalam Perjalanan</b> & membuka <b>Google Maps Tujuan</b>.</div>
-                  <div style="color: #444; margin-top: 2px;">Tujuan: <b>${ord.customer_name}</b> (${ord.customer_address})</div>
+            <div style="margin-top: 8px; padding: 6px 10px; border: 1px dashed #053f28; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; background: #ffffff;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                ${barcodeDataUrl ? `<img src="${barcodeDataUrl}" style="height: 48px; width: auto; image-rendering: crisp-edges;" alt="Barcode ${ord.order_id}" />` : ''}
+                <div style="font-size: 8.5px; line-height: 1.35;">
+                  <div style="font-weight: 800; color: #053f28; font-size: 9.5px;">SCAN BARCODE KURIR — LANGSUNG JALAN KE TUJUAN</div>
+                  <div>Scan Barcode/QR ini di Aplikasi Kurir untuk mulai jalan & buka Google Maps.</div>
+                  <div style="color: #222; margin-top: 1px;">Tujuan: <b>${ord.customer_name}</b> (${ord.customer_address})</div>
                 </div>
               </div>
               <div style="text-align: center;">
-                <img src="${qrImgUrl}" style="width: 72px; height: 72px; border: 1px solid #ccc; padding: 2px; background: #fff;" alt="QR Scan" />
-                <div style="font-size: 9px; font-weight: 700; margin-top: 2px;">QR Navigasi Kurir</div>
+                <img src="${qrImgUrl}" style="width: 52px; height: 52px; border: 1px solid #ccc; padding: 1px; background: #fff;" alt="QR Scan" />
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-top: 38px; font-size: 13px;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-top: 16px; font-size: 9.5px;">
               <div>
                 <div style="font-weight: 700;">Dibuat</div>
-                <div style="margin-top: 60px;">(....................)</div>
+                <div style="margin-top: 34px;">(....................)</div>
               </div>
               <div>
                 <div style="font-weight: 700;">Disetujui Oleh</div>
-                <div style="margin-top: 60px;">(....................)</div>
+                <div style="margin-top: 34px;">(....................)</div>
               </div>
               <div>
                 <div style="font-weight: 700;">Dikirim Oleh</div>
-                <div style="margin-top: 60px;">(....................)</div>
+                <div style="margin-top: 34px;">(....................)</div>
               </div>
               <div>
                 <div style="font-weight: 700;">Diterima Oleh</div>
-                <div style="margin-top: 60px;">(....................)</div>
+                <div style="margin-top: 34px;">(....................)</div>
               </div>
             </div>
           </div>
         `;
       } else {
-        // TEMPLATE INVOICE PENJUALAN SESUAI FORMAT USER
+        // TEMPLATE INVOICE PENJUALAN PAS 1 LEMBAR A5 (HINGGA 20 ITEM) & BARCODE TAJAM DI POJOK KANAN BAWAH TULISAN INVOICE PENJUALAN
         let subtotalAll = 0;
         let totalDisc = Number(ord.discount_amount || 0);
         let totalTax = Number(ord.tax_amount || 0);
@@ -1213,14 +1220,14 @@
           const bgRow = idx % 2 === 1 ? '#f8faf8' : '#ffffff';
           return `
             <tr style="background: ${bgRow};">
-              <td style="padding: 6px 8px; text-align: center;">${idx + 1}</td>
-              <td style="padding: 6px 8px; text-align: center;">${itemCode}</td>
-              <td style="padding: 6px 8px; text-align: left;">${it.product_name}</td>
-              <td style="padding: 6px 8px; text-align: center;">${String(it.unit || 'KG').toUpperCase()}</td>
-              <td style="padding: 6px 8px; text-align: right;">${qtyVal}</td>
-              <td style="padding: 6px 8px; text-align: right;">${formatNumberID(priceVal)}</td>
-              <td style="padding: 6px 8px; text-align: center;">${itemDisc > 0 ? formatNumberID(itemDisc) : ''}</td>
-              <td style="padding: 6px 8px; text-align: right;">${formatNumberID(sub)}</td>
+              <td style="padding: 2.5px 4px; text-align: center;">${idx + 1}</td>
+              <td style="padding: 2.5px 4px; text-align: center;">${itemCode}</td>
+              <td style="padding: 2.5px 5px; text-align: left;">${it.product_name}</td>
+              <td style="padding: 2.5px 4px; text-align: center;">${String(it.unit || 'KG').toUpperCase()}</td>
+              <td style="padding: 2.5px 4px; text-align: right;">${qtyVal}</td>
+              <td style="padding: 2.5px 5px; text-align: right;">${formatNumberID(priceVal)}</td>
+              <td style="padding: 2.5px 4px; text-align: center;">${itemDisc > 0 ? formatNumberID(itemDisc) : ''}</td>
+              <td style="padding: 2.5px 5px; text-align: right;">${formatNumberID(sub)}</td>
             </tr>
           `;
         }).join('');
@@ -1228,49 +1235,56 @@
         const grandTotal = Math.max(0, subtotalAll - totalDisc + totalTax);
 
         printEl.innerHTML = `
-          <div style="font-family: Arial, Helvetica, sans-serif; color: #000000; max-width: 820px; margin: 0 auto; padding: 16px; background: #ffffff;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px; border-bottom: 2px solid #044d15;">
-              <div style="display: flex; align-items: flex-start; gap: 16px;">
-                <img src="${logoPrint}" style="width: 78px; height: auto; object-fit: contain;" onerror="this.src='${LOGO_URL}'" />
+          <div style="font-family: Arial, Helvetica, sans-serif; color: #000000; max-width: 100%; margin: 0 auto; padding: 2px 4px; background: #ffffff; font-size: 9.5px; page-break-inside: avoid;">
+            <!-- Header Invoice dengan Barcode di Pojok Kanan di Bawah Tulisan INVOICE PENJUALAN -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 6px; border-bottom: 1.5px solid #044d15;">
+              <div style="display: flex; align-items: flex-start; gap: 10px; max-width: 55%;">
+                <img src="${logoPrint}" style="width: 52px; height: auto; object-fit: contain;" onerror="this.src='${LOGO_URL}'" />
                 <div>
-                  <div style="font-size: 18px; font-weight: 800; color: #044d15; margin-bottom: 3px;">Ranum Induk Buah, CV</div>
-                  <div style="font-size: 13px; color: #111111;">Jalan Raya Bogor KM 21, No 14, Ciracas, Jakarta Timur,</div>
-                  <div style="font-size: 13px; color: #111111; margin-top: 2px;">Ph:082113780016</div>
+                  <div style="font-size: 13px; font-weight: 800; color: #044d15; margin-bottom: 1px;">Ranum Induk Buah, CV</div>
+                  <div style="font-size: 9.5px; color: #111111; line-height: 1.25;">Jalan Raya Bogor KM 21, No 14, Ciracas, Jakarta Timur,</div>
+                  <div style="font-size: 9.5px; color: #111111; margin-top: 1px;">Ph:082113780016</div>
                 </div>
               </div>
-              <div style="text-align: right;">
-                <div style="font-size: 24px; font-weight: 800; color: #044d15; letter-spacing: 0.5px;">INVOICE PENJUALAN</div>
-                ${barcodeDataUrl ? `<img src="${barcodeDataUrl}" style="height: 38px; margin-top: 4px;" />` : ''}
+              <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
+                <div style="font-size: 15px; font-weight: 900; color: #044d15; letter-spacing: 0.4px; line-height: 1.1;">INVOICE PENJUALAN</div>
+                ${barcodeDataUrl ? `
+                  <div style="margin-top: 3px; text-align: right;">
+                    <img src="${barcodeDataUrl}" style="height: 42px; width: auto; display: block; margin-left: auto; image-rendering: crisp-edges;" alt="Barcode ${ord.order_id}" />
+                  </div>
+                ` : ''}
               </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; margin: 10px 0 14px; font-size: 13px;">
-              <div style="line-height: 1.7;">
-                <div><strong style="display: inline-block; width: 95px;">Cust Name :</strong> ${ord.customer_name}</div>
-                <div><strong style="display: inline-block; width: 95px;">No. Ref :</strong> ${ord.ref_number || ord.notes || ''}</div>
+            <!-- Info Pelanggan & Nomor Nota -->
+            <div style="display: flex; justify-content: space-between; margin: 5px 0 6px; font-size: 9.5px;">
+              <div style="line-height: 1.4; max-width: 52%;">
+                <div><strong style="display: inline-block; width: 68px;">Cust Name :</strong> ${ord.customer_name}</div>
+                <div><strong style="display: inline-block; width: 68px;">No. Ref :</strong> ${ord.ref_number || ord.notes || ''}</div>
               </div>
-              <div style="line-height: 1.7; text-align: right;">
-                <div><strong style="display: inline-block; width: 120px; text-align: right; margin-right: 18px;">No. Nota :</strong> <span style="display: inline-block; width: 110px; text-align: right;">${docNumber}</span></div>
-                <div><strong style="display: inline-block; width: 120px; text-align: right; margin-right: 18px;">Document Date :</strong> <span style="display: inline-block; width: 110px; text-align: right;">${invDateFormatted}</span></div>
+              <div style="line-height: 1.4; text-align: right;">
+                <div><strong style="display: inline-block; width: 85px; text-align: right; margin-right: 8px;">No. Nota :</strong> <span style="display: inline-block; width: 82px; text-align: right; font-weight: 700;">${docNumber}</span></div>
+                <div><strong style="display: inline-block; width: 85px; text-align: right; margin-right: 8px;">Document Date :</strong> <span style="display: inline-block; width: 82px; text-align: right;">${invDateFormatted}</span></div>
                 <div>
-                  <strong style="color: #d90429; margin-right: 10px;">Termin :</strong> <span style="margin-right: 12px;">${terminDays}</span>
-                  <strong style="color: #d90429; margin-right: 18px;">- Jatuh Tempo:</strong>
-                  <span style="display: inline-block; width: 110px; text-align: right;">${dueDateFormatted}</span>
+                  <strong style="color: #d90429; margin-right: 4px;">Termin :</strong> <span style="margin-right: 6px; font-weight: 700;">${terminDays}</span>
+                  <strong style="color: #d90429; margin-right: 8px;">- Jatuh Tempo:</strong>
+                  <span style="display: inline-block; width: 82px; text-align: right;">${dueDateFormatted}</span>
                 </div>
               </div>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; font-size: 13px; border-bottom: 2px solid #044d15;">
+            <!-- Tabel Produk (Muat hingga 20 Orderan dalam 1 Lembar A5) -->
+            <table style="width: 100%; border-collapse: collapse; font-size: 9px; border-bottom: 1.5px solid #044d15;">
               <thead>
-                <tr style="background: #044d15; color: #ffffff;">
-                  <th style="padding: 7px 8px; text-align: center; width: 36px;">No.</th>
-                  <th style="padding: 7px 8px; text-align: center; width: 115px;">Kode</th>
-                  <th style="padding: 7px 8px; text-align: left;">Nama Produk</th>
-                  <th style="padding: 7px 8px; text-align: center; width: 65px;">Uom</th>
-                  <th style="padding: 7px 8px; text-align: right; width: 65px;">Qty</th>
-                  <th style="padding: 7px 8px; text-align: right; width: 100px;">Harga</th>
-                  <th style="padding: 7px 8px; text-align: center; width: 60px;">Disc</th>
-                  <th style="padding: 7px 8px; text-align: right; width: 110px;">Subtotal</th>
+                <tr style="background: #044d15 !important; color: #ffffff !important;">
+                  <th style="padding: 3.5px 4px; text-align: center; width: 24px;">No.</th>
+                  <th style="padding: 3.5px 4px; text-align: center; width: 85px;">Kode</th>
+                  <th style="padding: 3.5px 5px; text-align: left;">Nama Produk</th>
+                  <th style="padding: 3.5px 4px; text-align: center; width: 42px;">Uom</th>
+                  <th style="padding: 3.5px 4px; text-align: right; width: 42px;">Qty</th>
+                  <th style="padding: 3.5px 5px; text-align: right; width: 72px;">Harga</th>
+                  <th style="padding: 3.5px 4px; text-align: center; width: 45px;">Disc</th>
+                  <th style="padding: 3.5px 5px; text-align: right; width: 80px;">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
@@ -1278,44 +1292,46 @@
               </tbody>
             </table>
 
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 10px; font-size: 13px;">
-              <div style="max-width: 55%; line-height: 1.5;">
-                <div style="font-weight: 800; margin-bottom: 6px;">Keterangan</div>
-                <div style="margin-left: 10px; margin-bottom: 6px;">
+            <!-- Keterangan & Ringkasan Total -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 5px; font-size: 9px; page-break-inside: avoid;">
+              <div style="max-width: 55%; line-height: 1.35;">
+                <div style="font-weight: 800; margin-bottom: 2px;">Keterangan</div>
+                <div style="margin-left: 6px; margin-bottom: 2px;">
                   1. Pembayaran hanya ke Rek : BCA 1656007789<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;An Ranum Induk Buah CV
                 </div>
-                <div style="margin-left: 10px;">
+                <div style="margin-left: 6px;">
                   2. Kirim Bukti transfer ke whatsapp : 082113780016<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;sebagai bukti pelunasan
                 </div>
               </div>
 
-              <div style="width: 310px; font-size: 13px;">
-                <div style="display: flex; justify-content: space-between; padding: 4px 6px;">
+              <div style="width: 225px; font-size: 9px;">
+                <div style="display: flex; justify-content: space-between; padding: 1.5px 4px;">
                   <span>Subtotal Rp</span>
                   <span>${formatNumberID(subtotalAll)}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px 6px;">
+                <div style="display: flex; justify-content: space-between; padding: 1.5px 4px;">
                   <span>Diskon Rp</span>
                   <span>${formatNumberID(totalDisc)}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px 6px; margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; padding: 1.5px 4px; margin-bottom: 3px;">
                   <span>Pajak Rp</span>
                   <span>${formatNumberID(totalTax)}</span>
                 </div>
                 <div style="display: flex; align-items: center; justify-content: space-between;">
-                  <span style="font-weight: 800; padding-right: 10px;">Grand Total Rp.</span>
-                  <div style="background: #044d15; color: #ffffff; font-weight: 800; padding: 6px 12px; min-width: 155px; text-align: right;">
+                  <span style="font-weight: 800; padding-right: 6px;">Grand Total Rp.</span>
+                  <div style="background: #044d15 !important; color: #ffffff !important; font-weight: 800; padding: 3.5px 8px; min-width: 110px; text-align: right;">
                     ${formatNumberID(grandTotal)}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div style="border-top: 2px solid #044d15; margin-top: 12px; padding-top: 6px;">
-              <div style="text-align: right; font-size: 10px; font-weight: 800; margin-bottom: 8px;">* Harga Termasuk Pajak</div>
-              <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; padding: 0 28px; margin-top: 8px; margin-bottom: 48px;">
+            <!-- Tanda Tangan Kompak Pas A5 -->
+            <div style="border-top: 1.5px solid #044d15; margin-top: 5px; padding-top: 3px; page-break-inside: avoid;">
+              <div style="text-align: right; font-size: 8px; font-weight: 800; margin-bottom: 2px;">* Harga Termasuk Pajak</div>
+              <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; padding: 0 24px; margin-top: 2px; margin-bottom: 22px;">
                 <div>Tanda Terima</div>
                 <div>Hormat Kami</div>
               </div>
@@ -1326,7 +1342,7 @@
 
       setTimeout(() => {
         window.print();
-      }, 250);
+      }, 150);
     }
 
     /*************************************************************************
@@ -1417,9 +1433,9 @@
 
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label class="font-extrabold text-[#053f28]">Daftar Item Produk Hasil Filter Dokumen:</label>
+                <label class="font-extrabold text-[#053f28]">Daftar Item Produk Hasil Filter Dokumen (Maksimal 20 Orderan):</label>
                 <button type="button" onclick="addImportedItemRow()" class="px-2.5 py-1 rounded-lg bg-hh-100 text-[#053f28] font-bold text-[11px]">
-                  + Tambah Baris
+                  + Tambah Baris (Maks 20)
                 </button>
               </div>
               <div class="overflow-x-auto border border-slate-200 rounded-xl">
@@ -1776,7 +1792,8 @@
       });
 
       // Hitung ulang Grand Total bila belum terdeteksi
-      const calcSubtotal = items.reduce((acc, it) => acc + (it.qty * it.price - (it.disc || 0)), 0);
+      const limitedItems = items.slice(0, 20);
+      const calcSubtotal = limitedItems.reduce((acc, it) => acc + (it.qty * it.price - (it.disc || 0)), 0);
       if (!grandTotal && calcSubtotal > 0) {
         grandTotal = Math.max(0, calcSubtotal - discountAmount + taxAmount);
       }
@@ -1793,14 +1810,14 @@
         discountAmount,
         taxAmount,
         grandTotal,
-        items
+        items: limitedItems
       };
     }
 
     function populateImportModalWithParsedData(parsed, rawText) {
       const badge = document.getElementById('detectedTemplateBadge');
       if (badge) {
-        badge.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> Terdeteksi: Template ${parsed.docType === 'SURAT_JALAN' ? 'Surat Jalan (Delivery Order)' : 'Invoice Penjualan'} (${parsed.items.length} Produk)`;
+        badge.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> Terdeteksi: Template ${parsed.docType === 'SURAT_JALAN' ? 'Surat Jalan (Delivery Order)' : 'Invoice Penjualan'} (${parsed.items.length} / Maks 20 Produk)`;
       }
       const rawArea = document.getElementById('rawExtractedTextArea');
       if (rawArea) rawArea.value = rawText;
@@ -1830,7 +1847,7 @@
           disc: 0
         });
       } else {
-        parsed.items.forEach(it => addImportedItemRow(it));
+        parsed.items.slice(0, 20).forEach(it => addImportedItemRow(it));
       }
       recalculateImportGrandTotal();
     }
@@ -1838,6 +1855,11 @@
     function addImportedItemRow(it = {}) {
       const tbody = document.getElementById('impItemsTableBody');
       if (!tbody) return;
+      const currentRowsCount = tbody.querySelectorAll('.imp-item-row').length;
+      if (currentRowsCount >= 20) {
+        showToast('Maksimal 20 baris item produk per Invoice!', 'warning');
+        return;
+      }
       const tr = document.createElement('tr');
       tr.className = 'imp-item-row';
       tr.innerHTML = `
@@ -2424,57 +2446,82 @@
 
     async function handleLogin(e) {
       if (e && e.preventDefault) e.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-      const password = document.getElementById('loginPassword').value;
-      const passHash = await sha256Hash(password);
-
-      await syncWithGASBackend(false);
-
-      const matchedAccount = DB.HH_USERS.find(u => u.email.toLowerCase() === email);
-      if (!matchedAccount || (matchedAccount.password_hash !== passHash && password !== '123456')) {
-        showToast('Email atau password tidak sesuai!', 'error');
-        return;
+      const btnSubmit = document.getElementById('btnLoginSubmit');
+      const originalBtnHTML = btnSubmit ? btnSubmit.innerHTML : '';
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> <span>Memproses Masuk...</span>`;
       }
 
-      if (!isUserApproved(matchedAccount)) {
-        openModal('Menunggu Konfirmasi Pengembang', `
-          <div class="space-y-4 text-xs text-slate-700 text-center py-2">
-            <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mx-auto">
-              <i class="fa-solid fa-user-clock"></i>
-            </div>
-            <h4 class="font-extrabold text-sm text-slate-900">Akun Belum Dikonfirmasi Pengembang</h4>
-            <p class="text-slate-600 max-w-sm mx-auto leading-relaxed">
-              Pendaftaran Anda sebagai <b>${matchedAccount.role.toUpperCase()}</b> masih menunggu izin / persetujuan dari <b>Pengembang (Developer)</b>.
-            </p>
-            <button type="button" onclick="closeModal()" class="px-5 py-2 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold">Tutup</button>
-          </div>
-        `);
-        return;
-      }
-
-      currentUser = matchedAccount;
       try {
-        localStorage.setItem('HANAM_HANUM_ACTIVE_USER', JSON.stringify(currentUser));
-      } catch (err) {}
+        const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+        const password = document.getElementById('loginPassword').value;
+        const passHash = await sha256Hash(password);
 
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('appShell').classList.remove('hidden');
+        // Langsung cek dari data lokal yang sudah siap agar login instan tanpa nunggu jaringan lambat
+        let matchedAccount = DB.HH_USERS.find(u => u.email.toLowerCase() === email);
+        if (!matchedAccount) {
+          // Hanya tunggu sync sebentar jika email belum ditemukan di memori lokal
+          await Promise.race([
+            syncWithGASBackend(false),
+            new Promise(resolve => setTimeout(resolve, 1200))
+          ]);
+          matchedAccount = DB.HH_USERS.find(u => u.email.toLowerCase() === email);
+        }
 
-      updateUserHeaderUI();
-      renderSidebarMenu();
-      startGlobalAutoRefreshSync();
+        if (!matchedAccount || (matchedAccount.password_hash !== passHash && password !== '123456')) {
+          showToast('Email atau password tidak sesuai!', 'error');
+          return;
+        }
 
-      if (currentUser.role === 'kurir') {
-        activateCourierStayOnProtection();
-        navigateTo('kurir_home');
-      } else if (currentUser.role === 'gudang') {
-        navigateTo('persiapan');
-      } else {
-        navigateTo('dashboard');
+        if (!isUserApproved(matchedAccount)) {
+          openModal('Menunggu Konfirmasi Pengembang', `
+            <div class="space-y-4 text-xs text-slate-700 text-center py-2">
+              <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-user-clock"></i>
+              </div>
+              <h4 class="font-extrabold text-sm text-slate-900">Akun Belum Dikonfirmasi Pengembang</h4>
+              <p class="text-slate-600 max-w-sm mx-auto leading-relaxed">
+                Pendaftaran Anda sebagai <b>${matchedAccount.role.toUpperCase()}</b> masih menunggu izin / persetujuan dari <b>Pengembang (Developer)</b>.
+              </p>
+              <button type="button" onclick="closeModal()" class="px-5 py-2 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold">Tutup</button>
+            </div>
+          `);
+          return;
+        }
+
+        currentUser = matchedAccount;
+        try {
+          localStorage.setItem('HANAM_HANUM_ACTIVE_USER', JSON.stringify(currentUser));
+        } catch (err) {}
+
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('appShell').classList.remove('hidden');
+
+        updateUserHeaderUI();
+        renderSidebarMenu();
+        startGlobalAutoRefreshSync();
+
+        if (currentUser.role === 'kurir') {
+          activateCourierStayOnProtection();
+          navigateTo('kurir_home');
+        } else if (currentUser.role === 'gudang') {
+          navigateTo('persiapan');
+        } else {
+          navigateTo('dashboard');
+        }
+
+        logActivity(`Login ke aplikasi sebagai ${currentUser.role.toUpperCase()}`);
+        showToast(`Selamat datang, ${currentUser.name}!`, 'success');
+
+        // Sinkronisasi background tanpa menghambat masuknya halaman
+        syncWithGASBackend(false);
+      } finally {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = originalBtnHTML || `<i class="fa-solid fa-arrow-right-to-bracket text-lg"></i> <span>Login</span>`;
+        }
       }
-
-      logActivity(`Login ke aplikasi sebagai ${currentUser.role.toUpperCase()}`);
-      showToast(`Selamat datang, ${currentUser.name}!`, 'success');
     }
 
     function updateUserHeaderUI() {
@@ -2487,7 +2534,6 @@
       const btnImp = document.getElementById('topBtnImportDoc');
       const sidebar = document.getElementById('sidebar');
       const bnav = document.getElementById('courierBottomNav');
-      const floatScanBtn = document.getElementById('courierFloatingScanBtn');
       const hamburger = document.getElementById('mobileHamburgerBtn');
       const titleBox = document.getElementById('topBarTitleBox');
 
@@ -2496,19 +2542,11 @@
         if (btnImp) btnImp.classList.add('hidden');
         if (sidebar) sidebar.classList.add('hidden');
         if (bnav) bnav.classList.remove('hidden');
-        if (floatScanBtn) {
-          floatScanBtn.classList.remove('hidden');
-          floatScanBtn.classList.add('flex');
-        }
         if (hamburger) hamburger.classList.add('hidden');
         if (titleBox) titleBox.classList.add('hidden');
       } else {
         if (sidebar) sidebar.classList.remove('hidden');
         if (bnav) bnav.classList.add('hidden');
-        if (floatScanBtn) {
-          floatScanBtn.classList.add('hidden');
-          floatScanBtn.classList.remove('flex');
-        }
         if (hamburger) hamburger.classList.remove('hidden');
         if (titleBox) titleBox.classList.remove('hidden');
         if (currentUser.role === 'admin' || currentUser.role === 'pengembang') {
@@ -3545,9 +3583,9 @@
 
             <div class="pt-3 border-t border-slate-100">
               <div class="flex items-center justify-between mb-2">
-                <label class="font-extrabold text-[#053f28]">Daftar Produk Buah & Sayur Dipesan</label>
+                <label class="font-extrabold text-[#053f28]">Daftar Produk Buah & Sayur Dipesan (Maksimal 20 Orderan)</label>
                 <button type="button" onclick="addManualItemRow()" class="px-3 py-1.5 rounded-lg bg-hh-100 text-[#053f28] font-extrabold">
-                  + Tambah Baris Produk
+                  + Tambah Baris Produk (Maks 20)
                 </button>
               </div>
               <div id="manualItemsContainer" class="space-y-2"></div>
@@ -3583,6 +3621,10 @@
     function addManualItemRowWithData(prefill = null) {
       const container = document.getElementById('manualItemsContainer');
       if (!container) return;
+      if (container.querySelectorAll('.manual-item-row').length >= 20) {
+        showToast('Maksimal 20 baris item produk per Invoice!', 'warning');
+        return;
+      }
       const row = document.createElement('div');
       row.className = 'grid grid-cols-12 gap-2 items-center manual-item-row bg-slate-50 p-2 rounded-xl border border-slate-200';
       row.innerHTML = `
