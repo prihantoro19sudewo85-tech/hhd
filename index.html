@@ -1690,26 +1690,76 @@
       let taxAmount = taxMatch ? parseMoneyStr(taxMatch[1]) : 0;
       let grandTotal = grandMatch ? parseMoneyStr(grandMatch[1]) : (subMatch ? parseMoneyStr(subMatch[1]) : 0);
 
-      // 6. Filter Baris Tabel Produk (Baik Format Invoice maupun Format Surat Jalan)
-      const items = [];
-      const uomListRegex = '\\b(KG|KILOGRAM|GRAM|GR|PCS|PC|KRAT|CRT|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL)\\b';
+      // Deteksi prefix cabang dari No. Nota atau teks dokumen (misal BBM -> BMN, PK -> PBR, JK -> JKT)
+      const detectedCodePrefixMatch = text.match(/\b([A-Z]{3})-[A-Z0-9]{2,5}\b/);
+      const defaultBranchPrefix = detectedCodePrefixMatch ? detectedCodePrefixMatch[1].toUpperCase() : 'JKT';
 
-      lines.forEach(line => {
+      // 6. Filter Baris Tabel Produk (Mendukung UoM CTN, Kode 2 Baris, & Kode Menempel ke Nama Produk)
+      const items = [];
+      const uomListRegex = '\\b(KG|KILOGRAM|GRAM|GR|G|PCS|PC|KRAT|CRT|CTN|CARTON|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL|BOTOL|LITER|LTR|ML|KALENG|KLG|BAL|SAK|ikat|kg|ctn|pcs)\\b';
+
+      // Gabungkan baris kode yang terpotong menjadi 2 baris (contoh: "BMN-ORG-" di atas, "7 ... Orange Sunkist" dan "SKT" di bawah)
+      const normalizedLines = [];
+      let pendingCodeFragment = '';
+
+      for (let i = 0; i < lines.length; i++) {
+        let ln = lines[i].trim();
+        if (!ln) continue;
+
+        // Jika baris hanya berisi potongan awal kode seperti "BMN-ORG-" atau "BMN-CCN-"
+        if (/^[A-Z]{2,4}-[A-Z0-9]{2,6}-$/i.test(ln)) {
+          pendingCodeFragment = ln.toUpperCase();
+          continue;
+        }
+
+        // Jika baris hanya berisi potongan akhir kode seperti "SKT" atau "MILK" tepat setelah baris item
+        if (/^[A-Z0-9]{2,6}$/i.test(ln) && normalizedLines.length > 0 && pendingCodeFragment) {
+          const lastIdx = normalizedLines.length - 1;
+          normalizedLines[lastIdx] = normalizedLines[lastIdx].replace(pendingCodeFragment, pendingCodeFragment + ln.toUpperCase() + ' ');
+          pendingCodeFragment = '';
+          continue;
+        }
+
+        if (pendingCodeFragment && /^\d{1,2}\s+/.test(ln)) {
+          ln = ln.replace(/^(\d{1,2})\s+/, `$1 ${pendingCodeFragment} `);
+        }
+        normalizedLines.push(ln);
+      }
+
+      normalizedLines.forEach(rawLine => {
+        // Rapikan kasus kode yang menempel langsung ke huruf besar nama produk (contoh: "BMN-BNN-C3Banana C3" -> "BMN-BNN-C3 Banana C3")
+        let line = rawLine
+          .replace(/([A-Z]{2,4}-[A-Z0-9]{2,5}-[A-Z0-9]{1,4})([A-Z][a-z])/g, '$1 $2')
+          .replace(/([A-Z]{2,4}-[A-Z]{2,5})([A-Z][a-z])/g, '$1 $2')
+          .replace(/([A-Z]{2,4}-[A-Z0-9]{2,6}-)\s+(.+?)\s+([A-Z]{2,5})\b/, '$1$3 $2');
+
         // Abaikan baris header atau footer
         if (/^(no\.?\s+kode|no\s+item\s*code|subtotal\s*rp|diskon\s*rp|pajak\s*rp|grand\s*total|keterangan|pembayaran\s*hanya|kirim\s*bukti|tanda\s*terima|dibuat|disetujui|ranum\s*induk|jalan\s*raya\s*bogor|cust\s*name|ship\s*to|delivery\s*order|delevery\s*order|document\s*date|termin)/i.test(line)) {
           return;
         }
 
-        // Pola 1: Diawali nomor urut & kode item (contoh: "1  PBR-APL-GSC  Apple Granny Smith China  KG  5  47,500  237,500" atau Surat Jalan "1  PBR-APL-GSC  Apple Granny Smith  5  KG")
-        const codeMatch = line.match(/^(?:\d+\s+)?([A-Z]{2,4}[\-][A-Z0-9\-]{2,12})\s+(.+)$/i);
+        // Pola 1: Diawali nomor urut & kode item (termasuk kode yang punya 1 atau 2 strip)
+        const codeMatch = line.match(/^(?:\d+\s+)?([A-Z]{2,4}[\-][A-Z0-9\-]{2,14})\s+(.+)$/i);
         if (codeMatch) {
-          const itemCode = codeMatch[1].toUpperCase();
-          const rest = codeMatch[2].trim();
-          const uomMatch = rest.match(new RegExp(uomListRegex, 'i'));
+          let itemCode = codeMatch[1].toUpperCase().replace(/-$/, '');
+          let rest = codeMatch[2].trim();
+
+          // Koreksi bila kode sempat memakan huruf awal nama produk (misal BMN-BNN-C3B + anana)
+          const stuckBanana = itemCode.match(/^([A-Z]{2,4}-[A-Z0-9]+-C\d)([A-Z])$/i);
+          if (stuckBanana && /^[a-z]/.test(rest)) {
+            itemCode = stuckBanana[1].toUpperCase();
+            rest = stuckBanana[2] + rest;
+          }
+
+          // Cari semua kemunculan UoM di baris tersebut (ambil yang berada di luar tanda kurung agar "(200 ML x 10) CTN" memilih CTN, bukan ML)
+          const restWithoutParens = rest.replace(/\([^)]*\)/g, m => ' '.repeat(m.length));
+          const uomMatch = restWithoutParens.match(new RegExp(uomListRegex, 'i')) || rest.match(new RegExp(uomListRegex, 'i'));
 
           if (uomMatch) {
             const uom = uomMatch[1].toUpperCase();
-            const uomIndex = rest.toUpperCase().lastIndexOf(uom);
+            const uomIndex = restWithoutParens.toUpperCase().lastIndexOf(uom) !== -1
+              ? restWithoutParens.toUpperCase().lastIndexOf(uom)
+              : rest.toUpperCase().lastIndexOf(uom);
             const beforeUom = rest.slice(0, uomIndex).trim();
             const afterUom = rest.slice(uomIndex + uom.length).trim();
 
@@ -1749,23 +1799,27 @@
           }
         }
 
-        // Pola 2: Baris bernomor tanpa kode khusus (contoh: "1  Banana C3 (Sisiran)  KG  10  25,500  255,000" atau "1  Banana C3  10  KG")
+        // Pola 2: Baris bernomor ketika kode produk terpecah ke atas/bawah di gambar (contoh: "7  Orange Sunkist  KG  13.6  43,500  591,600" atau "8  Coconut Milk (200 ML x 10)  CTN  1  146,000  146,000")
         const numberedRow = line.match(/^(\d{1,3})\s+([a-zA-Z].+)$/);
         if (numberedRow) {
           const rest = numberedRow[2].trim();
-          const uomMatch = rest.match(new RegExp(uomListRegex, 'i'));
+          const restWithoutParens = rest.replace(/\([^)]*\)/g, m => ' '.repeat(m.length));
+          const uomMatch = restWithoutParens.match(new RegExp(uomListRegex, 'i')) || rest.match(new RegExp(uomListRegex, 'i'));
+
           if (uomMatch) {
             const uom = uomMatch[1].toUpperCase();
-            const parts = rest.split(new RegExp(uomListRegex, 'i'));
-            const leftPart = (parts[0] || '').trim();
-            const rightPart = (parts[2] || '').trim();
+            const uomIndex = restWithoutParens.toUpperCase().lastIndexOf(uom) !== -1
+              ? restWithoutParens.toUpperCase().lastIndexOf(uom)
+              : rest.toUpperCase().lastIndexOf(uom);
+            const leftPart = rest.slice(0, uomIndex).trim();
+            const rightPart = rest.slice(uomIndex + uom.length).trim();
 
             if (rightPart) {
               const nums = rightPart.split(/\s+/).filter(Boolean);
               const qty = parseFloat((nums[0] || '1').replace(',', '.')) || 1;
               const price = nums[1] ? parseMoneyStr(nums[1]) : 25000;
               items.push({
-                item_code: generateProductItemCode(leftPart, 'JKT'),
+                item_code: generateProductItemCode(leftPart, defaultBranchPrefix),
                 product_name: leftPart,
                 unit: uom,
                 qty: qty,
@@ -1778,7 +1832,7 @@
                 const prodName = qtyTail[1].trim();
                 const qty = parseFloat(qtyTail[2].replace(',', '.')) || 1;
                 items.push({
-                  item_code: generateProductItemCode(prodName, 'JKT'),
+                  item_code: generateProductItemCode(prodName, defaultBranchPrefix),
                   product_name: prodName,
                   unit: uom,
                   qty: qty,
