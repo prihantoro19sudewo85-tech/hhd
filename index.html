@@ -801,7 +801,7 @@
       HH_ACTIVITY_LOG: [],
       HH_SETTINGS: {
         company_name: 'Hanam Hanum Delivery',
-        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbxsCS70BQAsfwAqfUWTDUK0F3j90vMu7bz2C3AYQSh8Rhv_vytkqHAvLhXvd7z2zjalQw/exec',
+        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbwZwBsf9bCzwZ6hXW8LlQ6P9IY2eDfuvJbHc9UHPZydB7POW0Yzgq9u2jG7GOIo2xbJxA/exec',
         spreadsheet_id: '1xZF01_8HbPIcjomang4XHhmKVFx_EXSRLEo12Zpw49E',
         drive_folder_id: '13gCbISldFvaTHSQdJ0e023Ry2DQ9U0jJ',
         telegram_bot_username: '@HanamHanumOrderBot',
@@ -1413,52 +1413,53 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
               <div>
-                <label class="text-[10px] font-bold uppercase text-slate-500">Cust Name / Ship To *</label>
+                <label id="lblImpCustName" class="text-[10px] font-bold uppercase text-slate-500">Ship to : *</label>
                 <input id="impCustName" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-slate-900 bg-white" />
               </div>
               <div>
-                <label class="text-[10px] font-bold uppercase text-slate-500">No. Nota / Delivery Order</label>
+                <label id="lblImpNotaNumber" class="text-[10px] font-bold uppercase text-slate-500">Delivery Order</label>
                 <input id="impNotaNumber" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-[#053f28] bg-white" />
               </div>
               <div>
-                <label class="text-[10px] font-bold uppercase text-slate-500">No. Ref / PO</label>
+                <label id="lblImpRefPo" class="text-[10px] font-bold uppercase text-slate-500">PO:</label>
                 <input id="impRefPo" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white" />
               </div>
               <div>
-                <label class="text-[10px] font-bold uppercase text-slate-500">Document Date</label>
+                <label id="lblImpDocDate" class="text-[10px] font-bold uppercase text-slate-500">Document Date</label>
                 <input id="impDocDate" type="date" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold" />
               </div>
-              <div>
+              <div id="wrapImpTermin">
                 <label class="text-[10px] font-bold uppercase text-slate-500">Termin (Hari)</label>
                 <input id="impTermin" type="number" value="7" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold" />
               </div>
-              <div>
+              <div id="wrapImpPhone">
                 <label class="text-[10px] font-bold uppercase text-slate-500">No. WA / Telepon</label>
                 <input id="impCustPhone" value="082113780016" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white" />
               </div>
               <div class="sm:col-span-3">
-                <label class="text-[10px] font-bold uppercase text-slate-500">Alamat Pengiriman (Ship To Address) *</label>
+                <label id="lblImpCustAddress" class="text-[10px] font-bold uppercase text-slate-500">Alamat Ship to *</label>
                 <input id="impCustAddress" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white" />
               </div>
             </div>
 
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label class="font-extrabold text-[#053f28]">Daftar Item Produk Hasil Filter Dokumen (Maksimal 20 Orderan):</label>
+                <label id="lblImpTableTitle" class="font-extrabold text-[#053f28]">Daftar Item Produk Hasil Filter Dokumen (Maksimal 20 Orderan):</label>
                 <button type="button" onclick="addImportedItemRow()" class="px-2.5 py-1 rounded-lg bg-hh-100 text-[#053f28] font-bold text-[11px]">
                   + Tambah Baris (Maks 20)
                 </button>
               </div>
               <div class="overflow-x-auto border border-slate-200 rounded-xl">
                 <table class="w-full text-left text-[11px]">
-                  <thead class="bg-[#053f28] text-[#fde002]">
+                  <thead id="impItemsTableHead" class="bg-[#053f28] text-[#fde002]">
                     <tr>
-                      <th class="p-2">Kode</th>
-                      <th class="p-2">Nama Produk / Item Description</th>
-                      <th class="p-2 text-center w-20">Qty</th>
+                      <th class="p-2 text-center w-10">No</th>
+                      <th class="p-2 w-36">Item Code</th>
+                      <th class="p-2">Item Description</th>
+                      <th class="p-2 text-center w-24">Quantity</th>
                       <th class="p-2 text-center w-20">Uom</th>
-                      <th class="p-2 text-right w-28">Harga</th>
-                      <th class="p-2 text-right w-20">Disc</th>
+                      <th class="p-2 text-right w-28 imp-col-inv">Harga</th>
+                      <th class="p-2 text-right w-20 imp-col-inv">Disc</th>
                       <th class="p-2 text-center w-10"></th>
                     </tr>
                   </thead>
@@ -1467,7 +1468,7 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px]">
+            <div id="impInvoiceSummaryBox" class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px]">
               <div>
                 <span class="text-slate-500 font-bold">Diskon Rp:</span>
                 <input id="impTotalDisc" type="number" value="0" class="w-full mt-0.5 px-2 py-1 rounded border border-slate-300 font-bold" />
@@ -1598,14 +1599,77 @@
       if (!window.Tesseract) {
         throw new Error('Library OCR belum siap.');
       }
-      const result = await window.Tesseract.recognize(file, 'eng+ind', {
+      // Preprocessing gambar: perbesar & tingkatkan kontras agar tabel bergaris pada Surat Jalan terbaca utuh per baris
+      let sourceForOcr = file;
+      try {
+        sourceForOcr = await preprocessTableImageForOCR(file);
+      } catch (e) {
+        sourceForOcr = file;
+      }
+
+      const result = await window.Tesseract.recognize(sourceForOcr, 'eng+ind', {
         logger: m => {
           if (m.status === 'recognizing text') {
             onProgress('Memfilter tulisan dari gambar JPEG/PNG...', Math.min(90, 20 + Math.round((m.progress || 0) * 70)));
           }
         }
       });
+
+      // Jika hasil lines memiliki bbox (koordinat Y dan X), susun ulang berdasarkan baris Y agar kolom No | Item Code | Item Description | Quantity | UoM menyatu dalam 1 baris
+      if (result && result.data && Array.isArray(result.data.words) && result.data.words.length > 0) {
+        const words = result.data.words.filter(w => w && w.text && String(w.text).trim() !== '');
+        const rows = [];
+        words.forEach(w => {
+          const cy = ((w.bbox.y0 + w.bbox.y1) / 2);
+          const h = Math.max(8, w.bbox.y1 - w.bbox.y0);
+          let matchedRow = rows.find(r => Math.abs(r.cy - cy) <= h * 0.65);
+          if (!matchedRow) {
+            matchedRow = { cy, items: [] };
+            rows.push(matchedRow);
+          } else {
+            matchedRow.cy = (matchedRow.cy * matchedRow.items.length + cy) / (matchedRow.items.length + 1);
+          }
+          matchedRow.items.push({ x0: w.bbox.x0, text: String(w.text).trim() });
+        });
+        rows.sort((a, b) => a.cy - b.cy);
+        const reconstructed = rows.map(r => {
+          r.items.sort((a, b) => a.x0 - b.x0);
+          return r.items.map(i => i.text).join(' ');
+        }).join('\n');
+
+        return reconstructed + '\n\n' + (result.data.text || '');
+      }
+
       return (result && result.data && result.data.text) ? result.data.text : '';
+    }
+
+    function preprocessTableImageForOCR(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          try {
+            const scale = img.width < 1400 ? 2 : 1.5;
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(url);
+            resolve(canvas);
+          } catch (err) {
+            URL.revokeObjectURL(url);
+            reject(err);
+          }
+        };
+        img.onerror = (e) => {
+          URL.revokeObjectURL(url);
+          reject(e);
+        };
+        img.src = url;
+      });
     }
 
     // PARSER CERDAS KHUSUS TEMPLATE INVOICE & TEMPLATE SURAT JALAN HANAM HANUM
@@ -1613,7 +1677,7 @@
       const text = String(rawText || '').replace(/\r/g, '');
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
 
-      const isSuratJalan = /delivery\s*order|delevery\s*order|ship\s*to|item\s*description/i.test(text);
+      const isSuratJalan = /delivery\s*order|delevery\s*order|ship\s*to|item\s*description|item\s*code/i.test(text) && !/invoice\s*penjualan/i.test(text);
       const docType = isSuratJalan ? 'SURAT_JALAN' : 'INVOICE';
 
       // Helper membersihkan teks perusahaan kiri ("Ranum Induk Buah, CV", "Jalan Raya Bogor...", dll.) yang ikut terbaca satu baris dengan Ship To di kanan
@@ -1624,7 +1688,7 @@
           .replace(/Jalan\s*Raya\s*Bogor\s*KM\s*21\s*,?\s*No\.?\s*14\s*,?\s*Ciracas\s*,?\s*Jakarta/gi, '')
           .replace(/Timur\s*,?\s*DKI\s*Jakarta\s*,?\s*Indonesia/gi, '')
           .replace(/Ph\s*:\s*082113780016/gi, '')
-          .replace(/^[,\-\s]+|[,\-\s]+$/g, '')
+          .replace(/^[\;\:\,\-\s]+|[\;\,\-\s]+$/g, '')
           .trim();
       };
 
@@ -1651,7 +1715,7 @@
         }
       }
 
-      // Ekstraksi khusus blok "Ship To:" pada Surat Jalan (baik sebaris dengan Ranum Induk Buah maupun baris di bawahnya)
+      // Ekstraksi khusus blok "Ship To:" pada Surat Jalan
       const shipIdx = lines.findIndex(l => /ship\s*to\s*[:\-]?/i.test(l));
       if (shipIdx !== -1) {
         const shipBlockLines = [];
@@ -1669,11 +1733,14 @@
           custName = shipBlockLines[0];
         }
         if (shipBlockLines.length > 1 && !custAddress) {
-          custAddress = shipBlockLines.slice(1).join(', ');
+          custAddress = shipBlockLines.slice(1).join(', ')
+            .replace(/^[\;\:\,\s]+/, '')
+            .replace(/\bJ\s*:\s*4\s*,?\s*Hy\b/gi, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim();
         }
       }
 
-      // Fallback jika OCR membaca "Boost Juice ..." atau nama outlet sebelum baris "Delivery Order"
       if (!custName || isInvalidCustomerOrAddress(custName)) {
         for (let i = 0; i < Math.min(lines.length, 8); i++) {
           const candidate = cleanCompanyLeftSide(lines[i]);
@@ -1687,7 +1754,6 @@
         }
       }
 
-      // Cocokkan dengan database pelanggan bila nama mirip
       const matchedCust = (DB.HH_CUSTOMERS || []).find(c =>
         custName && (c.name.toLowerCase().includes(custName.toLowerCase()) || custName.toLowerCase().includes(c.name.toLowerCase()))
       );
@@ -1695,17 +1761,19 @@
         custAddress = matchedCust.address;
       }
 
-      // 2. Filter No. Nota / Delivery Order (Harus mengandung angka agar tidak salah mengambil kata seperti "Banana")
+      // 2. Filter No. Nota / Delivery Order (Koreksi huruf O di tengah angka menjadi 0, misal PKO0O000586 -> PK00000586)
       let notaNumber = '';
       const notaRegexes = [
-        /(?:Delivery\s*Order|Delevery\s*Order|No\.?\s*Nota)\s*[:\-]?\s*([A-Z]{2,4}\d{5,12})/i,
+        /(?:Delivery\s*Order|Delevery\s*Order|No\.?\s*Nota)\s*[:\-]?\s*([A-Z]{2,4}[0-9O]{5,12})/i,
         /(?:Delivery\s*Order|Delevery\s*Order|No\.?\s*Nota)\s*[:\-]?\s*([A-Z0-9\-\/]*\d[A-Z0-9\-\/]*)/i,
-        /\b([A-Z]{2,3}000\d{3,6})\b/
+        /\b([A-Z]{2,3}[0O]{3}\d{3,6})\b/
       ];
       for (const rgx of notaRegexes) {
         const m = text.match(rgx);
         if (m && m[1] && /\d/.test(m[1])) {
-          notaNumber = m[1].trim().toUpperCase();
+          const rawNota = m[1].trim().toUpperCase();
+          // Normalisasi huruf O setelah prefix huruf menjadi angka 0
+          notaNumber = rawNota.replace(/^([A-Z]{2,3})([0-9O]+)$/, (_, pfx, digits) => pfx + digits.replace(/O/g, '0'));
           break;
         }
       }
@@ -1754,28 +1822,38 @@
       let taxAmount = taxMatch ? parseMoneyStr(taxMatch[1]) : 0;
       let grandTotal = grandMatch ? parseMoneyStr(grandMatch[1]) : (subMatch ? parseMoneyStr(subMatch[1]) : 0);
 
-      // Deteksi prefix cabang dari No. Nota atau teks dokumen (misal JMB, BMN, PBR, JKT)
       const detectedCodePrefixMatch = text.match(/\b([A-Z]{3})-[A-Z0-9]{2,5}\b/);
       const defaultBranchPrefix = detectedCodePrefixMatch
         ? detectedCodePrefixMatch[1].toUpperCase()
-        : (notaNumber.length >= 3 ? notaNumber.slice(0, 3).toUpperCase() : 'JKT');
+        : (notaNumber.length >= 2 ? notaNumber.slice(0, 3).replace(/\d/g, '') : 'JKT');
 
-      // 6. Filter Baris Tabel Produk (Mendukung penuh Format Surat Jalan & Format Invoice)
+      // 6. Filter Baris Tabel Produk
       const items = [];
+      const seenItemKeys = new Set();
+      const pushUniqueItem = (itemObj) => {
+        if (!itemObj || !itemObj.product_name) return;
+        const cleanDesc = String(itemObj.product_name)
+          .replace(/^[\|\[\]\{\}\!\:\;\-\s]+|[\|\[\]\{\}\!\:\;\-\s]+$/g, '')
+          .trim();
+        if (!cleanDesc || cleanDesc.length < 2) return;
+        if (/^(item\s*code|item\s*description|quantity|uom|dibuat|disetujui|dikirim|diterima)/i.test(cleanDesc)) return;
+        const key = `${(itemObj.item_code || '').toUpperCase()}_${cleanDesc.toLowerCase()}_${itemObj.qty}`;
+        if (seenItemKeys.has(key)) return;
+        seenItemKeys.add(key);
+        items.push({
+          ...itemObj,
+          product_name: cleanDesc
+        });
+      };
+
       const uomListRegex = '\\b(KG|KILOGRAM|GRAM|GR|G|PCS|PC|KRAT|CRT|CTN|CARTON|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL|BOTOL|LITER|LTR|ML|KALENG|KLG|BAL|SAK)\\b';
 
-      // Gabungkan baris kode yang terpotong menjadi 2 baris
       const normalizedLines = [];
       let pendingCodeFragment = '';
 
       for (let i = 0; i < lines.length; i++) {
         let ln = lines[i].trim();
         if (!ln) continue;
-
-        // Hentikan pembacaan tabel bila sudah masuk area tanda tangan di bawah
-        if (/^(dibuat\s*oleh|di\s*setujui\s*oleh|disetujui\s*oleh|di\s*kirim\s*oleh|tanda\s*terima)/i.test(ln)) {
-          break;
-        }
 
         if (/^[A-Z]{2,4}-[A-Z0-9]{2,6}-$/i.test(ln)) {
           pendingCodeFragment = ln.toUpperCase();
@@ -1796,30 +1874,29 @@
       }
 
       normalizedLines.forEach(rawLine => {
-        // Bersihkan garis tabel vertikal OCR (|, !, I) dan pisahkan kode yang menempel ke huruf nama produk
         let line = rawLine
-          .replace(/[\|¦]/g, ' ')
+          .replace(/[\|¦\[\]\{\}!]/g, ' ')
           .replace(/([A-Z]{2,4}-[A-Z0-9]{2,5}-[A-Z0-9]{1,4})([A-Z][a-z])/g, '$1 $2')
           .replace(/([A-Z]{2,4}-[A-Z]{2,5})([A-Z][a-z])/g, '$1 $2')
           .replace(/([A-Z]{2,4}-[A-Z0-9]{2,6}-)\s+(.+?)\s+([A-Z]{2,5})\b/, '$1$3 $2')
           .replace(/\s+/g, ' ')
           .trim();
 
-        // Abaikan baris header atau footer
         if (/^(no\.?\s+kode|no\s+item\s*code|item\s*code\s+item\s*description|subtotal\s*rp|diskon\s*rp|pajak\s*rp|grand\s*total|keterangan|pembayaran\s*hanya|kirim\s*bukti|tanda\s*terima|dibuat|disetujui|di\s*setujui|di\s*kirim|di\s*terima|ranum\s*induk|jalan\s*raya\s*bogor|cust\s*name|ship\s*to|delivery\s*order|delevery\s*order|document\s*date|termin|^po\s*:)/i.test(line)) {
           return;
         }
 
-        // KHUSUS BARIS SURAT JALAN (Format: [No] [Item Code] [Item Description] [Quantity] [UoM])
-        // Contoh: "1 JMB-BNN-C3 Banana C3 (Sisiran) 13 KG" atau "3 JMB-CRT Carrot 2 KG"
-        const sjDirectMatch = line.match(/^(?:\d{1,2}\s+)?([A-Z]{2,4}-[A-Z0-9\-]{2,12})\s+(.+?)\s+(\d+(?:[\.,]\d+)?)\s+(KG|KILOGRAM|GRAM|GR|G|PCS|PC|KRAT|CRT|CTN|CARTON|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL|BOTOL|LITER|LTR|ML)\s*$/i);
+        // KHUSUS BARIS SURAT JALAN: [No] [Item Code] [Item Description] [Quantity] [UoM]
+        // Mendukung bila OCR membaca angka Quantity "1" sebagai "l" atau "I"
+        const sjDirectMatch = line.match(/^(?:[0-9lI]{1,2}\s+)?([A-Z]{2,4}\s*-\s*[A-Z0-9]{2,6}(?:\s*-\s*[A-Z0-9]{1,6})?)\s+(.+?)\s+(\d+(?:[\.,]\d+)?|[lI])\s+(KG|KILOGRAM|GRAM|GR|G|PCS|PC|KRAT|CRT|CTN|CARTON|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL|BOTOL|LITER|LTR|ML)\b/i);
         if (sjDirectMatch) {
-          let itemCode = sjDirectMatch[1].toUpperCase().replace(/-$/, '');
+          let itemCode = sjDirectMatch[1].replace(/\s+/g, '').toUpperCase().replace(/-$/, '');
           let prodName = sjDirectMatch[2].trim();
-          const qty = parseFloat(sjDirectMatch[3].replace(',', '.')) || 1;
+          const rawQty = sjDirectMatch[3];
+          const qty = /^[lI]$/.test(rawQty) ? 1 : (parseFloat(rawQty.replace(',', '.')) || 1);
           const uom = sjDirectMatch[4].toUpperCase();
           const masterProd = (DB.HH_PRODUCTS || []).find(p => p.name.toLowerCase() === prodName.toLowerCase());
-          items.push({
+          pushUniqueItem({
             item_code: itemCode,
             product_name: prodName,
             unit: uom,
@@ -1830,13 +1907,12 @@
           return;
         }
 
-        // Pola 1 Umum: Diawali nomor urut & kode item (untuk Invoice maupun Surat Jalan)
-        const codeMatch = line.match(/^(?:\d+\s+)?([A-Z]{2,4}[\-][A-Z0-9\-]{2,14})\s+(.+)$/i);
+        // Pola Umum: Diawali kode item (untuk Invoice maupun Surat Jalan)
+        const codeMatch = line.match(/^(?:[0-9lI]{1,2}\s+)?([A-Z]{2,4}\s*-\s*[A-Z0-9\-]{2,14})\s+(.+)$/i);
         if (codeMatch) {
-          let itemCode = codeMatch[1].toUpperCase().replace(/-$/, '');
+          let itemCode = codeMatch[1].replace(/\s+/g, '').toUpperCase().replace(/-$/, '');
           let rest = codeMatch[2].trim();
 
-          // Hindari membaca kumpulan kode item saja sebagai nama produk (contoh: "JMB-CCB JMB-CRT")
           if (/^[A-Z]{2,4}-[A-Z0-9\-]+(?:\s+[A-Z]{2,4}-[A-Z0-9\-]+)*$/i.test(rest)) {
             return;
           }
@@ -1847,7 +1923,6 @@
             rest = stuckBanana[2] + rest;
           }
 
-          // Hapus tanda kurung DAN kode produk berstrip (seperti JMB-CRT) saat mencari posisi UoM agar "-CRT" tidak salah terdeteksi sebagai satuan CRT
           const restMasked = rest
             .replace(/\([^)]*\)/g, m => ' '.repeat(m.length))
             .replace(/\b[A-Z]{2,4}-[A-Z0-9\-]+\b/gi, m => ' '.repeat(m.length));
@@ -1860,14 +1935,13 @@
             const beforeUom = rest.slice(0, uomIndex).trim();
             const afterUom = rest.slice(uomIndex + uom.length).trim();
 
-            if (afterUom) {
-              // Format Invoice: Nama Produk | Uom | Qty | Harga | (Disc) | Subtotal
+            if (afterUom && !isSuratJalan) {
               const nums = afterUom.split(/\s+/).filter(Boolean);
               const qty = parseFloat((nums[0] || '1').replace(',', '.')) || 1;
               const price = nums[1] ? parseMoneyStr(nums[1]) : 25000;
               const disc = nums.length >= 4 ? parseMoneyStr(nums[2]) : 0;
               if (beforeUom && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(beforeUom)) {
-                items.push({
+                pushUniqueItem({
                   item_code: itemCode,
                   product_name: beforeUom,
                   unit: uom,
@@ -1878,14 +1952,14 @@
               }
               return;
             } else {
-              // Format Surat Jalan: Nama Produk | Quantity | UoM
-              const qtyTail = beforeUom.match(/(.+?)\s+(\d+(?:[\.,]\d+)?)$/);
+              const qtyTail = beforeUom.match(/(.+?)\s+(\d+(?:[\.,]\d+)?|[lI])$/);
               if (qtyTail) {
                 const prodName = qtyTail[1].trim();
-                const qty = parseFloat(qtyTail[2].replace(',', '.')) || 1;
+                const rawQ = qtyTail[2];
+                const qty = /^[lI]$/.test(rawQ) ? 1 : (parseFloat(rawQ.replace(',', '.')) || 1);
                 const masterProd = (DB.HH_PRODUCTS || []).find(p => p.name.toLowerCase() === prodName.toLowerCase());
                 if (prodName && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(prodName)) {
-                  items.push({
+                  pushUniqueItem({
                     item_code: itemCode,
                     product_name: prodName,
                     unit: uom,
@@ -1900,8 +1974,8 @@
           }
         }
 
-        // Pola 2: Baris bernomor ketika kode produk terpecah ke atas/bawah di gambar
-        const numberedRow = line.match(/^(\d{1,3})\s+([a-zA-Z].+)$/);
+        // Pola Baris Bernomor Tanpa Kode Terbaca
+        const numberedRow = line.match(/^(\d{1,2})\s+([a-zA-Z].+)$/);
         if (numberedRow) {
           const rest = numberedRow[2].trim();
           const restMasked = rest
@@ -1915,12 +1989,12 @@
             const leftPart = rest.slice(0, uomIndex).trim();
             const rightPart = rest.slice(uomIndex + uom.length).trim();
 
-            if (rightPart) {
+            if (rightPart && !isSuratJalan) {
               const nums = rightPart.split(/\s+/).filter(Boolean);
               const qty = parseFloat((nums[0] || '1').replace(',', '.')) || 1;
               const price = nums[1] ? parseMoneyStr(nums[1]) : 25000;
               if (leftPart && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(leftPart)) {
-                items.push({
+                pushUniqueItem({
                   item_code: generateProductItemCode(leftPart, defaultBranchPrefix),
                   product_name: leftPart,
                   unit: uom,
@@ -1930,17 +2004,18 @@
                 });
               }
             } else {
-              const qtyTail = leftPart.match(/(.+?)\s+(\d+(?:[\.,]\d+)?)$/);
+              const qtyTail = leftPart.match(/(.+?)\s+(\d+(?:[\.,]\d+)?|[lI])$/);
               if (qtyTail) {
                 const prodName = qtyTail[1].trim();
-                const qty = parseFloat(qtyTail[2].replace(',', '.')) || 1;
+                const rawQ = qtyTail[2];
+                const qty = /^[lI]$/.test(rawQ) ? 1 : (parseFloat(rawQ.replace(',', '.')) || 1);
                 if (prodName && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(prodName)) {
-                  items.push({
+                  pushUniqueItem({
                     item_code: generateProductItemCode(prodName, defaultBranchPrefix),
                     product_name: prodName,
                     unit: uom,
                     qty: qty,
-                    price: isSuratJalan ? 0 : 25000,
+                    price: 0,
                     disc: 0
                   });
                 }
@@ -1950,42 +2025,45 @@
         }
       });
 
-      // Fallback untuk gambar tabel bergaris (ketika OCR membaca kolom secara vertikal / terpisah per kolom)
-      if (items.length <= 1 && isSuratJalan) {
-        const allCodes = [];
-        const codeRegexGlobal = /\b([A-Z]{2,4}-[A-Z0-9]{2,5}(?:-[A-Z0-9]{1,4})?)\b/g;
-        let cm;
-        while ((cm = codeRegexGlobal.exec(text)) !== null) {
-          const cd = cm[1].toUpperCase();
-          if (!allCodes.includes(cd)) allCodes.push(cd);
+      // Rekonstruksi pintar khusus Surat Jalan bila OCR memisahkan kolom Item Code, Item Description, Quantity, dan UoM ke baris berbeda
+      if (items.length === 0 && isSuratJalan) {
+        const codeMatches = [];
+        const codeRgx = /\b([A-Z]{3}-[A-Z0-9]{2,5}(?:-[A-Z0-9]{1,5})?)\b/g;
+        let m;
+        while ((m = codeRgx.exec(text)) !== null) {
+          const c = m[1].toUpperCase();
+          if (!codeMatches.includes(c)) codeMatches.push(c);
         }
 
-        if (allCodes.length > items.length) {
-          const fallbackItems = [];
-          allCodes.forEach((code) => {
-            // Cari baris yang memuat kode ini atau cari nama produk yang sesuai
-            const lineWithCode = lines.find(l => l.toUpperCase().includes(code)) || '';
-            let afterCode = lineWithCode.slice(lineWithCode.toUpperCase().indexOf(code) + code.length).replace(/[\|¦]/g, ' ').trim();
-            const mTail = afterCode.match(/^(.+?)\s+(\d+(?:[\.,]\d+)?)\s+(KG|GRAM|GR|PCS|KRAT|CRT|CTN|DUS|BOX|SISIR|PACK|IKAT)\b/i);
-            if (mTail) {
-              fallbackItems.push({
-                item_code: code,
-                product_name: mTail[1].trim(),
-                qty: parseFloat(mTail[2].replace(',', '.')) || 1,
-                unit: mTail[3].toUpperCase(),
-                price: 0,
-                disc: 0
-              });
-            }
+        const codeToNameDict = {
+          'APL-GSC': 'Apple Granny Smith China',
+          'APL': 'Apple',
+          'BNN-C3': 'Banana C3 (Sisiran)',
+          'BNN': 'Banana',
+          'CCB': 'Cucumber',
+          'CRT': 'Carrot',
+          'PNL': 'Pineapple Honi',
+          'WM': 'Watermelon',
+          'BTR': 'Beetroot',
+          'CLR': 'Celery',
+          'ORG-SKT': 'Orange Sunkist',
+          'CCN-MILK': 'Coconut Milk (200 ML x 10)'
+        };
+
+        codeMatches.forEach(code => {
+          const suffix = code.replace(/^[A-Z]{3}-/, '');
+          const guessedName = codeToNameDict[suffix] || suffix;
+          pushUniqueItem({
+            item_code: code,
+            product_name: guessedName,
+            qty: 1,
+            unit: 'KG',
+            price: 0,
+            disc: 0
           });
-          if (fallbackItems.length > items.length) {
-            items.length = 0;
-            items.push(...fallbackItems);
-          }
-        }
+        });
       }
 
-      // Hitung ulang Grand Total bila belum terdeteksi
       const limitedItems = items.slice(0, 20);
       const calcSubtotal = limitedItems.reduce((acc, it) => acc + (it.qty * it.price - (it.disc || 0)), 0);
       if (!grandTotal && calcSubtotal > 0) {
@@ -2016,12 +2094,30 @@
     }
 
     function populateImportModalWithParsedData(parsed, rawText) {
+      const isSJ = parsed.docType === 'SURAT_JALAN';
       const badge = document.getElementById('detectedTemplateBadge');
       if (badge) {
-        badge.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> Terdeteksi: Template ${parsed.docType === 'SURAT_JALAN' ? 'Surat Jalan (Delivery Order)' : 'Invoice Penjualan'} (${parsed.items.length} / Maks 20 Produk)`;
+        badge.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> Terdeteksi: Template ${isSJ ? 'Surat Jalan (Delivery Order)' : 'Invoice Penjualan'} (${parsed.items.length} / Maks 20 Produk)`;
       }
       const rawArea = document.getElementById('rawExtractedTextArea');
       if (rawArea) rawArea.value = rawText;
+
+      // Sesuaikan Label & Visibilitas Field antara Surat Jalan vs Invoice
+      const lblCust = document.getElementById('lblImpCustName');
+      const lblNota = document.getElementById('lblImpNotaNumber');
+      const lblPo = document.getElementById('lblImpRefPo');
+      const wrapTermin = document.getElementById('wrapImpTermin');
+      const summaryBox = document.getElementById('impInvoiceSummaryBox');
+
+      if (lblCust) lblCust.innerText = isSJ ? 'Ship to : *' : 'Cust Name : *';
+      if (lblNota) lblNota.innerText = isSJ ? 'Delivery Order' : 'No. Nota :';
+      if (lblPo) lblPo.innerText = isSJ ? 'PO:' : 'No. Ref :';
+      if (wrapTermin) wrapTermin.classList.toggle('hidden', isSJ);
+      if (summaryBox) summaryBox.classList.toggle('hidden', isSJ);
+
+      document.querySelectorAll('.imp-col-inv').forEach(el => {
+        el.classList.toggle('hidden', isSJ);
+      });
 
       document.getElementById('impCustName').value = parsed.custName;
       document.getElementById('impNotaNumber').value = parsed.notaNumber;
@@ -2040,50 +2136,56 @@
 
       if (parsed.items.length === 0) {
         addImportedItemRow({
-          item_code: 'JKT-PRD',
-          product_name: 'Produk Hasil Scan Dokumen',
+          item_code: 'PKU-PRD',
+          product_name: '',
           qty: 1,
           unit: 'KG',
-          price: 25000,
+          price: 0,
           disc: 0
-        });
+        }, isSJ);
       } else {
-        parsed.items.slice(0, 20).forEach(it => addImportedItemRow(it));
+        parsed.items.slice(0, 20).forEach(it => addImportedItemRow(it, isSJ));
       }
       recalculateImportGrandTotal();
     }
 
-    function addImportedItemRow(it = {}) {
+    function addImportedItemRow(it = {}, forceSuratJalanMode = null) {
       const tbody = document.getElementById('impItemsTableBody');
       if (!tbody) return;
+      const isSJ = forceSuratJalanMode !== null
+        ? forceSuratJalanMode
+        : (lastParsedDocumentData && lastParsedDocumentData.docType === 'SURAT_JALAN');
+
       const currentRowsCount = tbody.querySelectorAll('.imp-item-row').length;
       if (currentRowsCount >= 20) {
-        showToast('Maksimal 20 baris item produk per Invoice!', 'warning');
+        showToast('Maksimal 20 baris item produk!', 'warning');
         return;
       }
+      const rowNo = currentRowsCount + 1;
       const tr = document.createElement('tr');
       tr.className = 'imp-item-row';
       tr.innerHTML = `
+        <td class="p-1.5 text-center font-bold text-slate-500 imp-row-no">${rowNo}</td>
         <td class="p-1.5">
-          <input value="${it.item_code || 'JKT-PRD'}" class="w-full px-2 py-1 rounded border border-slate-200 font-mono text-[10px] imp-code" />
+          <input value="${it.item_code || 'JKT-PRD'}" placeholder="Item Code" class="w-full px-2 py-1 rounded border border-slate-200 font-mono text-[11px] font-bold text-[#053f28] imp-code" />
         </td>
         <td class="p-1.5">
-          <input value="${it.product_name || ''}" placeholder="Nama Produk" class="w-full px-2 py-1 rounded border border-slate-200 font-bold imp-name" />
+          <input value="${it.product_name || ''}" placeholder="Item Description" class="w-full px-2 py-1 rounded border border-slate-200 font-bold imp-name" />
         </td>
         <td class="p-1.5">
           <input type="number" step="0.01" value="${it.qty !== undefined ? it.qty : 1}" oninput="recalculateImportGrandTotal()" class="w-full px-2 py-1 rounded border border-slate-200 text-center font-bold text-[#053f28] imp-qty" />
         </td>
         <td class="p-1.5">
-          <input value="${it.unit || 'KG'}" class="w-full px-2 py-1 rounded border border-slate-200 text-center uppercase imp-uom" />
+          <input value="${it.unit || 'KG'}" placeholder="UoM" class="w-full px-2 py-1 rounded border border-slate-200 text-center uppercase font-bold imp-uom" />
         </td>
-        <td class="p-1.5">
-          <input type="number" value="${it.price !== undefined ? it.price : 25000}" oninput="recalculateImportGrandTotal()" class="w-full px-2 py-1 rounded border border-slate-200 text-right font-semibold imp-price" />
+        <td class="p-1.5 imp-col-inv ${isSJ ? 'hidden' : ''}">
+          <input type="number" value="${it.price !== undefined ? it.price : 0}" oninput="recalculateImportGrandTotal()" class="w-full px-2 py-1 rounded border border-slate-200 text-right font-semibold imp-price" />
         </td>
-        <td class="p-1.5">
+        <td class="p-1.5 imp-col-inv ${isSJ ? 'hidden' : ''}">
           <input type="number" value="${it.disc || 0}" oninput="recalculateImportGrandTotal()" class="w-full px-2 py-1 rounded border border-slate-200 text-right imp-disc" />
         </td>
         <td class="p-1.5 text-center">
-          <button type="button" onclick="this.closest('tr').remove(); recalculateImportGrandTotal();" class="text-rose-500 hover:text-rose-700">
+          <button type="button" onclick="this.closest('tr').remove(); renumberImportRows(); recalculateImportGrandTotal();" class="text-rose-500 hover:text-rose-700">
             <i class="fa-solid fa-trash"></i>
           </button>
         </td>
@@ -2091,234 +2193,9 @@
       tbody.appendChild(tr);
     }
 
-    function recalculateImportGrandTotal() {
-      const rows = document.querySelectorAll('.imp-item-row');
-      let sub = 0;
-      rows.forEach(r => {
-        const q = parseFloat(r.querySelector('.imp-qty')?.value) || 0;
-        const p = parseFloat(r.querySelector('.imp-price')?.value) || 0;
-        const d = parseFloat(r.querySelector('.imp-disc')?.value) || 0;
-        sub += (q * p) - d;
-      });
-      const disc = parseFloat(document.getElementById('impTotalDisc')?.value) || 0;
-      const tax = parseFloat(document.getElementById('impTotalTax')?.value) || 0;
-      const grandEl = document.getElementById('impGrandTotal');
-      if (grandEl) grandEl.value = Math.max(0, Math.round(sub - disc + tax));
-    }
-
-    function collectImportedModalData() {
-      const custName = document.getElementById('impCustName')?.value.trim() || 'Pelanggan Import';
-      const notaNumber = document.getElementById('impNotaNumber')?.value.trim() || '';
-      const refPo = document.getElementById('impRefPo')?.value.trim() || '';
-      const docDate = document.getElementById('impDocDate')?.value || new Date().toISOString().slice(0, 10);
-      const terminDays = parseInt(document.getElementById('impTermin')?.value, 10) || 7;
-      const custPhone = document.getElementById('impCustPhone')?.value.trim() || '082113780016';
-      const custAddress = document.getElementById('impCustAddress')?.value.trim() || 'Jakarta';
-      const discountAmount = parseFloat(document.getElementById('impTotalDisc')?.value) || 0;
-      const taxAmount = parseFloat(document.getElementById('impTotalTax')?.value) || 0;
-      const grandTotal = parseFloat(document.getElementById('impGrandTotal')?.value) || 0;
-
-      const items = [];
-      document.querySelectorAll('.imp-item-row').forEach(r => {
-        const code = r.querySelector('.imp-code')?.value.trim() || 'JKT-PRD';
-        const name = r.querySelector('.imp-name')?.value.trim() || '';
-        const qty = parseFloat(r.querySelector('.imp-qty')?.value) || 1;
-        const unit = r.querySelector('.imp-uom')?.value.trim() || 'KG';
-        const price = parseFloat(r.querySelector('.imp-price')?.value) || 0;
-        const disc = parseFloat(r.querySelector('.imp-disc')?.value) || 0;
-        if (name) {
-          items.push({ item_code: code, product_name: name, qty, unit, price, disc });
-        }
-      });
-
-      return { custName, notaNumber, refPo, docDate, terminDays, custPhone, custAddress, discountAmount, taxAmount, grandTotal, items };
-    }
-
-    function saveImportedDocumentDirectly() {
-      const data = collectImportedModalData();
-      if (data.items.length === 0) {
-        showToast('Minimal harus ada 1 baris produk!', 'warning');
-        return;
-      }
-
-      const newOrderId = data.notaNumber && /^[A-Z0-9\-]+$/i.test(data.notaNumber)
-        ? data.notaNumber
-        : `ORD-${Math.floor(261105 + Math.random() * 8900)}`;
-
-      const defaultBranchId = (DB.HH_BRANCHES && DB.HH_BRANCHES.length > 0) ? DB.HH_BRANCHES[0].branch_id : 'BR-01';
-
-      const newOrdObj = {
-        order_id: newOrderId,
-        nota_number: data.notaNumber || newOrderId,
-        ref_number: data.refPo,
-        po_number: data.refPo,
-        termin_days: data.terminDays,
-        discount_amount: data.discountAmount,
-        tax_amount: data.taxAmount,
-        created_at: nowFormatted(),
-        delivery_date: data.docDate,
-        customer_id: generateUID('CUST'),
-        customer_name: data.custName,
-        customer_phone: data.custPhone,
-        customer_address: data.custAddress,
-        branch_id: defaultBranchId,
-        source: 'Import PDF/JPEG',
-        status: 'Siap dikirim',
-        courier_id: '',
-        courier_name: '-',
-        total_amount: data.grandTotal,
-        notes: data.refPo && data.refPo !== '-' ? `Ref/PO: ${data.refPo}` : 'Hasil Import Dokumen PDF/JPEG',
-        public_tracking_enabled: true,
-        lat: -6.2500 + (Math.random() - 0.5) * 0.04,
-        lng: 106.8600 + (Math.random() - 0.5) * 0.04
-      };
-
-      const newItems = data.items.map(it => ({
-        item_id: generateUID('ITM'),
-        order_id: newOrderId,
-        product_id: generateUID('PRD'),
-        item_code: it.item_code,
-        product_name: it.product_name,
-        qty_ordered: it.qty,
-        qty_actual: it.qty,
-        qty_damaged: 0,
-        unit: it.unit,
-        price: it.price,
-        disc: it.disc || 0,
-        qc_status: 'Checked'
-      }));
-
-      DB.HH_ORDERS.unshift(newOrdObj);
-      DB.HH_ORDER_ITEMS.push(...newItems);
-      DB.HH_TRACKING.push({
-        track_id: generateUID('TRK'),
-        order_id: newOrderId,
-        status: 'Siap dikirim',
-        timestamp: nowFormatted(),
-        actor: `${currentUser ? currentUser.name : 'Admin'} (Import PDF/JPEG)`,
-        note: 'Pesanan dibuat otomatis dari Import Dokumen PDF/JPEG & siap dicetak Surat Jalan ber-barcode.'
-      });
-
-      commitDatabaseChange('createOrder', {
-        order: newOrdObj,
-        items: newItems,
-        actor: currentUser ? currentUser.name : 'Admin'
-      });
-
-      closeModal();
-      navigateTo('pesanan');
-      showToast(`Pesanan ${newOrderId} (${data.custName}) berhasil diimport tanpa ketik ulang!`, 'success');
-    }
-
-    function applyImportedDataToOrderForm() {
-      const data = collectImportedModalData();
-      closeModal();
-      navigateTo('tambah_pesanan');
-
-      setTimeout(() => {
-        const custNameEl = document.getElementById('manCustName');
-        const custPhoneEl = document.getElementById('manCustPhone');
-        const custAddrEl = document.getElementById('manCustAddress');
-        const delivDateEl = document.getElementById('manDeliveryDate');
-        const notesEl = document.getElementById('manNotes');
-        const notaEl = document.getElementById('manNotaNumber');
-        const refEl = document.getElementById('manRefNumber');
-        const terminEl = document.getElementById('manTerminDays');
-
-        if (custNameEl) custNameEl.value = data.custName;
-        if (custPhoneEl) custPhoneEl.value = data.custPhone;
-        if (custAddrEl) custAddrEl.value = data.custAddress;
-        if (delivDateEl) delivDateEl.value = data.docDate;
-        if (notaEl) notaEl.value = data.notaNumber;
-        if (refEl) refEl.value = data.refPo;
-        if (terminEl) terminEl.value = data.terminDays;
-        if (notesEl) notesEl.value = data.refPo ? `Ref/PO: ${data.refPo}` : '';
-
-        const container = document.getElementById('manualItemsContainer');
-        if (container && data.items.length > 0) {
-          container.innerHTML = '';
-          data.items.forEach(it => addManualItemRowWithData(it));
-        }
-        showToast('Seluruh tulisan hasil filter PDF/JPEG berhasil dimasukkan ke form!', 'info');
-      }, 120);
-    }
-
-    /*************************************************************************
-     * FITUR BARU 2: SCAN BARCODE SURAT JALAN UNTUK KURIR (LANGSUNG JALAN KE TUJUAN)
-     *************************************************************************/
-    function openCourierBarcodeScannerModal() {
-      if (isCourierCurrentlyOnActiveTrip()) {
-        showToast('Anda sedang dalam pengiriman aktif! Selesaikan pengantaran di menu Kirim terlebih dahulu.', 'warning');
-        navigateTo('kurir_pengiriman');
-        return;
-      }
-      openModal('Scan Barcode Surat Jalan — Langsung Jalan ke Tujuan', `
-        <div class="space-y-4 text-xs">
-          <div class="p-3.5 rounded-2xl bg-[#053f28] text-white flex items-center gap-3 border-b-2 border-[#fde002]">
-            <div class="w-11 h-11 rounded-xl bg-[#fde002] text-[#053f28] flex items-center justify-center text-xl shrink-0">
-              <i class="fa-solid fa-barcode"></i>
-            </div>
-            <div>
-              <h4 class="font-extrabold text-sm text-[#fde002]">Scanner Barcode & QR Surat Jalan Kurir</h4>
-              <p class="text-[11px] text-white/90 mt-0.5">
-                Arahkan kamera HP ke <b>Barcode / QR Code</b> pada lembar <b>Surat Jalan (Delivery Order)</b> yang sudah di-print. Begitu ter-scan, status pengiriman otomatis aktif dan <b>Google Maps langsung mengarahkan Anda ke lokasi tujuan!</b>
-              </p>
-            </div>
-          </div>
-
-          <!-- Kamera Scanner Live -->
-          <div class="rounded-2xl overflow-hidden border-2 border-[#053f28] bg-slate-900 relative">
-            <div id="barcodeScannerReader" class="w-full min-h-[260px]"></div>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <button type="button" onclick="startBarcodeCameraScanner()" class="flex-1 py-2.5 px-4 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-camera"></i> Aktifkan Kamera Scan
-            </button>
-            <label class="flex-1 py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold flex items-center justify-center gap-1.5 cursor-pointer text-center">
-              <i class="fa-solid fa-image"></i> Scan dari Foto Barcode
-              <input type="file" accept="image/*" class="hidden" onchange="scanBarcodeFromUploadedImage(event)" />
-            </label>
-          </div>
-
-          <!-- Input Manual / Pilih Cepat jika kamera tidak tersedia -->
-          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-            <label class="font-extrabold text-slate-700 block">Atau Masukkan / Pilih Nomor Barcode Surat Jalan:</label>
-            <div class="flex gap-2">
-              <input id="manualBarcodeScanInput" type="text" placeholder="Ketik ID Order / No. Delivery Order (contoh: ORD-261105 / PK000123)"
-                class="flex-1 px-3 py-2 rounded-xl border border-slate-300 font-bold text-[#053f28]" />
-              <button type="button" onclick="executeCourierBarcodeDispatch(document.getElementById('manualBarcodeScanInput').value)"
-                class="px-4 py-2 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold shrink-0">
-                <i class="fa-solid fa-motorcycle mr-1"></i> Jalan Sekarang
-              </button>
-            </div>
-          </div>
-        </div>
-      `);
-
-      setTimeout(() => {
-        startBarcodeCameraScanner();
-      }, 250);
-    }
-
-    function startBarcodeCameraScanner() {
-      if (!window.Html5Qrcode) return;
-      stopBarcodeCameraScanner();
-
-      const readerEl = document.getElementById('barcodeScannerReader');
-      if (!readerEl) return;
-
-      html5QrScannerInstance = new Html5Qrcode('barcodeScannerReader');
-      html5QrScannerInstance.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 140 } },
-        (decodedText) => {
-          stopBarcodeCameraScanner();
-          handleDecodedBarcodeString(decodedText);
-        },
-        () => {}
-      ).catch(() => {
-        showToast('Kamera tidak dapat diakses otomatis. Anda dapat unggah foto barcode atau ketik nomor SJ.', 'warning');
+    function renumberImportRows() {
+      document.querySelectorAll('#impItemsTableBody .imp-row-no').forEach((td, idx) => {
+        td.innerText = idx + 1;
       });
     }
 
