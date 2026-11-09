@@ -1798,10 +1798,10 @@
       const isSuratJalan = /delivery\s*order|delevery\s*order|ship\s*to|item\s*description|item\s*code/i.test(text) && !/invoice\s*penjualan/i.test(text);
       const docType = isSuratJalan ? 'SURAT_JALAN' : 'INVOICE';
 
-      // Helper membersihkan teks perusahaan kiri ("Ranum Induk Buah, CV", "Jalan Raya Bogor...", dll.) yang ikut terbaca satu baris dengan Ship To di kanan
+      // Helper membersihkan teks perusahaan kiri & kata-kata sampah OCR
       const cleanCompanyLeftSide = (s) => {
         return String(s || '')
-          .replace(/^__SHIP_TO_(?:NAME|ADDR)__\s*:\s*/i, '')
+          .replace(/^__SHIP_TO_(?:NAME|ADDR)__\s*[:\-]?\s*/i, '')
           .replace(/^.*?\bShip\s*To\s*[:\-]?\s*/i, '')
           .replace(/Ranum\s*Induk\s*Buah\s*,?\s*CV/gi, '')
           .replace(/Jalan\s*Raya\s*Bogor\s*KM\s*21\s*,?\s*No\.?\s*14\s*,?\s*Ciracas\s*,?\s*Jakarta/gi, '')
@@ -1817,7 +1817,8 @@
         if (clean.length < 2) return true;
         if (/^[\(\.\s_\-]+[\)\.\s_\-]*$/.test(clean)) return true;
         if (/^[A-Z]{2,3}[0O]{3}\d{3,6}$/i.test(clean)) return true;
-        if (/^(dibuat|di\s*setujui|disetujui|di\s*kirim|dikirim|di\s*terima|diterima|oleh|tanda\s*terima|hormat\s*kami|angg?a|no\s+item\s*code|item\s*description|delivery\s*order|delevery\s*order|document\s*date|po\s*:)/i.test(clean)) {
+        // Jangan biarkan satuan tabel atau label header masuk ke field Ship To
+        if (/^(kg|gram|gr|pcs|krat|dus|uom|quantity|item\s*code|item\s*description|dibuat|di\s*setujui|disetujui|di\s*kirim|dikirim|di\s*terima|diterima|oleh|tanda\s*terima|hormat\s*kami|angg?a|delivery\s*order|delevery\s*order|document\s*date|po\s*:)/i.test(clean)) {
           return true;
         }
         return false;
@@ -1827,7 +1828,6 @@
       let custName = '';
       let custAddress = '';
 
-      // Cek apakah ada hasil ekstraksi zona kanan atas (__SHIP_TO_NAME__ & __SHIP_TO_ADDR__)
       const metaShipNameMatch = text.match(/__SHIP_TO_NAME__\s*:\s*([^\n]+)/i);
       const metaShipAddrMatch = text.match(/__SHIP_TO_ADDR__\s*:\s*([^\n]+)/i);
       if (metaShipNameMatch && !isInvalidCustomerOrAddress(metaShipNameMatch[1])) {
@@ -1837,22 +1837,14 @@
         custAddress = cleanCompanyLeftSide(metaShipAddrMatch[1]);
       }
 
-      if (!isSuratJalan) {
-        const custMatch = text.match(/Cust\s*Name\s*[:\-]?\s*([^\n]+)/i);
-        if (custMatch) {
-          const candidate = custMatch[1].replace(/No\.?\s*Nota.*$/i, '').trim();
-          if (!isInvalidCustomerOrAddress(candidate)) custName = candidate;
-        }
-      }
-
-      // Ekstraksi khusus blok "Ship To:" pada Surat Jalan jika belum lengkap
+      // Cari baris setelah tulisan "Ship To:" di teks dokumen
       const shipIdx = lines.findIndex(l => /ship\s*to\s*[:\-]?/i.test(l) && !/^__SHIP_TO/i.test(l));
-      if (shipIdx !== -1 && (!custName || !custAddress)) {
+      if (shipIdx !== -1 && (!custName || !custAddress || isInvalidCustomerOrAddress(custName))) {
         const shipBlockLines = [];
-        for (let k = shipIdx; k < Math.min(lines.length, shipIdx + 7); k++) {
+        for (let k = shipIdx; k < Math.min(lines.length, shipIdx + 6); k++) {
           const ln = lines[k];
           if (/^__SHIP_TO/i.test(ln)) continue;
-          if (k > shipIdx && /delivery\s*order|delevery\s*order|document\s*date|^po\s*:|^no\s+item/i.test(ln)) {
+          if (k > shipIdx && (/delivery\s*order|delevery\s*order|document\s*date|^po\s*:|^no\s+item/i.test(ln) || /^(no|item\s*code)/i.test(ln))) {
             break;
           }
           const cleanedRight = cleanCompanyLeftSide(ln);
@@ -1860,40 +1852,19 @@
             shipBlockLines.push(cleanedRight);
           }
         }
-        if (shipBlockLines.length > 0 && !custName) {
+        if (shipBlockLines.length > 0 && (!custName || isInvalidCustomerOrAddress(custName))) {
           custName = shipBlockLines[0];
         }
-        if (shipBlockLines.length > 1 && !custAddress) {
+        if (shipBlockLines.length > 1 && (!custAddress || isInvalidCustomerOrAddress(custAddress))) {
           custAddress = shipBlockLines.slice(1).join(', ')
             .replace(/^[\;\:\,\s]+/, '')
-            .replace(/\bJ\s*:\s*4\s*,?\s*Hy\b/gi, '')
             .replace(/\s{2,}/g, ' ')
             .trim();
         }
       }
 
-      if (!custName || isInvalidCustomerOrAddress(custName)) {
-        for (let i = 0; i < Math.min(lines.length, 10); i++) {
-          if (/^__SHIP_TO/i.test(lines[i])) continue;
-          const candidate = cleanCompanyLeftSide(lines[i]);
-          if (candidate && !isInvalidCustomerOrAddress(candidate) && !/^\d{5}$/.test(candidate)) {
-            if (!custName) {
-              custName = candidate;
-            } else if (!custAddress) {
-              custAddress = candidate;
-            }
-          }
-        }
-      }
-
-      const matchedCust = (DB.HH_CUSTOMERS || []).find(c =>
-        custName && (c.name.toLowerCase().includes(custName.toLowerCase()) || custName.toLowerCase().includes(c.name.toLowerCase()))
-      );
-      if (matchedCust && (!custAddress || isInvalidCustomerOrAddress(custAddress))) {
-        custAddress = matchedCust.address;
-      }
-
-      // 2. Filter No. Nota / Delivery Order (Koreksi huruf O di tengah angka menjadi 0, misal PKO0O000586 -> PK00000586)
+      // Fallback Cerdas berdasarkan wilayah / prefix surat jalan jika masih belum terbaca
+      const detectedCodePrefixMatch = text.match(/\b([A-Z]{3})-[A-Z0-9]{2,5}\b/);
       let notaNumber = '';
       const notaRegexes = [
         /(?:Delivery\s*Order|Delevery\s*Order|No\.?\s*Nota)\s*[:\-]?\s*([A-Z]{2,4}[0-9O]{5,12})/i,
@@ -1907,6 +1878,29 @@
           notaNumber = rawNota.replace(/^([A-Z]{2,3})([0-9O]+)$/, (_, pfx, digits) => pfx + digits.replace(/O/g, '0'));
           break;
         }
+      }
+
+      const defaultBranchPrefix = detectedCodePrefixMatch
+        ? detectedCodePrefixMatch[1].toUpperCase()
+        : (notaNumber.length >= 2 ? notaNumber.slice(0, 3).replace(/\d/g, '') : 'JKT');
+
+      const matchedCust = (DB.HH_CUSTOMERS || []).find(c =>
+        custName && (c.name.toLowerCase().includes(custName.toLowerCase()) || custName.toLowerCase().includes(c.name.toLowerCase()))
+      );
+
+      if (!custName || isInvalidCustomerOrAddress(custName)) {
+        if (defaultBranchPrefix === 'PBR' || /^PK/i.test(notaNumber)) {
+          custName = 'Boost Juice Mall SKA Pekanbaru';
+          custAddress = 'Jl. Soekarno-Hatta No.114, Delima, Kec. Tampan, Kota Pekanbaru, Riau 28292';
+        } else if (defaultBranchPrefix === 'JMB' || /^JM/i.test(notaNumber)) {
+          custName = 'Boost Juice WTC Jambi';
+          custAddress = 'Jl. Sultan Thaha No.56, Ps. Jambi, Kec. Ps. Jambi, Kota Jambi, Jambi 36123';
+        } else {
+          custName = 'Pelanggan Surat Jalan';
+        }
+      }
+      if (!custAddress || isInvalidCustomerOrAddress(custAddress)) {
+        custAddress = matchedCust ? matchedCust.address : custName;
       }
 
       // 3. Filter No. Ref / PO
@@ -1932,7 +1926,7 @@
       let terminDays = 7;
       const terminMatch = text.match(/Termin\s*[:\-]?\s*(\d+)/i);
       if (terminMatch) {
-        terminDays = parseInt(terminMatch[1], 10) || 7;
+        terminDays = parseInt(terminMatch.groups ? terminMatch.groups[1] : terminMatch[1], 10) || 7;
       }
 
       // 5. Filter Subtotal, Diskon, Pajak, Grand Total
@@ -1944,7 +1938,6 @@
         return parseInt(noDec.replace(/[\.,]/g, ''), 10) || 0;
       };
 
-      // Helper parse angka Quantity termasuk desimal seperti 0.01 atau OCR salah baca "O.01" / "0,01"
       const parseQtyStr = (rawQ) => {
         if (rawQ === undefined || rawQ === null) return 1;
         const s = String(rawQ).trim();
@@ -1965,11 +1958,6 @@
       let discountAmount = discMatch ? parseMoneyStr(discMatch[1]) : 0;
       let taxAmount = taxMatch ? parseMoneyStr(taxMatch[1]) : 0;
       let grandTotal = grandMatch ? parseMoneyStr(grandMatch[1]) : (subMatch ? parseMoneyStr(subMatch[1]) : 0);
-
-      const detectedCodePrefixMatch = text.match(/\b([A-Z]{3})-[A-Z0-9]{2,5}\b/);
-      const defaultBranchPrefix = detectedCodePrefixMatch
-        ? detectedCodePrefixMatch[1].toUpperCase()
-        : (notaNumber.length >= 2 ? notaNumber.slice(0, 3).replace(/\d/g, '') : 'JKT');
 
       // 6. Filter Baris Tabel Produk
       const items = [];
@@ -2022,7 +2010,6 @@
           .replace(/[\|¦\[\]\{\}!]/g, ' ')
           .replace(/([A-Z]{2,4}-[A-Z0-9]{2,5}-[A-Z0-9]{1,4})([A-Z][a-z])/g, '$1 $2')
           .replace(/([A-Z]{2,4}-[A-Z]{2,5})([A-Z][a-z])/g, '$1 $2')
-          .replace(/([A-Z]{2,4}-[A-Z0-9]{2,6}-)\s+(.+?)\s+([A-Z]{2,5})\b/, '$1$3 $2')
           .replace(/\s+/g, ' ')
           .trim();
 
@@ -2030,7 +2017,6 @@
           return;
         }
 
-        // KHUSUS BARIS SURAT JALAN: [No] [Item Code] [Item Description] [Quantity (termasuk desimal 0.01)] [UoM]
         const sjDirectMatch = line.match(/^(?:[0-9lI]{1,2}\s+)?([A-Z]{2,4}\s*-\s*[A-Z0-9]{2,6}(?:\s*-\s*[A-Z0-9]{1,6})?)\s+(.+?)\s+([0-9oO]+(?:[\.,][0-9oO]+)?|[lI])\s+(KG|KILOGRAM|GRAM|GR|G|PCS|PC|KRAT|CRT|CTN|CARTON|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL|BOTOL|LITER|LTR|ML)\b/i);
         if (sjDirectMatch) {
           let itemCode = sjDirectMatch[1].replace(/\s+/g, '').toUpperCase().replace(/-$/, '');
@@ -2048,124 +2034,8 @@
           });
           return;
         }
-
-        // Pola Umum: Diawali kode item (untuk Invoice maupun Surat Jalan)
-        const codeMatch = line.match(/^(?:[0-9lI]{1,2}\s+)?([A-Z]{2,4}\s*-\s*[A-Z0-9\-]{2,14})\s+(.+)$/i);
-        if (codeMatch) {
-          let itemCode = codeMatch[1].replace(/\s+/g, '').toUpperCase().replace(/-$/, '');
-          let rest = codeMatch[2].trim();
-
-          if (/^[A-Z]{2,4}-[A-Z0-9\-]+(?:\s+[A-Z]{2,4}-[A-Z0-9\-]+)*$/i.test(rest)) {
-            return;
-          }
-
-          const stuckBanana = itemCode.match(/^([A-Z]{2,4}-[A-Z0-9]+-C\d)([A-Z])$/i);
-          if (stuckBanana && /^[a-z]/.test(rest)) {
-            itemCode = stuckBanana[1].toUpperCase();
-            rest = stuckBanana[2] + rest;
-          }
-
-          const restMasked = rest
-            .replace(/\([^)]*\)/g, m => ' '.repeat(m.length))
-            .replace(/\b[A-Z]{2,4}-[A-Z0-9\-]+\b/gi, m => ' '.repeat(m.length));
-
-          const uomMatch = restMasked.match(new RegExp(uomListRegex, 'i'));
-
-          if (uomMatch) {
-            const uom = uomMatch[1].toUpperCase();
-            const uomIndex = restMasked.toUpperCase().lastIndexOf(uom);
-            const beforeUom = rest.slice(0, uomIndex).trim();
-            const afterUom = rest.slice(uomIndex + uom.length).trim();
-
-            if (afterUom && !isSuratJalan) {
-              const nums = afterUom.split(/\s+/).filter(Boolean);
-              const qty = parseQtyStr(nums[0] || '1');
-              const price = nums[1] ? parseMoneyStr(nums[1]) : 25000;
-              const disc = nums.length >= 4 ? parseMoneyStr(nums[2]) : 0;
-              if (beforeUom && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(beforeUom)) {
-                pushUniqueItem({
-                  item_code: itemCode,
-                  product_name: beforeUom,
-                  unit: uom,
-                  qty: qty,
-                  price: price,
-                  disc: disc
-                });
-              }
-              return;
-            } else {
-              const qtyTail = beforeUom.match(/(.+?)\s+([0-9oO]+(?:[\.,][0-9oO]+)?|[lI])$/);
-              if (qtyTail) {
-                const prodName = qtyTail[1].trim();
-                const qty = parseQtyStr(qtyTail[2]);
-                const masterProd = (DB.HH_PRODUCTS || []).find(p => p.name.toLowerCase() === prodName.toLowerCase());
-                if (prodName && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(prodName)) {
-                  pushUniqueItem({
-                    item_code: itemCode,
-                    product_name: prodName,
-                    unit: uom,
-                    qty: qty,
-                    price: masterProd ? Number(masterProd.price) : 0,
-                    disc: 0
-                  });
-                }
-                return;
-              }
-            }
-          }
-        }
-
-        // Pola Baris Bernomor Tanpa Kode Terbaca
-        const numberedRow = line.match(/^(\d{1,2})\s+([a-zA-Z].+)$/);
-        if (numberedRow) {
-          const rest = numberedRow[2].trim();
-          const restMasked = rest
-            .replace(/\([^)]*\)/g, m => ' '.repeat(m.length))
-            .replace(/\b[A-Z]{2,4}-[A-Z0-9\-]+\b/gi, m => ' '.repeat(m.length));
-          const uomMatch = restMasked.match(new RegExp(uomListRegex, 'i'));
-
-          if (uomMatch) {
-            const uom = uomMatch[1].toUpperCase();
-            const uomIndex = restMasked.toUpperCase().lastIndexOf(uom);
-            const leftPart = rest.slice(0, uomIndex).trim();
-            const rightPart = rest.slice(uomIndex + uom.length).trim();
-
-            if (rightPart && !isSuratJalan) {
-              const nums = rightPart.split(/\s+/).filter(Boolean);
-              const qty = parseQtyStr(nums[0] || '1');
-              const price = nums[1] ? parseMoneyStr(nums[1]) : 25000;
-              if (leftPart && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(leftPart)) {
-                pushUniqueItem({
-                  item_code: generateProductItemCode(leftPart, defaultBranchPrefix),
-                  product_name: leftPart,
-                  unit: uom,
-                  qty: qty,
-                  price: price,
-                  disc: 0
-                });
-              }
-            } else {
-              const qtyTail = leftPart.match(/(.+?)\s+([0-9oO]+(?:[\.,][0-9oO]+)?|[lI])$/);
-              if (qtyTail) {
-                const prodName = qtyTail[1].trim();
-                const qty = parseQtyStr(qtyTail[2]);
-                if (prodName && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(prodName)) {
-                  pushUniqueItem({
-                    item_code: generateProductItemCode(prodName, defaultBranchPrefix),
-                    product_name: prodName,
-                    unit: uom,
-                    qty: qty,
-                    price: 0,
-                    disc: 0
-                  });
-                }
-              }
-            }
-          }
-        }
       });
 
-      // Rekonstruksi pintar khusus Surat Jalan bila OCR memisahkan kolom Item Code, Item Description, Quantity, dan UoM
       if (isSuratJalan) {
         const codeMatches = [];
         const codeRgx = /\b([A-Z]{3}-[A-Z0-9]{2,5}(?:-[A-Z0-9]{1,5})?)\b/g;
@@ -2175,7 +2045,6 @@
           if (!codeMatches.includes(c)) codeMatches.push(c);
         }
 
-        // Cari juga angka desimal Quantity yang mungkin muncul di tabel (misal 0.01)
         const decimalQtyMatch = text.match(/\b(0[\.,]\d{1,3})\b/);
         const fallbackQty = decimalQtyMatch ? parseQtyStr(decimalQtyMatch[1]) : 1;
 
@@ -2207,11 +2076,6 @@
               price: 0,
               disc: 0
             });
-          } else if (decimalQtyMatch) {
-            const existingIt = items.find(it => String(it.item_code).toUpperCase() === code);
-            if (existingIt && existingIt.qty === 1 && fallbackQty !== 1) {
-              existingIt.qty = fallbackQty;
-            }
           }
         });
       }
@@ -2222,33 +2086,10 @@
         grandTotal = Math.max(0, calcSubtotal - discountAmount + taxAmount);
       }
 
-      // Jika Ship To masih belum terbaca tetapi kode prefix cabang adalah PBR/PK (Pekanbaru), gunakan fallback cerdas
-      let finalCustName = (!isInvalidCustomerOrAddress(custName)) ? custName : '';
-      let finalCustAddr = (!isInvalidCustomerOrAddress(custAddress)) ? custAddress : '';
-
-      if (!finalCustName) {
-        if (defaultBranchPrefix === 'PBR' || /^PK/i.test(notaNumber)) {
-          finalCustName = 'Boost Juice Mall SKA Pekanbaru';
-          if (!finalCustAddr) {
-            finalCustAddr = 'Jl. Soekarno-Hatta No.114, Delima, Kec. Tampan, Kota Pekanbaru, Riau 28292';
-          }
-        } else if (defaultBranchPrefix === 'JMB' || /^JM/i.test(notaNumber)) {
-          finalCustName = 'Boost Juice WTC Jambi';
-          if (!finalCustAddr) {
-            finalCustAddr = 'Jl. Sultan Thaha No.56, Ps. Jambi, Kec. Ps. Jambi, Kota Jambi, Jambi 36123';
-          }
-        } else {
-          finalCustName = 'Pelanggan Surat Jalan';
-        }
-      }
-      if (!finalCustAddr) {
-        finalCustAddr = matchedCust ? matchedCust.address : finalCustName;
-      }
-
       return {
         docType,
-        custName: finalCustName,
-        custAddress: finalCustAddr,
+        custName: custName || 'Pelanggan Surat Jalan',
+        custAddress: custAddress || 'Alamat Pengiriman',
         custPhone: matchedCust ? matchedCust.phone : '082113780016',
         notaNumber: notaNumber || `PK000${Math.floor(10000 + Math.random() * 89999)}`,
         refPo: refPo || '-',
