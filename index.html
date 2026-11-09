@@ -798,7 +798,7 @@
       HH_ACTIVITY_LOG: [],
       HH_SETTINGS: {
         company_name: 'Hanam Hanum Delivery',
-        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbwGlgxjC3rqQO-oeDpRDv1vVIcQ065mZFZN9FaVdKttUyLwPKAsVmsGfDR3Gj9DxsP96w/exec',
+        gas_webapp_url: 'https://script.google.com/macros/s/AKfycbyCN4Box0EYGuRLWdRDxE53Og3Yz1Oni5rGTzfy9OeHLFjdp2QWeqODDjBDkkxcl5MXbw/exec',
         spreadsheet_id: '1xZF01_8HbPIcjomang4XHhmKVFx_EXSRLEo12Zpw49E',
         drive_folder_id: '13gCbISldFvaTHSQdJ0e023Ry2DQ9U0jJ',
         telegram_bot_username: '@HanamHanumOrderBot',
@@ -852,6 +852,18 @@
     let mapInstance = null;
     let dashMapInstance = null;
     let chartInstances = {};
+    // Penyimpan order yang baru diselesaikan kurir agar menu Pesanan & Kirim langsung kosong tanpa ketimpa auto-sync
+    let recentlyCompletedOrderIds = new Set();
+
+    // Helper cek apakah kurir sedang memiliki pengantaran aktif setelah scan (Dalam perjalanan / Tiba di lokasi)
+    function isCourierCurrentlyOnActiveTrip() {
+      if (!currentUser || currentUser.role !== 'kurir') return false;
+      return (DB.HH_ORDERS || []).some(o =>
+        String(o.courier_id) === String(currentUser.user_id) &&
+        ['Dalam perjalanan', 'Tiba di lokasi'].includes(o.status) &&
+        !recentlyCompletedOrderIds.has(String(o.order_id))
+      );
+    }
 
     async function sha256Hash(text) {
       const msgBuffer = new TextEncoder().encode(text);
@@ -2100,6 +2112,11 @@
      * FITUR BARU 2: SCAN BARCODE SURAT JALAN UNTUK KURIR (LANGSUNG JALAN KE TUJUAN)
      *************************************************************************/
     function openCourierBarcodeScannerModal() {
+      if (isCourierCurrentlyOnActiveTrip()) {
+        showToast('Anda sedang dalam pengiriman aktif! Selesaikan pengantaran di menu Kirim terlebih dahulu.', 'warning');
+        navigateTo('kurir_pengiriman');
+        return;
+      }
       openModal('Scan Barcode Surat Jalan — Langsung Jalan ke Tujuan', `
         <div class="space-y-4 text-xs">
           <div class="p-3.5 rounded-2xl bg-[#053f28] text-white flex items-center gap-3 border-b-2 border-[#fde002]">
@@ -2218,6 +2235,11 @@
     }
 
     function executeCourierBarcodeDispatch(scannedCode, autoRedirectToMaps = true) {
+      if (isCourierCurrentlyOnActiveTrip()) {
+        showToast('Mode Scan terkunci karena Anda sedang dalam pengantaran aktif! Fokus pada menu Kirim.', 'warning');
+        navigateTo('kurir_pengiriman');
+        return;
+      }
       const code = String(scannedCode || '').trim();
       if (!code) {
         showToast('Masukkan atau scan kode Barcode Surat Jalan terlebih dahulu!', 'warning');
@@ -2323,11 +2345,15 @@
             </a>
             <button type="button" onclick="closeModal(); if(currentUser && currentUser.role==='kurir'){navigateTo('kurir_pengiriman');} else {navigateTo('tracking');}"
               class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
-              Lihat di Peta Live Tracking Aplikasi
+              Fokus ke Menu Kirim Sekarang
             </button>
           </div>
         </div>
       `);
+
+      if (currentUser && currentUser.role === 'kurir') {
+        navigateTo('kurir_pengiriman');
+      }
     }
 
     function statusBadgeHTML(status) {
@@ -2465,6 +2491,7 @@
       if (!badge || !currentUser || currentUser.role !== 'kurir') return;
       const incomingCount = (DB.HH_ORDERS || []).filter(o =>
         !['Berhasil terkirim', 'Gagal terkirim'].includes(o.status) &&
+        !recentlyCompletedOrderIds.has(String(o.order_id)) &&
         (!o.courier_id || o.courier_id === '' || String(o.courier_id) === String(currentUser.user_id))
       ).length;
       if (incomingCount > 0) {
@@ -2785,6 +2812,7 @@
       const pendingPrep = DB.HH_ORDERS.filter(o => ['Pesanan diterima', 'Menunggu persiapan', 'Sedang disiapkan', 'Siap dikirim'].includes(o.status)).length;
       const inTransit = DB.HH_ORDERS.filter(o => ['Dalam perjalanan', 'Tiba di lokasi', 'Kurir ditugaskan'].includes(o.status)).length;
       const completed = DB.HH_ORDERS.filter(o => o.status === 'Berhasil terkirim').length;
+      const isScanLocked = isCourierCurrentlyOnActiveTrip();
 
       container.innerHTML = `
         <div class="bg-gradient-to-r from-[#053f28] to-[#043320] rounded-2xl p-5 text-white shadow-lg border-l-8 border-[#fde002] space-y-3">
@@ -2796,11 +2824,26 @@
           </div>
           <div>
             <h3 class="text-xl font-black text-white">Halo, ${currentUser.name}!</h3>
-            <p class="text-xs text-white/80 mt-0.5">Scan Barcode pada Surat Jalan yang sudah di-print untuk langsung jalan ke lokasi tujuan.</p>
+            <p class="text-xs text-white/80 mt-0.5">
+              ${isScanLocked
+                ? 'Anda sedang dalam pengantaran aktif. Mode Scan dikunci, silakan fokus pada menu Kirim.'
+                : 'Scan Barcode pada Surat Jalan yang sudah di-print untuk langsung jalan ke lokasi tujuan.'}
+            </p>
           </div>
-          <button onclick="openCourierBarcodeScannerModal()" class="w-full py-3.5 px-4 rounded-xl bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-xs shadow-md flex items-center justify-center gap-2 transition">
-            <i class="fa-solid fa-barcode text-base"></i> SCAN BARCODE SURAT JALAN — LANGSUNG JALAN
-          </button>
+          ${isScanLocked ? `
+            <div class="space-y-2">
+              <button disabled class="w-full py-3 px-4 rounded-xl bg-slate-400/30 text-white/60 font-black text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-white/15">
+                <i class="fa-solid fa-lock text-sm"></i> MODE SCAN BARCODE TERKUNCI (SEDANG MENGIRIM)
+              </button>
+              <button onclick="navigateTo('kurir_pengiriman')" class="w-full py-3 px-4 rounded-xl bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-xs shadow-md flex items-center justify-center gap-2">
+                <i class="fa-solid fa-truck-fast"></i> BUKA MENU KIRIM SEKARANG
+              </button>
+            </div>
+          ` : `
+            <button onclick="openCourierBarcodeScannerModal()" class="w-full py-3.5 px-4 rounded-xl bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-xs shadow-md flex items-center justify-center gap-2 transition">
+              <i class="fa-solid fa-barcode text-base"></i> SCAN BARCODE SURAT JALAN — LANGSUNG JALAN
+            </button>
+          `}
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -2864,8 +2907,11 @@
 
     function renderKurirMobilePesanan(container) {
       const incomingOrders = DB.HH_ORDERS.filter(o =>
-        !['Berhasil terkirim', 'Gagal terkirim'].includes(o.status)
+        !['Berhasil terkirim', 'Gagal terkirim'].includes(o.status) &&
+        !recentlyCompletedOrderIds.has(String(o.order_id)) &&
+        (!o.courier_id || o.courier_id === '' || String(o.courier_id) === String(currentUser.user_id))
       );
+      const isScanLocked = isCourierCurrentlyOnActiveTrip();
 
       updateCourierOrderBadgeCount();
 
@@ -2873,19 +2919,29 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 class="font-extrabold text-base text-[#053f28]"><i class="fa-solid fa-bell-concierge mr-1.5"></i> Pesanan Masuk & Scan Surat Jalan</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Scan barcode pada Surat Jalan atau klik tombol mulai kirim.</p>
+            <p class="text-xs text-slate-500 mt-0.5">
+              ${isScanLocked
+                ? 'Mode Scan dikunci selama pengantaran berlangsung. Fokus selesaikan tugas di menu Kirim.'
+                : 'Scan barcode pada Surat Jalan atau klik tombol mulai kirim.'}
+            </p>
           </div>
-          <button onclick="openCourierBarcodeScannerModal()" class="px-3.5 py-2 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center gap-1.5">
-            <i class="fa-solid fa-barcode"></i> Scan Barcode SJ
-          </button>
+          ${isScanLocked ? `
+            <button disabled class="px-3.5 py-2 rounded-xl bg-slate-200 text-slate-400 font-extrabold text-xs flex items-center gap-1.5 cursor-not-allowed">
+              <i class="fa-solid fa-lock"></i> Scan Terkunci
+            </button>
+          ` : `
+            <button onclick="openCourierBarcodeScannerModal()" class="px-3.5 py-2 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-barcode"></i> Scan Barcode SJ
+            </button>
+          `}
         </div>
 
         <div class="space-y-4">
           ${incomingOrders.map(o => {
             const items = DB.HH_ORDER_ITEMS.filter(i => String(i.order_id) === String(o.order_id));
-            const gmapsLocationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customer_address)}`;
             const isAssigned = Boolean(o.courier_id && String(o.courier_id).trim() !== '');
             const isAssignedToMe = isAssigned && String(o.courier_id) === String(currentUser.user_id);
+            const isAlreadyScanned = ['Dalam perjalanan', 'Tiba di lokasi'].includes(o.status);
 
             return `
               <div class="bg-white rounded-2xl border-2 ${isAssignedToMe ? 'border-[#053f28]' : 'border-slate-200'} transition shadow-xs p-5 space-y-4">
@@ -2909,14 +2965,16 @@
                     <p class="text-slate-700 font-medium leading-relaxed bg-white p-2.5 rounded-lg border border-slate-200 mt-2">${o.customer_address}</p>
                   </div>
 
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <button onclick="executeCourierBarcodeDispatch('${o.order_id}')" class="w-full py-2.5 px-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs">
-                      <i class="fa-solid fa-barcode"></i> Scan / Langsung Jalan
-                    </button>
-                    <a href="${gmapsLocationUrl}" target="_blank" rel="noopener noreferrer"
-                      class="w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs transition">
-                      <i class="fa-solid fa-map-location-dot"></i> Rute Google Maps
-                    </a>
+                  <div class="grid grid-cols-1 gap-2">
+                    ${isScanLocked || isAlreadyScanned ? `
+                      <button onclick="navigateTo('kurir_pengiriman')" class="w-full py-2.5 px-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs">
+                        <i class="fa-solid fa-map-location-dot"></i> Sudah Di-Scan — Fokus ke Menu Kirim
+                      </button>
+                    ` : `
+                      <button onclick="executeCourierBarcodeDispatch('${o.order_id}')" class="w-full py-2.5 px-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs">
+                        <i class="fa-solid fa-barcode"></i> Scan / Langsung Jalan
+                      </button>
+                    `}
                   </div>
                 </div>
 
@@ -2939,6 +2997,109 @@
           }).join('') || `<div class="bg-white p-8 rounded-2xl text-center text-slate-400">Belum ada pesanan masuk saat ini.</div>`}
         </div>
       `;
+    }
+
+    function renderKurirMobilePengiriman(container) {
+      const activeOrders = DB.HH_ORDERS.filter(o =>
+        !['Berhasil terkirim', 'Gagal terkirim'].includes(o.status) &&
+        !recentlyCompletedOrderIds.has(String(o.order_id)) &&
+        String(o.courier_id) === String(currentUser.user_id)
+      );
+
+      const selectedOrd = activeOrders.length ? activeOrders[0] : null;
+      const isScanLocked = isCourierCurrentlyOnActiveTrip();
+
+      container.innerHTML = `
+        <div class="bg-[#053f28] text-white rounded-2xl p-4 shadow-md border-b-4 border-[#fde002] flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="font-extrabold text-sm text-[#fde002]"><i class="fa-solid fa-map-location-dot mr-1.5"></i> Live Tracking Pengiriman</h3>
+            <p id="courierGpsCoordText" class="text-[11px] text-white/80 mt-0.5">
+              GPS: ${lastGpsCoord.lat.toFixed(4)}, ${lastGpsCoord.lng.toFixed(4)}
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            ${!isScanLocked && activeOrders.length === 0 ? `
+              <button onclick="openCourierBarcodeScannerModal()" class="py-2.5 px-3.5 rounded-xl bg-[#fde002] text-[#053f28] font-extrabold text-xs shadow-md flex items-center gap-1.5">
+                <i class="fa-solid fa-barcode"></i> Scan SJ
+              </button>
+            ` : ''}
+            <button onclick="toggleCourierGPS(${!gpsActive})"
+              class="py-2.5 px-3.5 rounded-xl font-extrabold text-xs shadow-md transition flex items-center gap-1.5 shrink-0 ${
+                gpsActive ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
+              }">
+              <i class="fa-solid ${gpsActive ? 'fa-stop' : 'fa-satellite-dish'}"></i>
+              ${gpsActive ? 'Stop GPS' : 'On GPS'}
+            </button>
+          </div>
+        </div>
+
+        ${activeOrders.length > 0 ? `
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+            <select id="trackingOrderSelect" onchange="onCourierSelectRouteOrder(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-[#053f28] bg-hh-50">
+              ${activeOrders.map(o => `<option value="${o.order_id}">${o.order_id} — ${o.customer_name} (${o.status})</option>`).join('')}
+            </select>
+
+            <div id="mainTrackingMap" class="w-full h-[280px] rounded-2xl border border-slate-200"></div>
+          </div>
+
+          <div class="space-y-3">
+            ${activeOrders.map(o => {
+              const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customer_address)}`;
+              return `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="font-black text-xs text-[#053f28]">${o.order_id}</span>
+                      <h4 class="font-extrabold text-sm text-slate-900">${o.customer_name}</h4>
+                      <p class="text-[11px] text-slate-500 mt-0.5"><i class="fa-solid fa-location-dot text-rose-500 mr-1"></i> ${o.customer_address}</p>
+                    </div>
+                    ${statusBadgeHTML(o.status)}
+                  </div>
+                  <div class="grid grid-cols-1 gap-2">
+                    <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer"
+                      class="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm">
+                      <i class="fa-solid fa-diamond-turn-right text-sm"></i> Buka Navigasi Google Maps
+                    </a>
+
+                    ${o.status === 'Dalam perjalanan' ? `
+                      <button onclick="courierUpdateOrderStep('${o.order_id}', 'Tiba di lokasi')"
+                        class="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-location-crosshairs"></i> Konfirmasi Tiba di Lokasi
+                      </button>
+                    ` : o.status === 'Tiba di lokasi' ? `
+                      <button onclick="openProofUploadModal('${o.order_id}')"
+                        class="w-full py-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera"></i> Ambil Foto Bukti Kirim
+                      </button>
+                    ` : `
+                      <button onclick="courierUpdateOrderStep('${o.order_id}', 'Dalam perjalanan')"
+                        class="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-motorcycle"></i> Mulai Jalan Sekarang
+                      </button>
+                    `}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : `
+          <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto">
+              <i class="fa-solid fa-barcode"></i>
+            </div>
+            <h4 class="font-extrabold text-sm text-slate-700">Tidak Ada Pengiriman Aktif</h4>
+            <p class="text-xs text-slate-500 max-w-xs mx-auto">Silakan klik tombol <b>Scan SJ</b> di atas atau di menu Home untuk memindai barcode Surat Jalan berikutnya.</p>
+          </div>
+        `}
+      `;
+
+      setTimeout(() => {
+        if (selectedOrd) renderMainTrackingMap(selectedOrd);
+      }, 60);
+    }
+
+    function onCourierSelectRouteOrder(orderId) {
+      updateTrackingDetailPanel(orderId);
     }
 
     function renderKurirMobilePengiriman(container) {
@@ -4829,7 +4990,7 @@
               class="mt-3 w-full h-44 object-cover rounded-xl border border-slate-200" />
           </div>
 
-          <button type="submit" class="w-full py-3.5 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-sm shadow-lg">
+          <button id="btnSubmitProofConfirm" type="submit" class="w-full py-3.5 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-sm shadow-lg">
             <i class="fa-solid fa-cloud-arrow-up mr-1"></i> KONFIRMASI BERHASIL TERKIRIM
           </button>
         </form>
@@ -4849,11 +5010,27 @@
 
     function submitDeliveryProof(e, orderId) {
       e.preventDefault();
+      const btnSubmit = document.getElementById('btnSubmitProofConfirm');
+      if (btnSubmit) {
+        if (btnSubmit.disabled) return;
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> MENYELESAIKAN PENGANTARAN...`;
+      }
+
       const recipient = document.getElementById('proofRecipientName').value.trim();
       const photoSrc = document.getElementById('proofPreviewImg').src;
 
-      const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
-      if (ord) ord.status = 'Berhasil terkirim';
+      // Tandai order langsung selesai agar menu Pesanan & Kirim seketika kosong tanpa menunggu server
+      recentlyCompletedOrderIds.add(String(orderId));
+
+      const ord = DB.HH_ORDERS.find(o => String(o.order_id) === String(orderId));
+      if (ord) {
+        ord.status = 'Berhasil terkirim';
+        if (currentUser && currentUser.role === 'kurir') {
+          ord.courier_id = currentUser.user_id;
+          ord.courier_name = currentUser.name;
+        }
+      }
 
       DB.HH_PROOFS.unshift({
         proof_id: generateUID('PRF'),
@@ -4874,6 +5051,13 @@
         note: `Berhasil diterima oleh: ${recipient}`
       });
 
+      // Langsung tutup modal, kosongkan badge, dan render ulang tampilan seketika (0 ms delay)
+      closeModal();
+      updateCourierOrderBadgeCount();
+      navigateTo(currentView);
+      showToast(`Pengiriman ${orderId} selesai! Menu Pesanan & Kirim telah dikosongkan.`, 'success');
+
+      // Kirim perubahan ke server di background
       commitDatabaseChange('uploadDeliveryProof', {
         order_id: orderId,
         courier_id: currentUser.user_id,
@@ -4881,10 +5065,6 @@
         recipient_name: recipient,
         base64Image: photoSrc
       });
-
-      closeModal();
-      navigateTo(currentView);
-      showToast(`Pengiriman ${orderId} selesai! Foto bukti tersimpan.`);
     }
 
     /*************************************************************************
@@ -5387,6 +5567,18 @@
                   }
                 });
                 DB.HH_TELEGRAM = mergedDrafts;
+              } else if (sheetKey === 'HH_ORDERS') {
+                // Pastikan order yang baru saja diselesaikan kurir tetap berstatus 'Berhasil terkirim' dan tidak tertimpa data lama saat auto-sync
+                DB.HH_ORDERS = json.data.HH_ORDERS.map(remoteOrd => {
+                  if (recentlyCompletedOrderIds.has(String(remoteOrd.order_id))) {
+                    if (remoteOrd.status === 'Berhasil terkirim') {
+                      recentlyCompletedOrderIds.delete(String(remoteOrd.order_id));
+                    } else {
+                      remoteOrd.status = 'Berhasil terkirim';
+                    }
+                  }
+                  return remoteOrd;
+                });
               } else {
                 DB[sheetKey] = json.data[sheetKey];
               }
