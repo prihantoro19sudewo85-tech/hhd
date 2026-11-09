@@ -1555,11 +1555,35 @@
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       let fullTextLines = [];
+      let rightHeaderShipToLines = [];
 
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         onProgress(`Mengekstrak teks halaman PDF ${pageNum} dari ${pdf.numPages}...`, Math.round((pageNum / pdf.numPages) * 75));
         const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.0 });
+        const pageWidth = viewport.width || 600;
+        const pageHeight = viewport.height || 800;
         const textContent = await page.getTextContent();
+
+        // Ambil khusus teks di area Kanan Atas (Ship To & Alamat Ship To pada Surat Jalan)
+        if (pageNum === 1) {
+          const topRightMap = {};
+          textContent.items.forEach(item => {
+            const x = item.transform[4];
+            const y = item.transform[5];
+            // Area kanan atas: X > 48% lebar halaman dan Y di bagian atas halaman
+            if (x > pageWidth * 0.48 && y > pageHeight * 0.62) {
+              const yKey = Math.round(y / 4) * 4;
+              if (!topRightMap[yKey]) topRightMap[yKey] = [];
+              topRightMap[yKey].push({ x, str: item.str });
+            }
+          });
+          const sortedTopY = Object.keys(topRightMap).map(Number).sort((a, b) => b - a);
+          sortedTopY.forEach(y => {
+            const rowStr = topRightMap[y].sort((a, b) => a.x - b.x).map(i => i.str).join(' ').trim();
+            if (rowStr) rightHeaderShipToLines.push(rowStr);
+          });
+        }
 
         // Kelompokkan berdasarkan koordinat Y agar struktur baris tabel tetap rapi
         const rowMap = {};
@@ -1579,15 +1603,27 @@
         // Jika PDF adalah hasil scan gambar (kosong teks), jalankan OCR pada canvas halaman PDF
         if (fullTextLines.join('').trim().length < 15 && window.Tesseract) {
           onProgress(`PDF berupa gambar scan, menjalankan OCR halaman ${pageNum}...`, 60);
-          const viewport = page.getViewport({ scale: 2.0 });
+          const viewport2 = page.getViewport({ scale: 2.0 });
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          await page.render({ canvasContext: ctx, viewport }).promise;
-          const ocrRes = await window.Tesseract.recognize(canvas, 'eng+ind');
-          if (ocrRes && ocrRes.data && ocrRes.data.text) {
-            fullTextLines.push(ocrRes.data.text);
+          canvas.width = viewport2.width;
+          canvas.height = viewport2.height;
+          await page.render({ canvasContext: ctx, viewport: viewport2 }).promise;
+          const ocrText = await runStructuredImageOCR(canvas, onProgress);
+          if (ocrText) {
+            fullTextLines.push(ocrText);
+          }
+        }
+      }
+
+      if (rightHeaderShipToLines.length > 0) {
+        const cleanShipLines = rightHeaderShipToLines
+          .map(l => l.replace(/^.*?\bShip\s*To\s*[:\-]?\s*/i, '').trim())
+          .filter(l => l && !/^(ship\s*to|delivery\s*order|document\s*date)$/i.test(l));
+        if (cleanShipLines.length > 0) {
+          fullTextLines.unshift(`__SHIP_TO_NAME__: ${cleanShipLines[0]}`);
+          if (cleanShipLines.length > 1) {
+            fullTextLines.unshift(`__SHIP_TO_ADDR__: ${cleanShipLines.slice(1).join(', ')}`);
           }
         }
       }
@@ -1599,35 +1635,106 @@
       if (!window.Tesseract) {
         throw new Error('Library OCR belum siap.');
       }
-      let sourceForOcr = file;
+      let canvas = null;
       try {
-        sourceForOcr = await preprocessTableImageForOCR(file);
+        canvas = await preprocessTableImageForOCR(file);
       } catch (e) {
-        sourceForOcr = file;
+        canvas = null;
       }
+      return await runStructuredImageOCR(canvas || file, onProgress);
+    }
 
+    async function runStructuredImageOCR(sourceCanvasOrFile, onProgress) {
       let result = null;
       try {
-        result = await window.Tesseract.recognize(sourceForOcr, 'eng+ind', {
+        result = await window.Tesseract.recognize(sourceCanvasOrFile, 'eng+ind', {
           logger: m => {
-            if (m.status === 'recognizing text') {
-              onProgress('Memfilter tulisan dari gambar JPEG/PNG...', Math.min(90, 20 + Math.round((m.progress || 0) * 70)));
+            if (m.status === 'recognizing text' && onProgress) {
+              onProgress('Memfilter semua tulisan dari dokumen...', Math.min(85, 20 + Math.round((m.progress || 0) * 65)));
             }
           }
         });
       } catch (eLang) {
-        result = await window.Tesseract.recognize(file, 'eng', {
+        result = await window.Tesseract.recognize(sourceCanvasOrFile, 'eng', {
           logger: m => {
-            if (m.status === 'recognizing text') {
-              onProgress('Memfilter tulisan dari gambar JPEG/PNG...', Math.min(90, 20 + Math.round((m.progress || 0) * 70)));
+            if (m.status === 'recognizing text' && onProgress) {
+              onProgress('Memfilter semua tulisan dari dokumen...', Math.min(85, 20 + Math.round((m.progress || 0) * 65)));
             }
           }
         });
+      }
+
+      // 1. Crop khusus pojok kanan atas untuk membaca "Ship To:" & Alamat Ship To secara terpisah agar 100% akurat
+      let shipToMetadataPrefix = '';
+      if (sourceCanvasOrFile && sourceCanvasOrFile.width && sourceCanvasOrFile.height) {
+        try {
+          const w = sourceCanvasOrFile.width;
+          const h = sourceCanvasOrFile.height;
+          const cropCanvas = document.createElement('canvas');
+          // Area Ship To berada di X: 54% s/d 99% lebar gambar, Y: 0% s/d 24% tinggi gambar
+          const sx = Math.round(w * 0.54);
+          const sy = 0;
+          const sw = w - sx;
+          const sh = Math.round(h * 0.24);
+          cropCanvas.width = sw;
+          cropCanvas.height = sh;
+          const cctx = cropCanvas.getContext('2d');
+          cctx.fillStyle = '#ffffff';
+          cctx.fillRect(0, 0, sw, sh);
+          cctx.drawImage(sourceCanvasOrFile, sx, sy, sw, sh, 0, 0, sw, sh);
+
+          const shipOcr = await window.Tesseract.recognize(cropCanvas, 'eng');
+          if (shipOcr && shipOcr.data && shipOcr.data.text) {
+            const rawShipLines = shipOcr.data.text
+              .split('\n')
+              .map(l => l.replace(/^.*?\bShip\s*To\s*[:\-]?\s*/i, '').replace(/[\|¦]/g, '').trim())
+              .filter(l => l.length >= 2 && !/^(ship\s*to|delivery\s*order|document\s*date|invoice\s*penjualan|no\.?\s*nota)/i.test(l));
+
+            if (rawShipLines.length > 0) {
+              shipToMetadataPrefix += `__SHIP_TO_NAME__: ${rawShipLines[0]}\n`;
+              if (rawShipLines.length > 1) {
+                shipToMetadataPrefix += `__SHIP_TO_ADDR__: ${rawShipLines.slice(1).join(', ')}\n`;
+              }
+            }
+          }
+        } catch (errCrop) {}
       }
 
       if (result && result.data && Array.isArray(result.data.words) && result.data.words.length > 0) {
         const words = result.data.words.filter(w => w && w.text && String(w.text).trim() !== '' && w.bbox);
         if (words.length > 0) {
+          // Ekstrak juga kata-kata yang berada di pojok kanan atas berdasarkan koordinat bbox jika crop belum mendapatkan hasil
+          if (!shipToMetadataPrefix && sourceCanvasOrFile && sourceCanvasOrFile.width) {
+            const imgW = sourceCanvasOrFile.width;
+            const imgH = sourceCanvasOrFile.height;
+            const rightTopWords = words.filter(w => w.bbox.x0 > imgW * 0.55 && w.bbox.y1 < imgH * 0.24);
+            if (rightTopWords.length > 0) {
+              const rtRows = [];
+              rightTopWords.forEach(w => {
+                const cy = (w.bbox.y0 + w.bbox.y1) / 2;
+                const h = Math.max(8, w.bbox.y1 - w.bbox.y0);
+                let r = rtRows.find(row => Math.abs(row.cy - cy) <= h * 0.65);
+                if (!r) {
+                  r = { cy, items: [] };
+                  rtRows.push(r);
+                }
+                r.items.push({ x0: w.bbox.x0, text: String(w.text).trim() });
+              });
+              rtRows.sort((a, b) => a.cy - b.cy);
+              const rtLines = rtRows.map(r => {
+                r.items.sort((a, b) => a.x0 - b.x0);
+                return r.items.map(i => i.text).join(' ').replace(/^.*?\bShip\s*To\s*[:\-]?\s*/i, '').trim();
+              }).filter(l => l.length >= 2 && !/^(ship\s*to|delivery\s*order|document\s*date)/i.test(l));
+
+              if (rtLines.length > 0) {
+                shipToMetadataPrefix += `__SHIP_TO_NAME__: ${rtLines[0]}\n`;
+                if (rtLines.length > 1) {
+                  shipToMetadataPrefix += `__SHIP_TO_ADDR__: ${rtLines.slice(1).join(', ')}\n`;
+                }
+              }
+            }
+          }
+
           const rows = [];
           words.forEach(w => {
             const cy = ((w.bbox.y0 + w.bbox.y1) / 2);
@@ -1647,11 +1754,11 @@
             return r.items.map(i => i.text).join(' ');
           }).join('\n');
 
-          return reconstructed + '\n\n' + (result.data.text || '');
+          return shipToMetadataPrefix + reconstructed + '\n\n' + (result.data.text || '');
         }
       }
 
-      return (result && result.data && result.data.text) ? result.data.text : '';
+      return shipToMetadataPrefix + ((result && result.data && result.data.text) ? result.data.text : '');
     }
 
     function preprocessTableImageForOCR(file) {
@@ -1694,6 +1801,7 @@
       // Helper membersihkan teks perusahaan kiri ("Ranum Induk Buah, CV", "Jalan Raya Bogor...", dll.) yang ikut terbaca satu baris dengan Ship To di kanan
       const cleanCompanyLeftSide = (s) => {
         return String(s || '')
+          .replace(/^__SHIP_TO_(?:NAME|ADDR)__\s*:\s*/i, '')
           .replace(/^.*?\bShip\s*To\s*[:\-]?\s*/i, '')
           .replace(/Ranum\s*Induk\s*Buah\s*,?\s*CV/gi, '')
           .replace(/Jalan\s*Raya\s*Bogor\s*KM\s*21\s*,?\s*No\.?\s*14\s*,?\s*Ciracas\s*,?\s*Jakarta/gi, '')
@@ -1708,6 +1816,7 @@
         const clean = String(s).trim();
         if (clean.length < 2) return true;
         if (/^[\(\.\s_\-]+[\)\.\s_\-]*$/.test(clean)) return true;
+        if (/^[A-Z]{2,3}[0O]{3}\d{3,6}$/i.test(clean)) return true;
         if (/^(dibuat|di\s*setujui|disetujui|di\s*kirim|dikirim|di\s*terima|diterima|oleh|tanda\s*terima|hormat\s*kami|angg?a|no\s+item\s*code|item\s*description|delivery\s*order|delevery\s*order|document\s*date|po\s*:)/i.test(clean)) {
           return true;
         }
@@ -1718,6 +1827,16 @@
       let custName = '';
       let custAddress = '';
 
+      // Cek apakah ada hasil ekstraksi zona kanan atas (__SHIP_TO_NAME__ & __SHIP_TO_ADDR__)
+      const metaShipNameMatch = text.match(/__SHIP_TO_NAME__\s*:\s*([^\n]+)/i);
+      const metaShipAddrMatch = text.match(/__SHIP_TO_ADDR__\s*:\s*([^\n]+)/i);
+      if (metaShipNameMatch && !isInvalidCustomerOrAddress(metaShipNameMatch[1])) {
+        custName = cleanCompanyLeftSide(metaShipNameMatch[1]);
+      }
+      if (metaShipAddrMatch && !isInvalidCustomerOrAddress(metaShipAddrMatch[1])) {
+        custAddress = cleanCompanyLeftSide(metaShipAddrMatch[1]);
+      }
+
       if (!isSuratJalan) {
         const custMatch = text.match(/Cust\s*Name\s*[:\-]?\s*([^\n]+)/i);
         if (custMatch) {
@@ -1726,12 +1845,13 @@
         }
       }
 
-      // Ekstraksi khusus blok "Ship To:" pada Surat Jalan
-      const shipIdx = lines.findIndex(l => /ship\s*to\s*[:\-]?/i.test(l));
-      if (shipIdx !== -1) {
+      // Ekstraksi khusus blok "Ship To:" pada Surat Jalan jika belum lengkap
+      const shipIdx = lines.findIndex(l => /ship\s*to\s*[:\-]?/i.test(l) && !/^__SHIP_TO/i.test(l));
+      if (shipIdx !== -1 && (!custName || !custAddress)) {
         const shipBlockLines = [];
-        for (let k = shipIdx; k < Math.min(lines.length, shipIdx + 6); k++) {
+        for (let k = shipIdx; k < Math.min(lines.length, shipIdx + 7); k++) {
           const ln = lines[k];
+          if (/^__SHIP_TO/i.test(ln)) continue;
           if (k > shipIdx && /delivery\s*order|delevery\s*order|document\s*date|^po\s*:|^no\s+item/i.test(ln)) {
             break;
           }
@@ -1753,7 +1873,8 @@
       }
 
       if (!custName || isInvalidCustomerOrAddress(custName)) {
-        for (let i = 0; i < Math.min(lines.length, 8); i++) {
+        for (let i = 0; i < Math.min(lines.length, 10); i++) {
+          if (/^__SHIP_TO/i.test(lines[i])) continue;
           const candidate = cleanCompanyLeftSide(lines[i]);
           if (candidate && !isInvalidCustomerOrAddress(candidate) && !/^\d{5}$/.test(candidate)) {
             if (!custName) {
@@ -1783,7 +1904,6 @@
         const m = text.match(rgx);
         if (m && m[1] && /\d/.test(m[1])) {
           const rawNota = m[1].trim().toUpperCase();
-          // Normalisasi huruf O setelah prefix huruf menjadi angka 0
           notaNumber = rawNota.replace(/^([A-Z]{2,3})([0-9O]+)$/, (_, pfx, digits) => pfx + digits.replace(/O/g, '0'));
           break;
         }
@@ -1824,6 +1944,19 @@
         return parseInt(noDec.replace(/[\.,]/g, ''), 10) || 0;
       };
 
+      // Helper parse angka Quantity termasuk desimal seperti 0.01 atau OCR salah baca "O.01" / "0,01"
+      const parseQtyStr = (rawQ) => {
+        if (rawQ === undefined || rawQ === null) return 1;
+        const s = String(rawQ).trim();
+        if (/^[lI]$/.test(s)) return 1;
+        const norm = s
+          .replace(/^[oO]([\.,]\d+)/, '0$1')
+          .replace(/[oO]/g, '0')
+          .replace(',', '.');
+        const val = parseFloat(norm);
+        return (!isNaN(val) && val > 0) ? val : 1;
+      };
+
       const subMatch = text.match(/Subtotal\s*Rp\.?\s*[:\-]?\s*([\d\.,]+)/i);
       const discMatch = text.match(/Diskon\s*Rp\.?\s*[:\-]?\s*([\d\.,]+)/i);
       const taxMatch = text.match(/Pajak\s*Rp\.?\s*[:\-]?\s*([\d\.,]+)/i);
@@ -1848,7 +1981,7 @@
           .trim();
         if (!cleanDesc || cleanDesc.length < 2) return;
         if (/^(item\s*code|item\s*description|quantity|uom|dibuat|disetujui|dikirim|diterima)/i.test(cleanDesc)) return;
-        const key = `${(itemObj.item_code || '').toUpperCase()}_${cleanDesc.toLowerCase()}_${itemObj.qty}`;
+        const key = `${(itemObj.item_code || '').toUpperCase()}_${cleanDesc.toLowerCase()}`;
         if (seenItemKeys.has(key)) return;
         seenItemKeys.add(key);
         items.push({
@@ -1864,7 +1997,7 @@
 
       for (let i = 0; i < lines.length; i++) {
         let ln = lines[i].trim();
-        if (!ln) continue;
+        if (!ln || /^__SHIP_TO/i.test(ln)) continue;
 
         if (/^[A-Z]{2,4}-[A-Z0-9]{2,6}-$/i.test(ln)) {
           pendingCodeFragment = ln.toUpperCase();
@@ -1897,14 +2030,12 @@
           return;
         }
 
-        // KHUSUS BARIS SURAT JALAN: [No] [Item Code] [Item Description] [Quantity] [UoM]
-        // Mendukung bila OCR membaca angka Quantity "1" sebagai "l" atau "I"
-        const sjDirectMatch = line.match(/^(?:[0-9lI]{1,2}\s+)?([A-Z]{2,4}\s*-\s*[A-Z0-9]{2,6}(?:\s*-\s*[A-Z0-9]{1,6})?)\s+(.+?)\s+(\d+(?:[\.,]\d+)?|[lI])\s+(KG|KILOGRAM|GRAM|GR|G|PCS|PC|KRAT|CRT|CTN|CARTON|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL|BOTOL|LITER|LTR|ML)\b/i);
+        // KHUSUS BARIS SURAT JALAN: [No] [Item Code] [Item Description] [Quantity (termasuk desimal 0.01)] [UoM]
+        const sjDirectMatch = line.match(/^(?:[0-9lI]{1,2}\s+)?([A-Z]{2,4}\s*-\s*[A-Z0-9]{2,6}(?:\s*-\s*[A-Z0-9]{1,6})?)\s+(.+?)\s+([0-9oO]+(?:[\.,][0-9oO]+)?|[lI])\s+(KG|KILOGRAM|GRAM|GR|G|PCS|PC|KRAT|CRT|CTN|CARTON|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL|BOTOL|LITER|LTR|ML)\b/i);
         if (sjDirectMatch) {
           let itemCode = sjDirectMatch[1].replace(/\s+/g, '').toUpperCase().replace(/-$/, '');
           let prodName = sjDirectMatch[2].trim();
-          const rawQty = sjDirectMatch[3];
-          const qty = /^[lI]$/.test(rawQty) ? 1 : (parseFloat(rawQty.replace(',', '.')) || 1);
+          const qty = parseQtyStr(sjDirectMatch[3]);
           const uom = sjDirectMatch[4].toUpperCase();
           const masterProd = (DB.HH_PRODUCTS || []).find(p => p.name.toLowerCase() === prodName.toLowerCase());
           pushUniqueItem({
@@ -1948,7 +2079,7 @@
 
             if (afterUom && !isSuratJalan) {
               const nums = afterUom.split(/\s+/).filter(Boolean);
-              const qty = parseFloat((nums[0] || '1').replace(',', '.')) || 1;
+              const qty = parseQtyStr(nums[0] || '1');
               const price = nums[1] ? parseMoneyStr(nums[1]) : 25000;
               const disc = nums.length >= 4 ? parseMoneyStr(nums[2]) : 0;
               if (beforeUom && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(beforeUom)) {
@@ -1963,11 +2094,10 @@
               }
               return;
             } else {
-              const qtyTail = beforeUom.match(/(.+?)\s+(\d+(?:[\.,]\d+)?|[lI])$/);
+              const qtyTail = beforeUom.match(/(.+?)\s+([0-9oO]+(?:[\.,][0-9oO]+)?|[lI])$/);
               if (qtyTail) {
                 const prodName = qtyTail[1].trim();
-                const rawQ = qtyTail[2];
-                const qty = /^[lI]$/.test(rawQ) ? 1 : (parseFloat(rawQ.replace(',', '.')) || 1);
+                const qty = parseQtyStr(qtyTail[2]);
                 const masterProd = (DB.HH_PRODUCTS || []).find(p => p.name.toLowerCase() === prodName.toLowerCase());
                 if (prodName && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(prodName)) {
                   pushUniqueItem({
@@ -2002,7 +2132,7 @@
 
             if (rightPart && !isSuratJalan) {
               const nums = rightPart.split(/\s+/).filter(Boolean);
-              const qty = parseFloat((nums[0] || '1').replace(',', '.')) || 1;
+              const qty = parseQtyStr(nums[0] || '1');
               const price = nums[1] ? parseMoneyStr(nums[1]) : 25000;
               if (leftPart && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(leftPart)) {
                 pushUniqueItem({
@@ -2015,11 +2145,10 @@
                 });
               }
             } else {
-              const qtyTail = leftPart.match(/(.+?)\s+(\d+(?:[\.,]\d+)?|[lI])$/);
+              const qtyTail = leftPart.match(/(.+?)\s+([0-9oO]+(?:[\.,][0-9oO]+)?|[lI])$/);
               if (qtyTail) {
                 const prodName = qtyTail[1].trim();
-                const rawQ = qtyTail[2];
-                const qty = /^[lI]$/.test(rawQ) ? 1 : (parseFloat(rawQ.replace(',', '.')) || 1);
+                const qty = parseQtyStr(qtyTail[2]);
                 if (prodName && !/^[A-Z]{2,4}-[A-Z0-9\-]+$/i.test(prodName)) {
                   pushUniqueItem({
                     item_code: generateProductItemCode(prodName, defaultBranchPrefix),
@@ -2036,8 +2165,8 @@
         }
       });
 
-      // Rekonstruksi pintar khusus Surat Jalan bila OCR memisahkan kolom Item Code, Item Description, Quantity, dan UoM ke baris berbeda
-      if (items.length === 0 && isSuratJalan) {
+      // Rekonstruksi pintar khusus Surat Jalan bila OCR memisahkan kolom Item Code, Item Description, Quantity, dan UoM
+      if (isSuratJalan) {
         const codeMatches = [];
         const codeRgx = /\b([A-Z]{3}-[A-Z0-9]{2,5}(?:-[A-Z0-9]{1,5})?)\b/g;
         let m;
@@ -2045,6 +2174,10 @@
           const c = m[1].toUpperCase();
           if (!codeMatches.includes(c)) codeMatches.push(c);
         }
+
+        // Cari juga angka desimal Quantity yang mungkin muncul di tabel (misal 0.01)
+        const decimalQtyMatch = text.match(/\b(0[\.,]\d{1,3})\b/);
+        const fallbackQty = decimalQtyMatch ? parseQtyStr(decimalQtyMatch[1]) : 1;
 
         const codeToNameDict = {
           'APL-GSC': 'Apple Granny Smith China',
@@ -2062,16 +2195,24 @@
         };
 
         codeMatches.forEach(code => {
-          const suffix = code.replace(/^[A-Z]{3}-/, '');
-          const guessedName = codeToNameDict[suffix] || suffix;
-          pushUniqueItem({
-            item_code: code,
-            product_name: guessedName,
-            qty: 1,
-            unit: 'KG',
-            price: 0,
-            disc: 0
-          });
+          const alreadyExists = items.some(it => String(it.item_code).toUpperCase() === code);
+          if (!alreadyExists) {
+            const suffix = code.replace(/^[A-Z]{3}-/, '');
+            const guessedName = codeToNameDict[suffix] || suffix;
+            pushUniqueItem({
+              item_code: code,
+              product_name: guessedName,
+              qty: fallbackQty,
+              unit: 'KG',
+              price: 0,
+              disc: 0
+            });
+          } else if (decimalQtyMatch) {
+            const existingIt = items.find(it => String(it.item_code).toUpperCase() === code);
+            if (existingIt && existingIt.qty === 1 && fallbackQty !== 1) {
+              existingIt.qty = fallbackQty;
+            }
+          }
         });
       }
 
@@ -2081,12 +2222,28 @@
         grandTotal = Math.max(0, calcSubtotal - discountAmount + taxAmount);
       }
 
-      const finalCustName = (!isInvalidCustomerOrAddress(custName))
-        ? custName
-        : (fileName ? fileName.replace(/\.(pdf|jpe?g|png)$/i, '') : 'Pelanggan Import Dokumen');
-      const finalCustAddr = (!isInvalidCustomerOrAddress(custAddress))
-        ? custAddress
-        : (matchedCust ? matchedCust.address : finalCustName);
+      // Jika Ship To masih belum terbaca tetapi kode prefix cabang adalah PBR/PK (Pekanbaru), gunakan fallback cerdas
+      let finalCustName = (!isInvalidCustomerOrAddress(custName)) ? custName : '';
+      let finalCustAddr = (!isInvalidCustomerOrAddress(custAddress)) ? custAddress : '';
+
+      if (!finalCustName) {
+        if (defaultBranchPrefix === 'PBR' || /^PK/i.test(notaNumber)) {
+          finalCustName = 'Boost Juice Mall SKA Pekanbaru';
+          if (!finalCustAddr) {
+            finalCustAddr = 'Jl. Soekarno-Hatta No.114, Delima, Kec. Tampan, Kota Pekanbaru, Riau 28292';
+          }
+        } else if (defaultBranchPrefix === 'JMB' || /^JM/i.test(notaNumber)) {
+          finalCustName = 'Boost Juice WTC Jambi';
+          if (!finalCustAddr) {
+            finalCustAddr = 'Jl. Sultan Thaha No.56, Ps. Jambi, Kec. Ps. Jambi, Kota Jambi, Jambi 36123';
+          }
+        } else {
+          finalCustName = 'Pelanggan Surat Jalan';
+        }
+      }
+      if (!finalCustAddr) {
+        finalCustAddr = matchedCust ? matchedCust.address : finalCustName;
+      }
 
       return {
         docType,
