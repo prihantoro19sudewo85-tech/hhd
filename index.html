@@ -1599,7 +1599,6 @@
       if (!window.Tesseract) {
         throw new Error('Library OCR belum siap.');
       }
-      // Preprocessing gambar: perbesar & tingkatkan kontras agar tabel bergaris pada Surat Jalan terbaca utuh per baris
       let sourceForOcr = file;
       try {
         sourceForOcr = await preprocessTableImageForOCR(file);
@@ -1607,37 +1606,49 @@
         sourceForOcr = file;
       }
 
-      const result = await window.Tesseract.recognize(sourceForOcr, 'eng+ind', {
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            onProgress('Memfilter tulisan dari gambar JPEG/PNG...', Math.min(90, 20 + Math.round((m.progress || 0) * 70)));
+      let result = null;
+      try {
+        result = await window.Tesseract.recognize(sourceForOcr, 'eng+ind', {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              onProgress('Memfilter tulisan dari gambar JPEG/PNG...', Math.min(90, 20 + Math.round((m.progress || 0) * 70)));
+            }
           }
-        }
-      });
-
-      // Jika hasil lines memiliki bbox (koordinat Y dan X), susun ulang berdasarkan baris Y agar kolom No | Item Code | Item Description | Quantity | UoM menyatu dalam 1 baris
-      if (result && result.data && Array.isArray(result.data.words) && result.data.words.length > 0) {
-        const words = result.data.words.filter(w => w && w.text && String(w.text).trim() !== '');
-        const rows = [];
-        words.forEach(w => {
-          const cy = ((w.bbox.y0 + w.bbox.y1) / 2);
-          const h = Math.max(8, w.bbox.y1 - w.bbox.y0);
-          let matchedRow = rows.find(r => Math.abs(r.cy - cy) <= h * 0.65);
-          if (!matchedRow) {
-            matchedRow = { cy, items: [] };
-            rows.push(matchedRow);
-          } else {
-            matchedRow.cy = (matchedRow.cy * matchedRow.items.length + cy) / (matchedRow.items.length + 1);
-          }
-          matchedRow.items.push({ x0: w.bbox.x0, text: String(w.text).trim() });
         });
-        rows.sort((a, b) => a.cy - b.cy);
-        const reconstructed = rows.map(r => {
-          r.items.sort((a, b) => a.x0 - b.x0);
-          return r.items.map(i => i.text).join(' ');
-        }).join('\n');
+      } catch (eLang) {
+        result = await window.Tesseract.recognize(file, 'eng', {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              onProgress('Memfilter tulisan dari gambar JPEG/PNG...', Math.min(90, 20 + Math.round((m.progress || 0) * 70)));
+            }
+          }
+        });
+      }
 
-        return reconstructed + '\n\n' + (result.data.text || '');
+      if (result && result.data && Array.isArray(result.data.words) && result.data.words.length > 0) {
+        const words = result.data.words.filter(w => w && w.text && String(w.text).trim() !== '' && w.bbox);
+        if (words.length > 0) {
+          const rows = [];
+          words.forEach(w => {
+            const cy = ((w.bbox.y0 + w.bbox.y1) / 2);
+            const h = Math.max(8, w.bbox.y1 - w.bbox.y0);
+            let matchedRow = rows.find(r => Math.abs(r.cy - cy) <= h * 0.65);
+            if (!matchedRow) {
+              matchedRow = { cy, items: [] };
+              rows.push(matchedRow);
+            } else {
+              matchedRow.cy = (matchedRow.cy * matchedRow.items.length + cy) / (matchedRow.items.length + 1);
+            }
+            matchedRow.items.push({ x0: w.bbox.x0, text: String(w.text).trim() });
+          });
+          rows.sort((a, b) => a.cy - b.cy);
+          const reconstructed = rows.map(r => {
+            r.items.sort((a, b) => a.x0 - b.x0);
+            return r.items.map(i => i.text).join(' ');
+          }).join('\n');
+
+          return reconstructed + '\n\n' + (result.data.text || '');
+        }
       }
 
       return (result && result.data && result.data.text) ? result.data.text : '';
@@ -2197,6 +2208,261 @@
       document.querySelectorAll('#impItemsTableBody .imp-row-no').forEach((td, idx) => {
         td.innerText = idx + 1;
       });
+    }
+
+    function recalculateImportGrandTotal() {
+      const rows = document.querySelectorAll('.imp-item-row');
+      let subtotal = 0;
+      rows.forEach(r => {
+        const qty = parseFloat(r.querySelector('.imp-qty')?.value) || 0;
+        const price = parseFloat(r.querySelector('.imp-price')?.value) || 0;
+        const disc = parseFloat(r.querySelector('.imp-disc')?.value) || 0;
+        subtotal += Math.max(0, (qty * price) - disc);
+      });
+      const totDisc = parseFloat(document.getElementById('impTotalDisc')?.value) || 0;
+      const totTax = parseFloat(document.getElementById('impTotalTax')?.value) || 0;
+      const grandEl = document.getElementById('impGrandTotal');
+      if (grandEl) {
+        grandEl.value = Math.max(0, Math.round(subtotal - totDisc + totTax));
+      }
+    }
+
+    function collectImportedModalData() {
+      const custName = (document.getElementById('impCustName')?.value || 'Pelanggan Import').trim();
+      const notaNumber = (document.getElementById('impNotaNumber')?.value || '').trim();
+      const refPo = (document.getElementById('impRefPo')?.value || '').trim();
+      const docDate = document.getElementById('impDocDate')?.value || new Date().toISOString().slice(0, 10);
+      const terminDays = parseInt(document.getElementById('impTermin')?.value, 10) || 7;
+      const custPhone = (document.getElementById('impCustPhone')?.value || '082113780016').trim();
+      const custAddress = (document.getElementById('impCustAddress')?.value || '-').trim();
+      const discountAmount = parseFloat(document.getElementById('impTotalDisc')?.value) || 0;
+      const taxAmount = parseFloat(document.getElementById('impTotalTax')?.value) || 0;
+      const grandTotal = parseFloat(document.getElementById('impGrandTotal')?.value) || 0;
+
+      const items = [];
+      document.querySelectorAll('.imp-item-row').forEach(r => {
+        const code = (r.querySelector('.imp-code')?.value || 'JKT-PRD').trim();
+        const name = (r.querySelector('.imp-name')?.value || 'Produk').trim();
+        const qty = parseFloat(r.querySelector('.imp-qty')?.value) || 1;
+        const unit = (r.querySelector('.imp-uom')?.value || 'KG').trim().toUpperCase();
+        const price = parseFloat(r.querySelector('.imp-price')?.value) || 0;
+        const disc = parseFloat(r.querySelector('.imp-disc')?.value) || 0;
+        if (name) {
+          items.push({ item_code: code, product_name: name, qty, unit, price, disc });
+        }
+      });
+
+      return {
+        custName,
+        notaNumber,
+        refPo,
+        docDate,
+        terminDays,
+        custPhone,
+        custAddress,
+        discountAmount,
+        taxAmount,
+        grandTotal,
+        items
+      };
+    }
+
+    function applyImportedDataToOrderForm() {
+      const data = collectImportedModalData();
+      closeModal();
+      navigateTo('tambah_pesanan');
+
+      setTimeout(() => {
+        if (document.getElementById('manCustName')) document.getElementById('manCustName').value = data.custName;
+        if (document.getElementById('manCustPhone')) document.getElementById('manCustPhone').value = data.custPhone;
+        if (document.getElementById('manCustAddress')) document.getElementById('manCustAddress').value = data.custAddress;
+        if (document.getElementById('manDeliveryDate')) document.getElementById('manDeliveryDate').value = data.docDate;
+        if (document.getElementById('manNotaNumber')) document.getElementById('manNotaNumber').value = data.notaNumber;
+        if (document.getElementById('manRefNumber')) document.getElementById('manRefNumber').value = data.refPo;
+        if (document.getElementById('manTerminDays')) document.getElementById('manTerminDays').value = data.terminDays;
+        if (document.getElementById('manNotes')) document.getElementById('manNotes').value = `Import Dokumen (${data.notaNumber}) • Ref/PO: ${data.refPo}`;
+
+        const container = document.getElementById('manualItemsContainer');
+        if (container && data.items.length > 0) {
+          container.innerHTML = '';
+          data.items.forEach(it => {
+            addManualItemRowWithData(it);
+          });
+        }
+        showToast('Seluruh tulisan dari file berhasil dimasukkan ke Form Pesanan!', 'success');
+      }, 80);
+    }
+
+    function saveImportedDocumentDirectly() {
+      const data = collectImportedModalData();
+      if (data.items.length === 0) {
+        showToast('Minimal harus ada 1 item produk!', 'warning');
+        return;
+      }
+
+      const newOrderId = data.notaNumber && data.notaNumber.length >= 4
+        ? data.notaNumber
+        : `ORD-${Math.floor(261105 + Math.random() * 8900)}`;
+
+      const defaultBranchId = (DB.HH_BRANCHES && DB.HH_BRANCHES.length > 0) ? DB.HH_BRANCHES[0].branch_id : 'BR-01';
+      let calcTotal = 0;
+      const newItems = data.items.map(it => {
+        const sub = Math.max(0, (it.qty * it.price) - (it.disc || 0));
+        calcTotal += sub;
+        return {
+          item_id: generateUID('ITM'),
+          order_id: newOrderId,
+          product_id: generateUID('PRD'),
+          item_code: it.item_code,
+          product_name: it.product_name,
+          qty_ordered: it.qty,
+          qty_actual: it.qty,
+          qty_damaged: 0,
+          unit: it.unit,
+          price: it.price,
+          disc: it.disc || 0,
+          qc_status: 'Checked'
+        };
+      });
+
+      const finalTotal = data.grandTotal > 0 ? data.grandTotal : Math.max(0, calcTotal - data.discountAmount + data.taxAmount);
+
+      const newOrdObj = {
+        order_id: newOrderId,
+        nota_number: data.notaNumber || newOrderId,
+        ref_number: data.refPo,
+        po_number: data.refPo,
+        termin_days: data.terminDays,
+        discount_amount: data.discountAmount,
+        tax_amount: data.taxAmount,
+        created_at: nowFormatted(),
+        delivery_date: data.docDate,
+        customer_id: generateUID('CUST'),
+        customer_name: data.custName,
+        customer_phone: data.custPhone,
+        customer_address: data.custAddress,
+        branch_id: defaultBranchId,
+        source: 'Import PDF/JPEG',
+        status: 'Siap dikirim',
+        courier_id: '',
+        courier_name: '-',
+        total_amount: finalTotal,
+        notes: data.refPo !== '-' ? data.refPo : '',
+        public_tracking_enabled: true,
+        lat: -6.2500 + (Math.random() - 0.5) * 0.04,
+        lng: 106.8600 + (Math.random() - 0.5) * 0.04
+      };
+
+      DB.HH_ORDERS = DB.HH_ORDERS.filter(o => String(o.order_id) !== String(newOrderId));
+      DB.HH_ORDER_ITEMS = DB.HH_ORDER_ITEMS.filter(i => String(i.order_id) !== String(newOrderId));
+
+      DB.HH_ORDERS.unshift(newOrdObj);
+      DB.HH_ORDER_ITEMS.push(...newItems);
+      DB.HH_TRACKING.push({
+        track_id: generateUID('TRK'),
+        order_id: newOrderId,
+        status: 'Siap dikirim',
+        timestamp: nowFormatted(),
+        actor: `${currentUser ? currentUser.name : 'Admin'} (Import PDF/JPEG)`,
+        note: `Pesanan diimport otomatis dari dokumen (${newOrderId}) & siap dicetak Surat Jalan ber-barcode.`
+      });
+
+      commitDatabaseChange('createOrder', {
+        order: newOrdObj,
+        items: newItems,
+        actor: currentUser ? currentUser.name : 'Admin'
+      });
+
+      // Reset file input agar bisa mengunggah file yang sama lagi jika diperlukan
+      const fileInp = document.getElementById('docFileInput');
+      if (fileInp) fileInp.value = '';
+
+      closeModal();
+      navigateTo('pesanan');
+      showToast(`Dokumen ${newOrderId} (${data.custName}) berhasil diimport & siap dicetak Barcode Surat Jalan!`, 'success');
+    }
+
+    function openCourierBarcodeScannerModal() {
+      if (isCourierCurrentlyOnActiveTrip()) {
+        showToast('Mode Scan terkunci karena Anda sedang dalam pengantaran aktif! Fokus pada menu Kirim.', 'warning');
+        navigateTo('kurir_pengiriman');
+        return;
+      }
+
+      openModal('Scan Barcode Surat Jalan — Kurir Langsung Jalan', `
+        <div class="space-y-4 text-xs">
+          <div class="p-3.5 rounded-2xl bg-[#053f28] text-white flex items-center gap-3 border-b-4 border-[#fde002]">
+            <div class="w-11 h-11 rounded-xl bg-[#fde002] text-[#053f28] flex items-center justify-center text-xl font-black shrink-0">
+              <i class="fa-solid fa-barcode"></i>
+            </div>
+            <div>
+              <h4 class="font-extrabold text-sm text-[#fde002]">Arahkan Kamera ke Barcode Surat Jalan</h4>
+              <p class="text-[11px] text-white/85">Begitu Barcode ter-scan, status otomatis berubah menjadi <b>Dalam Perjalanan</b> dan langsung membuka navigasi Google Maps ke lokasi pelanggan!</p>
+            </div>
+          </div>
+
+          <div id="barcodeScannerReader" class="w-full min-h-[250px] bg-slate-900 rounded-2xl overflow-hidden border-2 border-[#053f28] flex items-center justify-center text-white/70">
+            <span class="text-xs"><i class="fa-solid fa-camera fa-fade mr-1.5"></i> Menyalakan Kamera Scanner...</span>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer inline-flex items-center gap-1.5">
+              <i class="fa-solid fa-image"></i> Scan dari Foto Barcode
+              <input type="file" accept="image/*" class="hidden" onchange="scanBarcodeFromUploadedImage(event)" />
+            </label>
+            <button type="button" onclick="stopBarcodeCameraScanner(); closeModal();" class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold">
+              Tutup Kamera
+            </button>
+          </div>
+
+          <div class="pt-3 border-t border-slate-200 space-y-2">
+            <label class="block font-extrabold text-[#053f28]">Atau Pilih / Masukkan Nomor Barcode Surat Jalan:</label>
+            <div class="flex gap-2">
+              <select id="manualScanOrderSelect" class="flex-1 px-3 py-2.5 rounded-xl border border-slate-300 font-bold text-[#053f28] bg-hh-50">
+                <option value="">-- Pilih Nomor Order / Surat Jalan --</option>
+                ${(DB.HH_ORDERS || []).filter(o => o.status !== 'Berhasil terkirim').map(o => `<option value="${o.order_id}">${o.order_id} — ${o.customer_name} (${o.customer_address})</option>`).join('')}
+              </select>
+              <button type="button" onclick="executeCourierBarcodeDispatch(document.getElementById('manualScanOrderSelect').value)"
+                class="px-4 py-2.5 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold shrink-0">
+                <i class="fa-solid fa-motorcycle mr-1"></i> Scan & Jalan!
+              </button>
+            </div>
+          </div>
+        </div>
+      `);
+
+      setTimeout(() => {
+        startBarcodeCameraScanner();
+      }, 200);
+    }
+
+    function startBarcodeCameraScanner() {
+      stopBarcodeCameraScanner();
+      const readerEl = document.getElementById('barcodeScannerReader');
+      if (!readerEl || !window.Html5Qrcode) return;
+
+      try {
+        html5QrScannerInstance = new Html5Qrcode('barcodeScannerReader');
+        html5QrScannerInstance.start(
+          { facingMode: 'environment' },
+          { fps: 12, qrbox: { width: 250, height: 140 } },
+          (decodedText) => {
+            stopBarcodeCameraScanner();
+            handleDecodedBarcodeString(decodedText);
+          },
+          () => {}
+        ).catch(() => {
+          if (readerEl) {
+            readerEl.innerHTML = `
+              <div class="p-6 text-center space-y-2 text-white">
+                <i class="fa-solid fa-camera-slash text-2xl text-[#fde002]"></i>
+                <p class="font-bold text-xs">Kamera tidak dapat diakses di perangkat ini.</p>
+                <p class="text-[11px] text-white/70">Gunakan tombol <b>"Scan dari Foto Barcode"</b> atau pilih langsung Nomor Surat Jalan di bawah.</p>
+              </div>
+            `;
+          }
+        });
+      } catch (e) {}
     }
 
     function stopBarcodeCameraScanner() {
