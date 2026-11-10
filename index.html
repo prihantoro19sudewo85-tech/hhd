@@ -209,7 +209,7 @@
     <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
       <div class="bg-hh-500 text-white px-5 py-4 flex items-center justify-between border-b-2 border-hh-yellow">
         <div class="flex items-center gap-3">
-          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
+          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
                alt="Logo Hanam Hanum"
                class="w-11 h-11 rounded-xl object-contain bg-black p-1 border border-hh-yellow"
                onerror="this.src='https://placehold.co/100x100/053f28/fde002?text=H%26H'" />
@@ -383,7 +383,7 @@
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 lg:relative transition-transform duration-200 ease-in-out shrink-0">
       <div class="p-4 bg-[#053f28] text-white flex items-center justify-between border-b-2 border-[#fde002] shrink-0">
         <div class="flex items-center gap-3">
-          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
+          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
                alt="Logo Hanam Hanum"
                class="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-[#fde002]/60 shadow-md"
                onerror="this.src='https://placehold.co/100x100/053f28/fde002?text=H%26H'" />
@@ -431,7 +431,7 @@
             <i class="fa-solid fa-bars"></i>
           </button>
           <div class="flex items-center gap-2.5">
-            <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
+            <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
                  alt="Logo"
                  class="w-9 h-9 rounded-lg object-contain bg-black/40 p-0.5 border border-[#fde002]/50"
                  onerror="this.src='https://placehold.co/80x80/053f28/fde002?text=H%26H'" />
@@ -778,7 +778,7 @@
       'Dijadwalkan ulang'
     ];
 
-    const LOGO_URL = 'https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png';
+    const LOGO_URL = 'https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png';
 
     /*************************************************************************
      * 2. DATABASE 14 SHEET
@@ -832,6 +832,10 @@
           if (!Array.isArray(merged.HH_USERS) || merged.HH_USERS.length === 0) {
             merged.HH_USERS = JSON.parse(JSON.stringify(DEFAULT_DB.HH_USERS));
           }
+          // Pastikan URL Google Apps Script selalu terisi & valid agar orderan Admin selalu masuk ke Server
+          if (!merged.HH_SETTINGS || !merged.HH_SETTINGS.gas_webapp_url || String(merged.HH_SETTINGS.gas_webapp_url).trim() === '') {
+            merged.HH_SETTINGS = { ...DEFAULT_DB.HH_SETTINGS, ...(merged.HH_SETTINGS || {}), gas_webapp_url: DEFAULT_DB.HH_SETTINGS.gas_webapp_url };
+          }
           return merged;
         }
       } catch (e) {
@@ -845,8 +849,9 @@
         localStorage.setItem('HANAM_HANUM_DB_V3', JSON.stringify(DB));
       } catch (e) {}
       if (actionName) {
-        postToGAS({ action: actionName, ...payload });
+        return postToGAS({ action: actionName, ...payload });
       }
+      return Promise.resolve(null);
     }
 
     /*************************************************************************
@@ -864,6 +869,34 @@
     let recentlyCompletedOrderIds = new Set(
       JSON.parse(localStorage.getItem('HANAM_HANUM_COMPLETED_IDS') || '[]')
     );
+
+    // Penyimpan order baru yang dibuat Admin agar tidak pernah hilang saat proses simpan ke Spreadsheet sedang berjalan
+    let pendingCreatedOrdersMap = JSON.parse(localStorage.getItem('HANAM_HANUM_PENDING_NEW_ORDERS') || '{}');
+
+    function registerLocallyCreatedOrder(orderObj, itemsArr) {
+      if (!orderObj || !orderObj.order_id) return;
+      const oid = String(orderObj.order_id);
+      // Hapus dari daftar selesai jika nomor Surat Jalan yang sama diinput ulang oleh Admin
+      if (recentlyCompletedOrderIds.has(oid)) {
+        recentlyCompletedOrderIds.delete(oid);
+        try {
+          localStorage.setItem('HANAM_HANUM_COMPLETED_IDS', JSON.stringify(Array.from(recentlyCompletedOrderIds)));
+        } catch (e) {}
+      }
+      delete localOrderStatusLocks[oid];
+      try {
+        localStorage.setItem('HANAM_HANUM_STATUS_LOCKS', JSON.stringify(localOrderStatusLocks));
+      } catch (e) {}
+
+      pendingCreatedOrdersMap[oid] = {
+        order: orderObj,
+        items: itemsArr || [],
+        createdAt: Date.now()
+      };
+      try {
+        localStorage.setItem('HANAM_HANUM_PENDING_NEW_ORDERS', JSON.stringify(pendingCreatedOrdersMap));
+      } catch (e) {}
+    }
 
     // Penyimpan status progres lokal tiap order agar saat klik "Tiba di lokasi" tidak kembali mundur ke status lama ketika auto-sync atau print
     let localOrderStatusLocks = JSON.parse(localStorage.getItem('HANAM_HANUM_STATUS_LOCKS') || '{}');
@@ -2128,10 +2161,14 @@
         note: `Pesanan diimport otomatis dari dokumen Surat Jalan (${newOrderId}) & siap dicetak ber-barcode.`
       });
 
+      registerLocallyCreatedOrder(newOrdObj, newItems);
+
       commitDatabaseChange('createOrder', {
         order: newOrdObj,
         items: newItems,
         actor: currentUser ? currentUser.name : 'Admin'
+      }).then(() => {
+        setTimeout(() => syncWithGASBackend(false), 800);
       });
 
       const fileInp = document.getElementById('docFileInput');
@@ -2139,7 +2176,7 @@
 
       closeModal();
       navigateTo('pesanan');
-      showToast(`Surat Jalan ${newOrderId} (${data.custName}) berhasil diimport & siap dicetak Barcode!`, 'success');
+      showToast(`Surat Jalan ${newOrderId} (${data.custName}) berhasil masuk ke aplikasi & siap dicetak Barcode!`, 'success');
     }
 
     function openCourierBarcodeScannerModal() {
@@ -2527,7 +2564,7 @@
       globalAutoSyncTimer = setInterval(async () => {
         if (!currentUser) return;
         await syncWithGASBackend(false);
-      }, 6000);
+      }, 3500);
     }
 
     async function handleLogin(e) {
@@ -2645,17 +2682,33 @@
     }
 
     async function postToGAS(payload) {
-      const url = DB.HH_SETTINGS.gas_webapp_url;
+      const url = (DB.HH_SETTINGS && DB.HH_SETTINGS.gas_webapp_url) ? DB.HH_SETTINGS.gas_webapp_url : DEFAULT_DB.HH_SETTINGS.gas_webapp_url;
       if (!url) return null;
       try {
         const res = await fetch(url, {
           method: 'POST',
+          redirect: 'follow',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
-        return await res.json();
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          return { status: 'ok' };
+        }
       } catch (err) {
-        return null;
+        try {
+          await fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+          return { status: 'sent_opaque' };
+        } catch (err2) {
+          return null;
+        }
       }
     }
 
@@ -3524,6 +3577,11 @@
     }
 
     function deleteOrderCRUD(orderId) {
+      const oid = String(orderId);
+      delete pendingCreatedOrdersMap[oid];
+      try {
+        localStorage.setItem('HANAM_HANUM_PENDING_NEW_ORDERS', JSON.stringify(pendingCreatedOrdersMap));
+      } catch (e) {}
       DB.HH_ORDERS = DB.HH_ORDERS.filter(o => o.order_id !== orderId);
       DB.HH_ORDER_ITEMS = DB.HH_ORDER_ITEMS.filter(i => i.order_id !== orderId);
       DB.HH_DELIVERIES = DB.HH_DELIVERIES.filter(d => d.order_id !== orderId);
@@ -3850,6 +3908,9 @@
         lng: 106.8600 + (Math.random() - 0.5) * 0.04
       };
 
+      DB.HH_ORDERS = DB.HH_ORDERS.filter(o => String(o.order_id) !== String(newOrderId));
+      DB.HH_ORDER_ITEMS = DB.HH_ORDER_ITEMS.filter(i => String(i.order_id) !== String(newOrderId));
+
       DB.HH_ORDERS.unshift(newOrdObj);
       DB.HH_ORDER_ITEMS.push(...newItems);
       DB.HH_TRACKING.push({
@@ -3861,14 +3922,18 @@
         note: 'Pesanan masuk Dalam Proses gudang.'
       });
 
+      registerLocallyCreatedOrder(newOrdObj, newItems);
+
       commitDatabaseChange('createOrder', {
         order: newOrdObj,
         items: newItems,
         actor: `${currentUser.name}`
+      }).then(() => {
+        setTimeout(() => syncWithGASBackend(false), 800);
       });
 
       logActivity(`Membuat pesanan baru ${newOrderId} (${custName})`);
-      showToast(`Surat Jalan ${newOrderId} berhasil disimpan ke Database!`);
+      showToast(`Surat Jalan ${newOrderId} berhasil masuk ke aplikasi & Database!`);
       navigateTo('pesanan');
     }
 
@@ -4106,12 +4171,16 @@
         return itemObj;
       });
 
+      registerLocallyCreatedOrder(newOrderObj, newItems);
+
       d.status = 'Terkonfirmasi (' + newOrderId + ')';
       commitDatabaseChange('createOrder', {
         order: newOrderObj,
         items: newItems,
         actor: currentUser ? currentUser.name : 'Admin',
         draft_id: draftId
+      }).then(() => {
+        setTimeout(() => syncWithGASBackend(false), 800);
       });
 
       updateTelegramBadge();
@@ -5483,7 +5552,7 @@
       const icon = document.getElementById('syncIcon');
       if (icon) icon.classList.add('fa-spin');
 
-      const url = DB.HH_SETTINGS.gas_webapp_url;
+      const url = (DB.HH_SETTINGS && DB.HH_SETTINGS.gas_webapp_url) ? DB.HH_SETTINGS.gas_webapp_url : DEFAULT_DB.HH_SETTINGS.gas_webapp_url;
       if (!url) {
         setTimeout(() => {
           if (icon) icon.classList.remove('fa-spin');
@@ -5493,7 +5562,7 @@
       }
 
       try {
-        const res = await fetch(`${url}?action=getInitialData&_t=${Date.now()}`);
+        const res = await fetch(`${url}?action=getInitialData&_t=${Date.now()}`, { redirect: 'follow' });
         const json = await res.json();
         if (json && json.status === 'success' && json.data) {
           const oldSnapshot = JSON.stringify(DB);
@@ -5513,11 +5582,31 @@
                 });
                 DB.HH_TELEGRAM = mergedDrafts;
               } else if (sheetKey === 'HH_ORDERS') {
-                // Pastikan order yang sudah diselesaikan atau sedang progres ('Tiba di lokasi' / 'Dalam perjalanan') tidak kembali mundur saat sinkronisasi
+                const remoteOrders = json.data.HH_ORDERS || [];
+                // Bersihkan daftar antrean order baru yang sudah berhasil tercatat di Google Spreadsheet
+                Object.keys(pendingCreatedOrdersMap).forEach(oid => {
+                  if (remoteOrders.some(ro => String(ro.order_id) === String(oid))) {
+                    delete pendingCreatedOrdersMap[oid];
+                  } else if (Date.now() - (pendingCreatedOrdersMap[oid]?.createdAt || 0) < 120000) {
+                    // Jika belum sampai ke Spreadsheet dalam 2 menit, kirim ulang otomatis di background
+                    postToGAS({
+                      action: 'createOrder',
+                      order: pendingCreatedOrdersMap[oid].order,
+                      items: pendingCreatedOrdersMap[oid].items || [],
+                      actor: 'Auto-Retry Sync'
+                    });
+                  }
+                });
+                try {
+                  localStorage.setItem('HANAM_HANUM_PENDING_NEW_ORDERS', JSON.stringify(pendingCreatedOrdersMap));
+                } catch (e) {}
+
                 const localUnsyncedOrders = (DB.HH_ORDERS || []).filter(lo =>
-                  !json.data.HH_ORDERS.some(ro => String(ro.order_id) === String(lo.order_id))
+                  !remoteOrders.some(ro => String(ro.order_id) === String(lo.order_id)) &&
+                  pendingCreatedOrdersMap[String(lo.order_id)]
                 );
-                const syncedRemoteOrders = json.data.HH_ORDERS.map(remoteOrd => {
+
+                const syncedRemoteOrders = remoteOrders.map(remoteOrd => {
                   const oid = String(remoteOrd.order_id);
                   if (recentlyCompletedOrderIds.has(oid)) {
                     remoteOrd.status = 'Berhasil terkirim';
@@ -5535,6 +5624,13 @@
                   return remoteOrd;
                 });
                 DB.HH_ORDERS = [...localUnsyncedOrders, ...syncedRemoteOrders];
+              } else if (sheetKey === 'HH_ORDER_ITEMS') {
+                const remoteItems = json.data.HH_ORDER_ITEMS || [];
+                const localUnsyncedItems = (DB.HH_ORDER_ITEMS || []).filter(li =>
+                  !remoteItems.some(ri => String(ri.order_id) === String(li.order_id)) &&
+                  pendingCreatedOrdersMap[String(li.order_id)]
+                );
+                DB.HH_ORDER_ITEMS = [...localUnsyncedItems, ...remoteItems];
               } else {
                 DB[sheetKey] = json.data[sheetKey];
               }
