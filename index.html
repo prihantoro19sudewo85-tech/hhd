@@ -30,7 +30,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <!-- Tesseract.js untuk OCR Gambar JPEG/PNG Otomatis -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <!-- JsBarcode untuk Cetak Barcode 1D di Surat Jalan & Invoice -->
+  <!-- JsBarcode untuk Cetak Barcode 1D di Surat Jalan -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <!-- Html5-QRCode untuk Kamera Scanner Barcode/QR Kurir -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -127,8 +127,8 @@
     }
     @media print {
       @page {
-        size: A5 portrait;
-        margin: 5mm 6mm;
+        size: A5 landscape;
+        margin: 5mm 7mm;
       }
       html, body {
         margin: 0 !important;
@@ -169,7 +169,7 @@
   <!-- SPLASH SCREEN 2 DETIK MASKOT DENGAN BAYANGAN JATUH DI BAWAHNYA -->
   <div id="splashScreen" class="fixed inset-0 z-[99999] bg-white flex flex-col items-center justify-center">
     <div class="relative flex flex-col items-center justify-center">
-      <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1793809129/logo_bulet2_l9tzx3.png" 
+      <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png" 
            alt="Mascot Hanam Hanum" 
            class="w-44 sm:w-52 h-auto object-contain mix-blend-multiply animate-mascot-ball"
            onerror="this.src='https://placehold.co/240x240/ffffff/138a54?text=Hanam+Hanum'" />
@@ -182,13 +182,13 @@
     </div>
   </div>
 
-  <!-- PRINT CONTAINER FOR INVOICE & SURAT JALAN -->
+  <!-- PRINT CONTAINER FOR SURAT JALAN -->
   <div id="printArea" class="hidden"></div>
 
   <!-- NOTIFICATION TOAST CONTAINER -->
   <div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
-  <!-- DYNAMIC PRINT PAGE STYLE (A5 Portrait untuk Invoice, A5 Landscape untuk Surat Jalan) -->
+  <!-- DYNAMIC PRINT PAGE STYLE (A5 Landscape untuk Surat Jalan) -->
   <style id="dynamicPrintPageStyle"></style>
 
   <!-- MODAL CONTAINER -->
@@ -209,7 +209,7 @@
     <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
       <div class="bg-hh-500 text-white px-5 py-4 flex items-center justify-between border-b-2 border-hh-yellow">
         <div class="flex items-center gap-3">
-          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
+          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
                alt="Logo Hanam Hanum"
                class="w-11 h-11 rounded-xl object-contain bg-black p-1 border border-hh-yellow"
                onerror="this.src='https://placehold.co/100x100/053f28/fde002?text=H%26H'" />
@@ -289,7 +289,7 @@
         </div>
 
         <div class="mt-8 text-center flex flex-col items-center justify-center space-y-1.5">
-          <p class="text-[12px] font-bold text-slate-500">Arpra CopyRight | 2026 Versi 1.5</p>
+          <p class="text-[12px] font-bold text-slate-500">Arpra CopyRight | 2026 Versi 1.1.0</p>
           <button type="button" onclick="openTermsAndConditionsModal()" class="text-[11px] font-extrabold text-[#138a54] hover:underline">
             Syarat & Ketentuan Berlaku
           </button>
@@ -362,7 +362,7 @@
         </div>
 
         <div class="mt-8 text-center flex flex-col items-center justify-center space-y-1.5">
-          <p class="text-[12px] font-bold text-slate-500">Arpra CopyRight | 2026 Versi 1.5</p>
+          <p class="text-[12px] font-bold text-slate-500">Arpra CopyRight | 2026 Versi 1.1.0</p>
           <button type="button" onclick="openTermsAndConditionsModal()" class="text-[11px] font-extrabold text-[#138a54] hover:underline">
             Syarat & Ketentuan Berlaku
           </button>
@@ -378,7 +378,7 @@
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 lg:relative transition-transform duration-200 ease-in-out shrink-0">
       <div class="p-4 bg-[#053f28] text-white flex items-center justify-between border-b-2 border-[#fde002] shrink-0">
         <div class="flex items-center gap-3">
-          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
+          <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
                alt="Logo Hanam Hanum"
                class="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-[#fde002]/60 shadow-md"
                onerror="this.src='https://placehold.co/100x100/053f28/fde002?text=H%26H'" />
@@ -426,7 +426,7 @@
             <i class="fa-solid fa-bars"></i>
           </button>
           <div class="flex items-center gap-2.5">
-            <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png"
+            <img src="https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png"
                  alt="Logo"
                  class="w-9 h-9 rounded-lg object-contain bg-black/40 p-0.5 border border-[#fde002]/50"
                  onerror="this.src='https://placehold.co/80x80/053f28/fde002?text=H%26H'" />
@@ -467,7 +467,7 @@
         <div id="viewContainer" class="p-4 sm:p-8 space-y-6 max-w-7xl w-full mx-auto pb-28"></div>
       </main>
 
-      <!-- Bottom Navigation Bar Khusus Kurir (Tanpa Tombol Scan Tambahan) -->
+      <!-- Bottom Navigation Bar Khusus Kurir -->
       <nav id="courierBottomNav" class="hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t-2 border-[#053f28]/15 shadow-2xl px-2 py-1.5">
         <div class="max-w-md mx-auto grid grid-cols-5 gap-1 items-center">
           <button type="button" id="bnav_kurir_home" onclick="navigateTo('kurir_home')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-extrabold transition bg-[#053f28] text-[#fde002]">
@@ -746,7 +746,7 @@
      *************************************************************************/
     const MENU_CONFIG = [
       { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie', roles: ['admin', 'gudang', 'kurir', 'manager', 'pengembang'] },
-      { id: 'pesanan', label: 'Pesanan & Invoice', icon: 'fa-receipt', roles: ['admin', 'gudang', 'manager', 'pengembang'] },
+      { id: 'pesanan', label: 'Pesanan & Surat Jalan', icon: 'fa-receipt', roles: ['admin', 'gudang', 'manager', 'pengembang'] },
       { id: 'tambah_pesanan', label: 'Tambah / Import Pesanan', icon: 'fa-file-import', roles: ['admin', 'pengembang'] },
       { id: 'pelanggan', label: 'Pelanggan (CRUD)', icon: 'fa-users', roles: ['admin', 'manager', 'pengembang'] },
       { id: 'produk', label: 'Produk Buah & Sayur', icon: 'fa-apple-whole', roles: ['admin', 'gudang', 'manager', 'pengembang'] },
@@ -773,7 +773,7 @@
       'Dijadwalkan ulang'
     ];
 
-    const LOGO_URL = 'https://res.cloudinary.com/div5frz9v/image/upload/v1784133658/Logo_H_H_stroke_jgm7d6.png';
+    const LOGO_URL = 'https://res.cloudinary.com/div5frz9v/image/upload/v1789654396/192x192_aooauf.png';
 
     /*************************************************************************
      * 2. DATABASE 14 SHEET
@@ -845,7 +845,7 @@
     }
 
     /*************************************************************************
-     * 3. STATE APLIKASI, AUTH, HELPER, COPY LINK & PRINT INVOICE / SURAT JALAN BER-BARCODE
+     * 3. STATE APLIKASI, AUTH, HELPER, COPY LINK & PRINT SURAT JALAN BER-BARCODE
      *************************************************************************/
     let currentUser = null;
     let currentView = 'dashboard';
@@ -855,10 +855,19 @@
     let mapInstance = null;
     let dashMapInstance = null;
     let chartInstances = {};
-    // Penyimpan order yang baru diselesaikan kurir agar menu Pesanan & Kirim langsung kosong tanpa ketimpa auto-sync
-    let recentlyCompletedOrderIds = new Set();
+    // Penyimpan order yang baru diselesaikan kurir (tersimpan juga di localStorage agar tahan refresh & auto-sync)
+    let recentlyCompletedOrderIds = new Set(
+      JSON.parse(localStorage.getItem('HANAM_HANUM_COMPLETED_IDS') || '[]')
+    );
 
-    // Helper cek apakah kurir sedang memiliki pengantaran aktif setelah scan (Dalam perjalanan / Tiba di lokasi)
+    function markOrderCompletedInstantly(orderId) {
+      recentlyCompletedOrderIds.add(String(orderId));
+      try {
+        localStorage.setItem('HANAM_HANUM_COMPLETED_IDS', JSON.stringify(Array.from(recentlyCompletedOrderIds)));
+      } catch (e) {}
+    }
+
+    // Helper cek apakah kurir sudah melakukan scan dan sedang dalam pengantaran aktif
     function isCourierCurrentlyOnActiveTrip() {
       if (!currentUser || currentUser.role !== 'kurir') return false;
       return (DB.HH_ORDERS || []).some(o =>
@@ -1061,19 +1070,8 @@
       return style === 'DO' ? `${dd}-${mmm}-${yy}` : `${dd}/${mmm}/${yyyy}`;
     }
 
-    function addDaysToDate(dateStr, days) {
-      let d = new Date(dateStr);
-      if (isNaN(d.getTime())) d = new Date();
-      d.setDate(d.getDate() + Number(days || 7));
-      return formatDocDate(d.toISOString(), 'INV');
-    }
-
-    function formatNumberID(num) {
-      return Number(num || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
-    }
-
-    // CETAK INVOICE (A5 PORTRAIT) & SURAT JALAN (A5 LANDSCAPE DENGAN BARCODE DI POJOK BAWAH)
-    function printOrderDocument(orderId, docType = 'INVOICE') {
+    // CETAK HANYA SURAT JALAN (DELIVERY ORDER) UKURAN A5 LANDSCAPE DENGAN BARCODE DI POJOK BAWAH
+    function printOrderDocument(orderId) {
       const ord = DB.HH_ORDERS.find(o => o.order_id === orderId);
       if (!ord) return;
       const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === orderId).slice(0, 20);
@@ -1087,21 +1085,15 @@
       const docNumber = getUnifiedDocumentNumber(ord, branchPrefix);
       const docDateSource = ord.delivery_date || ord.created_at || new Date().toISOString();
       const doDateFormatted = formatDocDate(docDateSource, 'DO');
-      const invDateFormatted = formatDocDate(docDateSource, 'INV');
-      const terminDays = ord.termin_days || 7;
-      const dueDateFormatted = addDaysToDate(docDateSource, terminDays);
-      const isSuratJalan = docType === 'SURAT_JALAN';
       const logoPrint = 'https://res.cloudinary.com/div5frz9v/image/upload/v1793770702/3x3_r3h8mg.png';
 
-      // Set orientasi halaman cetak: A5 Landscape untuk Surat Jalan, A5 Portrait untuk Invoice
+      // Set orientasi halaman cetak: A5 Landscape untuk Surat Jalan
       const dynStyleEl = document.getElementById('dynamicPrintPageStyle');
       if (dynStyleEl) {
-        dynStyleEl.innerHTML = isSuratJalan
-          ? `@media print { @page { size: A5 landscape !important; margin: 5mm 7mm !important; } }`
-          : `@media print { @page { size: A5 portrait !important; margin: 5mm 6mm !important; } }`;
+        dynStyleEl.innerHTML = `@media print { @page { size: A5 landscape !important; margin: 5mm 7mm !important; } }`;
       }
 
-      // Buat SVG Barcode 1D (Code128) dengan kontras & ketajaman tinggi agar mudah di-scan
+      // Buat SVG Barcode 1D (Code128) dengan kontras & ketajaman tinggi agar mudah di-scan kurir
       let barcodeDataUrl = '';
       try {
         const svgNode = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1123,233 +1115,97 @@
 
       const printEl = document.getElementById('printArea');
 
-      if (isSuratJalan) {
-        // TEMPLATE SURAT JALAN (DELIVERY ORDER) UKURAN A5 LANDSCAPE & BARCODE SCAN DI POJOK BAWAH
-        printEl.innerHTML = `
-          <div style="font-family: Arial, Helvetica, sans-serif; color: #000000; width: 100%; max-width: 100%; margin: 0 auto; padding: 2px 4px; background: #ffffff; font-size: 9.5px; box-sizing: border-box; page-break-inside: avoid;">
-            <!-- Header Kiri (Perusahaan) & Kanan (Ship To) -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-              <div style="display: flex; align-items: flex-start; gap: 10px; max-width: 52%;">
-                <img src="${logoPrint}" style="width: 50px; height: auto; object-fit: contain;" onerror="this.src='${LOGO_URL}'" />
-                <div>
-                  <div style="font-size: 13px; font-weight: 800; color: #000000; margin-bottom: 2px;">Ranum Induk Buah, CV</div>
-                  <div style="font-size: 9.5px; line-height: 1.3; color: #111111;">
-                    Jalan Raya Bogor KM 21, No 14, Ciracas, Jakarta<br/>
-                    Timur, DKI Jakarta, Indonesia
-                  </div>
-                </div>
-              </div>
-
-              <div style="display: flex; align-items: flex-start; gap: 10px; max-width: 46%; font-size: 9.5px;">
-                <div style="font-weight: 800; white-space: nowrap;">Ship To:</div>
-                <div style="text-align: right; line-height: 1.3;">
-                  <div style="font-weight: 700;">${ord.customer_name}</div>
-                  <div>${ord.customer_address || '-'}</div>
+      // TEMPLATE SURAT JALAN (DELIVERY ORDER) SESUAI CONTOH GAMBAR
+      printEl.innerHTML = `
+        <div style="font-family: Arial, Helvetica, sans-serif; color: #000000; width: 100%; max-width: 100%; margin: 0 auto; padding: 2px 4px; background: #ffffff; font-size: 9.5px; box-sizing: border-box; page-break-inside: avoid;">
+          <!-- Header Kiri (Perusahaan) & Kanan (Ship To) -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <div style="display: flex; align-items: flex-start; gap: 10px; max-width: 52%;">
+              <img src="${logoPrint}" style="width: 50px; height: auto; object-fit: contain;" onerror="this.src='${LOGO_URL}'" />
+              <div>
+                <div style="font-size: 13px; font-weight: 800; color: #000000; margin-bottom: 2px;">Ranum Induk Buah, CV</div>
+                <div style="font-size: 9.5px; line-height: 1.3; color: #111111;">
+                  Jalan Raya Bogor KM 21, No 14, Ciracas, Jakarta<br/>
+                  Timur, DKI Jakarta, Indonesia
                 </div>
               </div>
             </div>
 
-            <!-- Judul Delivery Order & Document Date -->
-            <div style="text-align: center; margin: 4px 0 4px;">
-              <div style="font-size: 15px; font-weight: 800; letter-spacing: 0.2px;">Delivery Order ${docNumber}</div>
-              <div style="display: inline-block; border-bottom: 1px solid #000; padding: 1px 36px; font-size: 11px; font-weight: 800; margin-top: 1px;">
-                Document Date ${doDateFormatted}
-              </div>
-            </div>
-
-            <div style="font-size: 9.5px; font-weight: 600; margin-bottom: 3px;">PO : ${ord.po_number && ord.po_number !== '-' ? ord.po_number : ''}</div>
-
-            <!-- Tabel Item Surat Jalan -->
-            <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; border: 1px solid #000000;">
-              <thead>
-                <tr style="border-bottom: 1px solid #000000; background: #ffffff;">
-                  <th style="border: 1px solid #000000; padding: 3px 5px; text-align: center; width: 30px; font-weight: 700;">No</th>
-                  <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 130px; font-weight: 700;">Item Code</th>
-                  <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; font-weight: 700;">Item Description</th>
-                  <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 75px; font-weight: 700;">Quantity</th>
-                  <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 65px; font-weight: 700;">UoM</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${items.map((it, idx) => {
-                  const qtyVal = Number(it.qty_actual !== undefined && it.qty_actual !== '' ? it.qty_actual : it.qty_ordered);
-                  const itemCode = it.item_code || generateProductItemCode(it.product_name, branchPrefix);
-                  return `
-                    <tr>
-                      <td style="border: 1px solid #000000; padding: 2.5px 5px; text-align: center;">${idx + 1}</td>
-                      <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: left;">${itemCode}</td>
-                      <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: left;">${it.product_name}</td>
-                      <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: center;">${qtyVal}</td>
-                      <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: center;">${String(it.unit || 'KG').toUpperCase()}</td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-
-            <!-- Tanda Tangan 4 Kolom -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-top: 14px; font-size: 9.5px;">
-              <div>
-                <div>Dibuat Oleh</div>
-                <div style="margin-top: 32px;">(....................)</div>
-              </div>
-              <div>
-                <div>Di Setujui Oleh</div>
-                <div style="margin-top: 32px;">(....................)</div>
-              </div>
-              <div>
-                <div>Di Kirim Oleh</div>
-                <div style="margin-top: 32px;">(....................)</div>
-              </div>
-              <div>
-                <div>Di Terima Oleh</div>
-                <div style="margin-top: 32px;">(....................)</div>
-              </div>
-            </div>
-
-            <!-- BARCODE SCAN KURIR DI POJOK KANAN BAWAH -->
-            <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin-top: 8px;">
-              <div style="text-align: right;">
-                ${barcodeDataUrl ? `<img src="${barcodeDataUrl}" style="height: 42px; width: auto; display: block; margin-left: auto; image-rendering: crisp-edges;" alt="Barcode ${ord.order_id}" />` : ''}
+            <div style="display: flex; align-items: flex-start; gap: 10px; max-width: 46%; font-size: 9.5px;">
+              <div style="font-weight: 800; white-space: nowrap;">Ship To:</div>
+              <div style="text-align: right; line-height: 1.3;">
+                <div style="font-weight: 700;">${ord.customer_name}</div>
+                <div>${ord.customer_address || '-'}</div>
               </div>
             </div>
           </div>
-        `;
-      } else {
-        // TEMPLATE INVOICE PENJUALAN PAS 1 LEMBAR A5 (HINGGA 20 ITEM) & BARCODE TAJAM DI POJOK KANAN BAWAH TULISAN INVOICE PENJUALAN
-        let subtotalAll = 0;
-        let totalDisc = Number(ord.discount_amount || 0);
-        let totalTax = Number(ord.tax_amount || 0);
 
-        const rowsHtml = items.map((it, idx) => {
-          const qtyVal = Number(it.qty_actual !== undefined && it.qty_actual !== '' ? it.qty_actual : it.qty_ordered);
-          const priceVal = Number(it.price || 0);
-          const itemDisc = Number(it.disc || 0);
-          const sub = Math.round((qtyVal * priceVal) - itemDisc);
-          subtotalAll += sub;
-          const itemCode = it.item_code || generateProductItemCode(it.product_name, branchPrefix);
-          const bgRow = idx % 2 === 1 ? '#f8faf8' : '#ffffff';
-          return `
-            <tr style="background: ${bgRow};">
-              <td style="padding: 2.5px 4px; text-align: center;">${idx + 1}</td>
-              <td style="padding: 2.5px 4px; text-align: center;">${itemCode}</td>
-              <td style="padding: 2.5px 5px; text-align: left;">${it.product_name}</td>
-              <td style="padding: 2.5px 4px; text-align: center;">${String(it.unit || 'KG').toUpperCase()}</td>
-              <td style="padding: 2.5px 4px; text-align: right;">${qtyVal}</td>
-              <td style="padding: 2.5px 5px; text-align: right;">${formatNumberID(priceVal)}</td>
-              <td style="padding: 2.5px 4px; text-align: center;">${itemDisc > 0 ? formatNumberID(itemDisc) : ''}</td>
-              <td style="padding: 2.5px 5px; text-align: right;">${formatNumberID(sub)}</td>
-            </tr>
-          `;
-        }).join('');
-
-        const grandTotal = Math.max(0, subtotalAll - totalDisc + totalTax);
-
-        printEl.innerHTML = `
-          <div style="font-family: Arial, Helvetica, sans-serif; color: #000000; max-width: 100%; margin: 0 auto; padding: 2px 4px; background: #ffffff; font-size: 9.5px; page-break-inside: avoid;">
-            <!-- Header Invoice dengan Barcode di Pojok Kanan di Bawah Tulisan INVOICE PENJUALAN -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 6px; border-bottom: 1.5px solid #044d15;">
-              <div style="display: flex; align-items: flex-start; gap: 10px; max-width: 55%;">
-                <img src="${logoPrint}" style="width: 52px; height: auto; object-fit: contain;" onerror="this.src='${LOGO_URL}'" />
-                <div>
-                  <div style="font-size: 13px; font-weight: 800; color: #044d15; margin-bottom: 1px;">Ranum Induk Buah, CV</div>
-                  <div style="font-size: 9.5px; color: #111111; line-height: 1.25;">Jalan Raya Bogor KM 21, No 14, Ciracas, Jakarta Timur,</div>
-                  <div style="font-size: 9.5px; color: #111111; margin-top: 1px;">Ph:082113780016</div>
-                </div>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
-                <div style="font-size: 15px; font-weight: 900; color: #044d15; letter-spacing: 0.4px; line-height: 1.1;">INVOICE PENJUALAN</div>
-                ${barcodeDataUrl ? `
-                  <div style="margin-top: 3px; text-align: right;">
-                    <img src="${barcodeDataUrl}" style="height: 42px; width: auto; display: block; margin-left: auto; image-rendering: crisp-edges;" alt="Barcode ${ord.order_id}" />
-                  </div>
-                ` : ''}
-              </div>
-            </div>
-
-            <!-- Info Pelanggan & Nomor Nota -->
-            <div style="display: flex; justify-content: space-between; margin: 5px 0 6px; font-size: 9.5px;">
-              <div style="line-height: 1.4; max-width: 52%;">
-                <div><strong style="display: inline-block; width: 68px;">Cust Name :</strong> ${ord.customer_name}</div>
-                <div><strong style="display: inline-block; width: 68px;">No. Ref :</strong> ${ord.ref_number || ord.notes || ''}</div>
-              </div>
-              <div style="line-height: 1.4; text-align: right;">
-                <div><strong style="display: inline-block; width: 85px; text-align: right; margin-right: 8px;">No. Nota :</strong> <span style="display: inline-block; width: 82px; text-align: right; font-weight: 700;">${docNumber}</span></div>
-                <div><strong style="display: inline-block; width: 85px; text-align: right; margin-right: 8px;">Document Date :</strong> <span style="display: inline-block; width: 82px; text-align: right;">${invDateFormatted}</span></div>
-                <div>
-                  <strong style="color: #d90429; margin-right: 4px;">Termin :</strong> <span style="margin-right: 6px; font-weight: 700;">${terminDays}</span>
-                  <strong style="color: #d90429; margin-right: 8px;">- Jatuh Tempo:</strong>
-                  <span style="display: inline-block; width: 82px; text-align: right;">${dueDateFormatted}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tabel Produk (Muat hingga 20 Orderan dalam 1 Lembar A5) -->
-            <table style="width: 100%; border-collapse: collapse; font-size: 9px; border-bottom: 1.5px solid #044d15;">
-              <thead>
-                <tr style="background: #044d15 !important; color: #ffffff !important;">
-                  <th style="padding: 3.5px 4px; text-align: center; width: 24px;">No.</th>
-                  <th style="padding: 3.5px 4px; text-align: center; width: 85px;">Kode</th>
-                  <th style="padding: 3.5px 5px; text-align: left;">Nama Produk</th>
-                  <th style="padding: 3.5px 4px; text-align: center; width: 42px;">Uom</th>
-                  <th style="padding: 3.5px 4px; text-align: right; width: 42px;">Qty</th>
-                  <th style="padding: 3.5px 5px; text-align: right; width: 72px;">Harga</th>
-                  <th style="padding: 3.5px 4px; text-align: center; width: 45px;">Disc</th>
-                  <th style="padding: 3.5px 5px; text-align: right; width: 80px;">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-              </tbody>
-            </table>
-
-            <!-- Keterangan & Ringkasan Total -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 5px; font-size: 9px; page-break-inside: avoid;">
-              <div style="max-width: 55%; line-height: 1.35;">
-                <div style="font-weight: 800; margin-bottom: 2px;">Keterangan</div>
-                <div style="margin-left: 6px; margin-bottom: 2px;">
-                  1. Pembayaran hanya ke Rek : BCA 1656007789<br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;An Ranum Induk Buah CV
-                </div>
-                <div style="margin-left: 6px;">
-                  2. Kirim Bukti transfer ke whatsapp : 082113780016<br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;sebagai bukti pelunasan
-                </div>
-              </div>
-
-              <div style="width: 225px; font-size: 9px;">
-                <div style="display: flex; justify-content: space-between; padding: 1.5px 4px;">
-                  <span>Subtotal Rp</span>
-                  <span>${formatNumberID(subtotalAll)}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 1.5px 4px;">
-                  <span>Diskon Rp</span>
-                  <span>${formatNumberID(totalDisc)}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 1.5px 4px; margin-bottom: 3px;">
-                  <span>Pajak Rp</span>
-                  <span>${formatNumberID(totalTax)}</span>
-                </div>
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                  <span style="font-weight: 800; padding-right: 6px;">Grand Total Rp.</span>
-                  <div style="background: #044d15 !important; color: #ffffff !important; font-weight: 800; padding: 3.5px 8px; min-width: 110px; text-align: right;">
-                    ${formatNumberID(grandTotal)}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tanda Tangan Kompak Pas A5 -->
-            <div style="border-top: 1.5px solid #044d15; margin-top: 5px; padding-top: 3px; page-break-inside: avoid;">
-              <div style="text-align: right; font-size: 8px; font-weight: 800; margin-bottom: 2px;">* Harga Termasuk Pajak</div>
-              <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; padding: 0 24px; margin-top: 2px; margin-bottom: 22px;">
-                <div>Tanda Terima</div>
-                <div>Hormat Kami</div>
-              </div>
+          <!-- Judul Delivery Order & Document Date -->
+          <div style="text-align: center; margin: 4px 0 4px;">
+            <div style="font-size: 15px; font-weight: 800; letter-spacing: 0.2px;">Delivery Order ${docNumber}</div>
+            <div style="display: inline-block; border-bottom: 1px solid #000; padding: 1px 36px; font-size: 11px; font-weight: 800; margin-top: 1px;">
+              Document Date ${doDateFormatted}
             </div>
           </div>
-        `;
-      }
+
+          <div style="font-size: 9.5px; font-weight: 600; margin-bottom: 3px;">PO : ${ord.po_number && ord.po_number !== '-' ? ord.po_number : ''}</div>
+
+          <!-- Tabel Item Surat Jalan -->
+          <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; border: 1px solid #000000;">
+            <thead>
+              <tr style="border-bottom: 1px solid #000000; background: #ffffff;">
+                <th style="border: 1px solid #000000; padding: 3px 5px; text-align: center; width: 30px; font-weight: 700;">No</th>
+                <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 130px; font-weight: 700;">Item Code</th>
+                <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; font-weight: 700;">Item Description</th>
+                <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 75px; font-weight: 700;">Quantity</th>
+                <th style="border: 1px solid #000000; padding: 3px 6px; text-align: center; width: 65px; font-weight: 700;">UoM</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((it, idx) => {
+                const qtyVal = Number(it.qty_actual !== undefined && it.qty_actual !== '' ? it.qty_actual : it.qty_ordered);
+                const itemCode = it.item_code || generateProductItemCode(it.product_name, branchPrefix);
+                return `
+                  <tr>
+                    <td style="border: 1px solid #000000; padding: 2.5px 5px; text-align: center;">${idx + 1}</td>
+                    <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: left;">${itemCode}</td>
+                    <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: left;">${it.product_name}</td>
+                    <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: center;">${qtyVal}</td>
+                    <td style="border: 1px solid #000000; padding: 2.5px 6px; text-align: center;">${String(it.unit || 'KG').toUpperCase()}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+
+          <!-- Tanda Tangan 4 Kolom -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-top: 14px; font-size: 9.5px;">
+            <div>
+              <div>Dibuat Oleh</div>
+              <div style="margin-top: 32px;">(....................)</div>
+            </div>
+            <div>
+              <div>Di Setujui Oleh</div>
+              <div style="margin-top: 32px;">(....................)</div>
+            </div>
+            <div>
+              <div>Di Kirim Oleh</div>
+              <div style="margin-top: 32px;">(....................)</div>
+            </div>
+            <div>
+              <div>Di Terima Oleh</div>
+              <div style="margin-top: 32px;">(....................)</div>
+            </div>
+          </div>
+
+          <!-- BARCODE SCAN KURIR DI POJOK KANAN BAWAH -->
+          <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin-top: 8px;">
+            <div style="text-align: right;">
+              ${barcodeDataUrl ? `<img src="${barcodeDataUrl}" style="height: 42px; width: auto; display: block; margin-left: auto; image-rendering: crisp-edges;" alt="Barcode ${ord.order_id}" />` : ''}
+            </div>
+          </div>
+        </div>
+      `;
 
       setTimeout(() => {
         window.print();
@@ -1357,21 +1213,21 @@
     }
 
     /*************************************************************************
-     * FITUR BARU 1: IMPORT FILE PDF ATAU JPEG (OCR & FILTER TEKS OTOMATIS)
+     * FITUR IMPORT FILE PDF ATAU JPEG (KHUSUS TEMPLATE SURAT JALAN)
      *************************************************************************/
     let lastParsedDocumentData = null;
 
     function openImportDocumentModal() {
-      openModal('Import File PDF / JPEG (Invoice & Surat Jalan Otomatis)', `
+      openModal('Import File PDF / JPEG (Surat Jalan Otomatis)', `
         <div class="space-y-4 text-xs">
           <div class="p-4 rounded-2xl bg-hh-50 border border-hh-200 flex items-start gap-3">
             <div class="w-10 h-10 rounded-xl bg-[#053f28] text-[#fde002] flex items-center justify-center text-lg shrink-0">
               <i class="fa-solid fa-file-shield"></i>
             </div>
             <div>
-              <h4 class="font-extrabold text-[#053f28] text-sm">Filter Otomatis Semua Tulisan di PDF atau JPEG</h4>
+              <h4 class="font-extrabold text-[#053f28] text-sm">Filter Otomatis Semua Tulisan Surat Jalan (PDF / JPEG)</h4>
               <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
-                Unggah file <b>PDF</b> atau foto <b>JPEG/PNG</b> dari <i>Template Invoice</i> maupun <i>Template Surat Jalan (Delivery Order)</i>. Sistem akan membaca seluruh teks secara otomatis (Cust Name / Ship to, No. Nota, No. Ref / PO, Document Date, Termin, Kode, Nama Produk, Qty, Uom, Harga, Disc, Subtotal) sehingga Anda <b>tidak perlu mengetik lagi</b>!
+                Unggah file <b>PDF</b> atau foto <b>JPEG/PNG</b> dari <i>Template Surat Jalan (Delivery Order)</i>. Sistem akan membaca seluruh teks secara otomatis (Ship To, Delivery Order, PO, Document Date, Item Code, Item Description, Quantity, UoM) sehingga Anda <b>tidak perlu mengetik lagi</b>!
               </p>
             </div>
           </div>
@@ -1382,7 +1238,7 @@
               <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
             <p class="font-extrabold text-sm text-[#053f28]">Klik untuk Pilih File PDF atau Gambar JPEG / PNG</p>
-            <p class="text-[11px] text-slate-500 mt-1">Mendukung Template Invoice Penjualan & Template Surat Jalan (Delivery Order)</p>
+            <p class="text-[11px] text-slate-500 mt-1">Mendukung Template Surat Jalan (Delivery Order)</p>
           </div>
 
           <!-- Progress Status OCR / PDF -->
@@ -1402,7 +1258,7 @@
           <div id="importParsedResultBox" class="hidden space-y-4 pt-2 border-t border-slate-200">
             <div class="flex items-center justify-between">
               <span id="detectedTemplateBadge" class="px-3 py-1 rounded-full bg-emerald-100 text-[#053f28] font-extrabold text-[11px]">
-                <i class="fa-solid fa-check-circle mr-1"></i> Dokumen Terbaca Otomatis
+                <i class="fa-solid fa-check-circle mr-1"></i> Surat Jalan Terbaca Otomatis
               </span>
               <button type="button" onclick="toggleRawExtractedText()" class="text-[11px] font-bold text-sky-700 hover:underline">
                 Lihat Teks Asli Hasil Filter
@@ -1413,7 +1269,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
               <div>
-                <label id="lblImpCustName" class="text-[10px] font-bold uppercase text-slate-500">Ship to : *</label>
+                <label id="lblImpCustName" class="text-[10px] font-bold uppercase text-slate-500">Ship To : *</label>
                 <input id="impCustName" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-slate-900 bg-white" />
               </div>
               <div>
@@ -1421,31 +1277,31 @@
                 <input id="impNotaNumber" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-[#053f28] bg-white" />
               </div>
               <div>
-                <label id="lblImpRefPo" class="text-[10px] font-bold uppercase text-slate-500">PO:</label>
+                <label id="lblImpRefPo" class="text-[10px] font-bold uppercase text-slate-500">PO :</label>
                 <input id="impRefPo" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white" />
               </div>
               <div>
                 <label id="lblImpDocDate" class="text-[10px] font-bold uppercase text-slate-500">Document Date</label>
                 <input id="impDocDate" type="date" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold" />
               </div>
-              <div id="wrapImpTermin">
+              <div id="wrapImpTermin" class="hidden">
                 <label class="text-[10px] font-bold uppercase text-slate-500">Termin (Hari)</label>
                 <input id="impTermin" type="number" value="7" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold" />
               </div>
-              <div id="wrapImpPhone">
+              <div id="wrapImpPhone" class="sm:col-span-2">
                 <label class="text-[10px] font-bold uppercase text-slate-500">No. WA / Telepon</label>
                 <input id="impCustPhone" value="082113780016" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white" />
               </div>
               <div class="sm:col-span-3">
-                <label id="lblImpCustAddress" class="text-[10px] font-bold uppercase text-slate-500">Alamat Ship to *</label>
+                <label id="lblImpCustAddress" class="text-[10px] font-bold uppercase text-slate-500">Alamat Ship To *</label>
                 <input id="impCustAddress" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white" />
               </div>
             </div>
 
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label id="lblImpTableTitle" class="font-extrabold text-[#053f28]">Daftar Item Produk Hasil Filter Dokumen (Maksimal 20 Orderan):</label>
-                <button type="button" onclick="addImportedItemRow()" class="px-2.5 py-1 rounded-lg bg-hh-100 text-[#053f28] font-bold text-[11px]">
+                <label id="lblImpTableTitle" class="font-extrabold text-[#053f28]">Daftar Item Surat Jalan (Maksimal 20 Orderan):</label>
+                <button type="button" onclick="addImportedItemRow({}, true)" class="px-2.5 py-1 rounded-lg bg-hh-100 text-[#053f28] font-bold text-[11px]">
                   + Tambah Baris (Maks 20)
                 </button>
               </div>
@@ -1457,9 +1313,7 @@
                       <th class="p-2 w-36">Item Code</th>
                       <th class="p-2">Item Description</th>
                       <th class="p-2 text-center w-24">Quantity</th>
-                      <th class="p-2 text-center w-20">Uom</th>
-                      <th class="p-2 text-right w-28 imp-col-inv">Harga</th>
-                      <th class="p-2 text-right w-20 imp-col-inv">Disc</th>
+                      <th class="p-2 text-center w-20">UoM</th>
                       <th class="p-2 text-center w-10"></th>
                     </tr>
                   </thead>
@@ -1468,19 +1322,10 @@
               </div>
             </div>
 
-            <div id="impInvoiceSummaryBox" class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px]">
-              <div>
-                <span class="text-slate-500 font-bold">Diskon Rp:</span>
-                <input id="impTotalDisc" type="number" value="0" class="w-full mt-0.5 px-2 py-1 rounded border border-slate-300 font-bold" />
-              </div>
-              <div>
-                <span class="text-slate-500 font-bold">Pajak Rp:</span>
-                <input id="impTotalTax" type="number" value="0" class="w-full mt-0.5 px-2 py-1 rounded border border-slate-300 font-bold" />
-              </div>
-              <div>
-                <span class="text-slate-500 font-bold">Grand Total Rp:</span>
-                <input id="impGrandTotal" type="number" value="0" class="w-full mt-0.5 px-2 py-1 rounded border border-emerald-400 bg-emerald-50 font-black text-[#053f28]" />
-              </div>
+            <div id="impInvoiceSummaryBox" class="hidden">
+              <input id="impTotalDisc" type="hidden" value="0" />
+              <input id="impTotalTax" type="hidden" value="0" />
+              <input id="impGrandTotal" type="hidden" value="0" />
             </div>
 
             <div class="flex flex-wrap justify-end gap-2 pt-2">
@@ -1532,7 +1377,7 @@
           extractedText = await extractTextFromImageFile(file, updateProgress);
         }
 
-        updateProgress('Memfilter field Invoice / Surat Jalan...', 95);
+        updateProgress('Memfilter field Surat Jalan...', 95);
         const parsed = parseExtractedDocumentText(extractedText, file.name);
         lastParsedDocumentData = parsed;
 
@@ -1565,13 +1410,11 @@
         const pageHeight = viewport.height || 800;
         const textContent = await page.getTextContent();
 
-        // Ambil khusus teks di area Kanan Atas (Ship To & Alamat Ship To pada Surat Jalan)
         if (pageNum === 1) {
           const topRightMap = {};
           textContent.items.forEach(item => {
             const x = item.transform[4];
             const y = item.transform[5];
-            // Area kanan atas: X > 48% lebar halaman dan Y di bagian atas halaman
             if (x > pageWidth * 0.48 && y > pageHeight * 0.62) {
               const yKey = Math.round(y / 4) * 4;
               if (!topRightMap[yKey]) topRightMap[yKey] = [];
@@ -1585,7 +1428,6 @@
           });
         }
 
-        // Kelompokkan berdasarkan koordinat Y agar struktur baris tabel tetap rapi
         const rowMap = {};
         textContent.items.forEach(item => {
           const yKey = Math.round(item.transform[5] / 4) * 4;
@@ -1600,7 +1442,6 @@
           if (lineStr) fullTextLines.push(lineStr);
         });
 
-        // Jika PDF adalah hasil scan gambar (kosong teks), jalankan OCR pada canvas halaman PDF
         if (fullTextLines.join('').trim().length < 15 && window.Tesseract) {
           onProgress(`PDF berupa gambar scan, menjalankan OCR halaman ${pageNum}...`, 60);
           const viewport2 = page.getViewport({ scale: 2.0 });
@@ -1664,14 +1505,12 @@
         });
       }
 
-      // 1. Crop khusus pojok kanan atas untuk membaca "Ship To:" & Alamat Ship To secara terpisah agar 100% akurat
       let shipToMetadataPrefix = '';
       if (sourceCanvasOrFile && sourceCanvasOrFile.width && sourceCanvasOrFile.height) {
         try {
           const w = sourceCanvasOrFile.width;
           const h = sourceCanvasOrFile.height;
           const cropCanvas = document.createElement('canvas');
-          // Area Ship To berada di X: 54% s/d 99% lebar gambar, Y: 0% s/d 24% tinggi gambar
           const sx = Math.round(w * 0.54);
           const sy = 0;
           const sw = w - sx;
@@ -1688,7 +1527,7 @@
             const rawShipLines = shipOcr.data.text
               .split('\n')
               .map(l => l.replace(/^.*?\bShip\s*To\s*[:\-]?\s*/i, '').replace(/[\|¦]/g, '').trim())
-              .filter(l => l.length >= 2 && !/^(ship\s*to|delivery\s*order|document\s*date|invoice\s*penjualan|no\.?\s*nota)/i.test(l));
+              .filter(l => l.length >= 2 && !/^(ship\s*to|delivery\s*order|document\s*date|no\.?\s*nota)/i.test(l));
 
             if (rawShipLines.length > 0) {
               shipToMetadataPrefix += `__SHIP_TO_NAME__: ${rawShipLines[0]}\n`;
@@ -1703,38 +1542,6 @@
       if (result && result.data && Array.isArray(result.data.words) && result.data.words.length > 0) {
         const words = result.data.words.filter(w => w && w.text && String(w.text).trim() !== '' && w.bbox);
         if (words.length > 0) {
-          // Ekstrak juga kata-kata yang berada di pojok kanan atas berdasarkan koordinat bbox jika crop belum mendapatkan hasil
-          if (!shipToMetadataPrefix && sourceCanvasOrFile && sourceCanvasOrFile.width) {
-            const imgW = sourceCanvasOrFile.width;
-            const imgH = sourceCanvasOrFile.height;
-            const rightTopWords = words.filter(w => w.bbox.x0 > imgW * 0.55 && w.bbox.y1 < imgH * 0.24);
-            if (rightTopWords.length > 0) {
-              const rtRows = [];
-              rightTopWords.forEach(w => {
-                const cy = (w.bbox.y0 + w.bbox.y1) / 2;
-                const h = Math.max(8, w.bbox.y1 - w.bbox.y0);
-                let r = rtRows.find(row => Math.abs(row.cy - cy) <= h * 0.65);
-                if (!r) {
-                  r = { cy, items: [] };
-                  rtRows.push(r);
-                }
-                r.items.push({ x0: w.bbox.x0, text: String(w.text).trim() });
-              });
-              rtRows.sort((a, b) => a.cy - b.cy);
-              const rtLines = rtRows.map(r => {
-                r.items.sort((a, b) => a.x0 - b.x0);
-                return r.items.map(i => i.text).join(' ').replace(/^.*?\bShip\s*To\s*[:\-]?\s*/i, '').trim();
-              }).filter(l => l.length >= 2 && !/^(ship\s*to|delivery\s*order|document\s*date)/i.test(l));
-
-              if (rtLines.length > 0) {
-                shipToMetadataPrefix += `__SHIP_TO_NAME__: ${rtLines[0]}\n`;
-                if (rtLines.length > 1) {
-                  shipToMetadataPrefix += `__SHIP_TO_ADDR__: ${rtLines.slice(1).join(', ')}\n`;
-                }
-              }
-            }
-          }
-
           const rows = [];
           words.forEach(w => {
             const cy = ((w.bbox.y0 + w.bbox.y1) / 2);
@@ -1790,15 +1597,11 @@
       });
     }
 
-    // PARSER CERDAS KHUSUS TEMPLATE INVOICE & TEMPLATE SURAT JALAN HANAM HANUM
     function parseExtractedDocumentText(rawText, fileName = '') {
       const text = String(rawText || '').replace(/\r/g, '');
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      const docType = 'SURAT_JALAN';
 
-      const isSuratJalan = /delivery\s*order|delevery\s*order|ship\s*to|item\s*description|item\s*code/i.test(text) && !/invoice\s*penjualan/i.test(text);
-      const docType = isSuratJalan ? 'SURAT_JALAN' : 'INVOICE';
-
-      // Helper membersihkan teks perusahaan kiri & kata-kata sampah OCR
       const cleanCompanyLeftSide = (s) => {
         return String(s || '')
           .replace(/^__SHIP_TO_(?:NAME|ADDR)__\s*[:\-]?\s*/i, '')
@@ -1817,14 +1620,12 @@
         if (clean.length < 2) return true;
         if (/^[\(\.\s_\-]+[\)\.\s_\-]*$/.test(clean)) return true;
         if (/^[A-Z]{2,3}[0O]{3}\d{3,6}$/i.test(clean)) return true;
-        // Jangan biarkan satuan tabel atau label header masuk ke field Ship To
         if (/^(kg|gram|gr|pcs|krat|dus|uom|quantity|item\s*code|item\s*description|dibuat|di\s*setujui|disetujui|di\s*kirim|dikirim|di\s*terima|diterima|oleh|tanda\s*terima|hormat\s*kami|angg?a|delivery\s*order|delevery\s*order|document\s*date|po\s*:)/i.test(clean)) {
           return true;
         }
         return false;
       };
 
-      // 1. Filter Cust Name / Ship To & Alamat Pengiriman
       let custName = '';
       let custAddress = '';
 
@@ -1837,7 +1638,6 @@
         custAddress = cleanCompanyLeftSide(metaShipAddrMatch[1]);
       }
 
-      // Cari baris setelah tulisan "Ship To:" di teks dokumen
       const shipIdx = lines.findIndex(l => /ship\s*to\s*[:\-]?/i.test(l) && !/^__SHIP_TO/i.test(l));
       if (shipIdx !== -1 && (!custName || !custAddress || isInvalidCustomerOrAddress(custName))) {
         const shipBlockLines = [];
@@ -1863,7 +1663,6 @@
         }
       }
 
-      // Fallback Cerdas berdasarkan wilayah / prefix surat jalan jika masih belum terbaca
       const detectedCodePrefixMatch = text.match(/\b([A-Z]{3})-[A-Z0-9]{2,5}\b/);
       let notaNumber = '';
       const notaRegexes = [
@@ -1903,7 +1702,6 @@
         custAddress = matchedCust ? matchedCust.address : custName;
       }
 
-      // 3. Filter No. Ref / PO
       let refPo = '';
       const refMatch = text.match(/(?:No\.?\s*Ref|\bPO)\s*[:\-]\s*([^\n]*)/i);
       if (refMatch) {
@@ -1916,27 +1714,11 @@
         }
       }
 
-      // 4. Filter Document Date & Termin
       let docDate = new Date().toISOString().slice(0, 10);
       const dateMatch = text.match(/Document\s*Date\s*[:\-_]?\s*([0-9]{1,2}[\-\/\s][a-zA-Z0-9]{2,9}[\-\/\s][0-9]{2,4}|[0-9]{4}[\-\/][0-9]{2}[\-\/][0-9]{2})/i);
       if (dateMatch) {
         docDate = normalizeDateStringFromWA(dateMatch[1]);
       }
-
-      let terminDays = 7;
-      const terminMatch = text.match(/Termin\s*[:\-]?\s*(\d+)/i);
-      if (terminMatch) {
-        terminDays = parseInt(terminMatch.groups ? terminMatch.groups[1] : terminMatch[1], 10) || 7;
-      }
-
-      // 5. Filter Subtotal, Diskon, Pajak, Grand Total
-      const parseMoneyStr = (s) => {
-        if (!s) return 0;
-        const cleaned = String(s).replace(/[^\d,\.]/g, '');
-        if (!cleaned) return 0;
-        const noDec = cleaned.replace(/[\.,]\d{2}$/, '');
-        return parseInt(noDec.replace(/[\.,]/g, ''), 10) || 0;
-      };
 
       const parseQtyStr = (rawQ) => {
         if (rawQ === undefined || rawQ === null) return 1;
@@ -1950,16 +1732,6 @@
         return (!isNaN(val) && val > 0) ? val : 1;
       };
 
-      const subMatch = text.match(/Subtotal\s*Rp\.?\s*[:\-]?\s*([\d\.,]+)/i);
-      const discMatch = text.match(/Diskon\s*Rp\.?\s*[:\-]?\s*([\d\.,]+)/i);
-      const taxMatch = text.match(/Pajak\s*Rp\.?\s*[:\-]?\s*([\d\.,]+)/i);
-      const grandMatch = text.match(/Grand\s*Total\s*Rp\.?\s*[:\-]?\s*([\d\.,]+)/i);
-
-      let discountAmount = discMatch ? parseMoneyStr(discMatch[1]) : 0;
-      let taxAmount = taxMatch ? parseMoneyStr(taxMatch[1]) : 0;
-      let grandTotal = grandMatch ? parseMoneyStr(grandMatch[1]) : (subMatch ? parseMoneyStr(subMatch[1]) : 0);
-
-      // 6. Filter Baris Tabel Produk
       const items = [];
       const seenItemKeys = new Set();
       const pushUniqueItem = (itemObj) => {
@@ -1977,8 +1749,6 @@
           product_name: cleanDesc
         });
       };
-
-      const uomListRegex = '\\b(KG|KILOGRAM|GRAM|GR|G|PCS|PC|KRAT|CRT|CTN|CARTON|DUS|DOS|BOX|SISIR|PACK|PAK|IKAT|BUAH|POUCH|BTL|BOTOL|LITER|LTR|ML|KALENG|KLG|BAL|SAK)\\b';
 
       const normalizedLines = [];
       let pendingCodeFragment = '';
@@ -2036,55 +1806,49 @@
         }
       });
 
-      if (isSuratJalan) {
-        const codeMatches = [];
-        const codeRgx = /\b([A-Z]{3}-[A-Z0-9]{2,5}(?:-[A-Z0-9]{1,5})?)\b/g;
-        let m;
-        while ((m = codeRgx.exec(text)) !== null) {
-          const c = m[1].toUpperCase();
-          if (!codeMatches.includes(c)) codeMatches.push(c);
-        }
-
-        const decimalQtyMatch = text.match(/\b(0[\.,]\d{1,3})\b/);
-        const fallbackQty = decimalQtyMatch ? parseQtyStr(decimalQtyMatch[1]) : 1;
-
-        const codeToNameDict = {
-          'APL-GSC': 'Apple Granny Smith China',
-          'APL': 'Apple',
-          'BNN-C3': 'Banana C3 (Sisiran)',
-          'BNN': 'Banana',
-          'CCB': 'Cucumber',
-          'CRT': 'Carrot',
-          'PNL': 'Pineapple Honi',
-          'WM': 'Watermelon',
-          'BTR': 'Beetroot',
-          'CLR': 'Celery',
-          'ORG-SKT': 'Orange Sunkist',
-          'CCN-MILK': 'Coconut Milk (200 ML x 10)'
-        };
-
-        codeMatches.forEach(code => {
-          const alreadyExists = items.some(it => String(it.item_code).toUpperCase() === code);
-          if (!alreadyExists) {
-            const suffix = code.replace(/^[A-Z]{3}-/, '');
-            const guessedName = codeToNameDict[suffix] || suffix;
-            pushUniqueItem({
-              item_code: code,
-              product_name: guessedName,
-              qty: fallbackQty,
-              unit: 'KG',
-              price: 0,
-              disc: 0
-            });
-          }
-        });
+      const codeMatches = [];
+      const codeRgx = /\b([A-Z]{3}-[A-Z0-9]{2,5}(?:-[A-Z0-9]{1,5})?)\b/g;
+      let m;
+      while ((m = codeRgx.exec(text)) !== null) {
+        const c = m[1].toUpperCase();
+        if (!codeMatches.includes(c)) codeMatches.push(c);
       }
+
+      const decimalQtyMatch = text.match(/\b(0[\.,]\d{1,3})\b/);
+      const fallbackQty = decimalQtyMatch ? parseQtyStr(decimalQtyMatch[1]) : 1;
+
+      const codeToNameDict = {
+        'APL-GSC': 'Apple Granny Smith China',
+        'APL': 'Apple',
+        'BNN-C3': 'Banana C3 (Sisiran)',
+        'BNN': 'Banana',
+        'CCB': 'Cucumber',
+        'CRT': 'Carrot',
+        'PNL': 'Pineapple Honi',
+        'WM': 'Watermelon',
+        'BTR': 'Beetroot',
+        'CLR': 'Celery',
+        'ORG-SKT': 'Orange Sunkist',
+        'CCN-MILK': 'Coconut Milk (200 ML x 10)'
+      };
+
+      codeMatches.forEach(code => {
+        const alreadyExists = items.some(it => String(it.item_code).toUpperCase() === code);
+        if (!alreadyExists) {
+          const suffix = code.replace(/^[A-Z]{3}-/, '');
+          const guessedName = codeToNameDict[suffix] || suffix;
+          pushUniqueItem({
+            item_code: code,
+            product_name: guessedName,
+            qty: fallbackQty,
+            unit: 'KG',
+            price: 0,
+            disc: 0
+          });
+        }
+      });
 
       const limitedItems = items.slice(0, 20);
-      const calcSubtotal = limitedItems.reduce((acc, it) => acc + (it.qty * it.price - (it.disc || 0)), 0);
-      if (!grandTotal && calcSubtotal > 0) {
-        grandTotal = Math.max(0, calcSubtotal - discountAmount + taxAmount);
-      }
 
       return {
         docType,
@@ -2094,39 +1858,21 @@
         notaNumber: notaNumber || `PK000${Math.floor(10000 + Math.random() * 89999)}`,
         refPo: refPo || '-',
         docDate,
-        terminDays,
-        discountAmount,
-        taxAmount,
-        grandTotal,
+        terminDays: 7,
+        discountAmount: 0,
+        taxAmount: 0,
+        grandTotal: 0,
         items: limitedItems
       };
     }
 
     function populateImportModalWithParsedData(parsed, rawText) {
-      const isSJ = parsed.docType === 'SURAT_JALAN';
       const badge = document.getElementById('detectedTemplateBadge');
       if (badge) {
-        badge.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> Terdeteksi: Template ${isSJ ? 'Surat Jalan (Delivery Order)' : 'Invoice Penjualan'} (${parsed.items.length} / Maks 20 Produk)`;
+        badge.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> Terdeteksi: Template Surat Jalan (Delivery Order) (${parsed.items.length} / Maks 20 Produk)`;
       }
       const rawArea = document.getElementById('rawExtractedTextArea');
       if (rawArea) rawArea.value = rawText;
-
-      // Sesuaikan Label & Visibilitas Field antara Surat Jalan vs Invoice
-      const lblCust = document.getElementById('lblImpCustName');
-      const lblNota = document.getElementById('lblImpNotaNumber');
-      const lblPo = document.getElementById('lblImpRefPo');
-      const wrapTermin = document.getElementById('wrapImpTermin');
-      const summaryBox = document.getElementById('impInvoiceSummaryBox');
-
-      if (lblCust) lblCust.innerText = isSJ ? 'Ship to : *' : 'Cust Name : *';
-      if (lblNota) lblNota.innerText = isSJ ? 'Delivery Order' : 'No. Nota :';
-      if (lblPo) lblPo.innerText = isSJ ? 'PO:' : 'No. Ref :';
-      if (wrapTermin) wrapTermin.classList.toggle('hidden', isSJ);
-      if (summaryBox) summaryBox.classList.toggle('hidden', isSJ);
-
-      document.querySelectorAll('.imp-col-inv').forEach(el => {
-        el.classList.toggle('hidden', isSJ);
-      });
 
       document.getElementById('impCustName').value = parsed.custName;
       document.getElementById('impNotaNumber').value = parsed.notaNumber;
@@ -2135,9 +1881,6 @@
       document.getElementById('impTermin').value = parsed.terminDays;
       document.getElementById('impCustPhone').value = parsed.custPhone;
       document.getElementById('impCustAddress').value = parsed.custAddress;
-      document.getElementById('impTotalDisc').value = parsed.discountAmount;
-      document.getElementById('impTotalTax').value = parsed.taxAmount;
-      document.getElementById('impGrandTotal').value = parsed.grandTotal;
 
       const tbody = document.getElementById('impItemsTableBody');
       if (!tbody) return;
@@ -2148,22 +1891,16 @@
           item_code: 'PKU-PRD',
           product_name: '',
           qty: 1,
-          unit: 'KG',
-          price: 0,
-          disc: 0
-        }, isSJ);
+          unit: 'KG'
+        }, true);
       } else {
-        parsed.items.slice(0, 20).forEach(it => addImportedItemRow(it, isSJ));
+        parsed.items.slice(0, 20).forEach(it => addImportedItemRow(it, true));
       }
-      recalculateImportGrandTotal();
     }
 
-    function addImportedItemRow(it = {}, forceSuratJalanMode = null) {
+    function addImportedItemRow(it = {}) {
       const tbody = document.getElementById('impItemsTableBody');
       if (!tbody) return;
-      const isSJ = forceSuratJalanMode !== null
-        ? forceSuratJalanMode
-        : (lastParsedDocumentData && lastParsedDocumentData.docType === 'SURAT_JALAN');
 
       const currentRowsCount = tbody.querySelectorAll('.imp-item-row').length;
       if (currentRowsCount >= 20) {
@@ -2182,19 +1919,13 @@
           <input value="${it.product_name || ''}" placeholder="Item Description" class="w-full px-2 py-1 rounded border border-slate-200 font-bold imp-name" />
         </td>
         <td class="p-1.5">
-          <input type="number" step="0.01" value="${it.qty !== undefined ? it.qty : 1}" oninput="recalculateImportGrandTotal()" class="w-full px-2 py-1 rounded border border-slate-200 text-center font-bold text-[#053f28] imp-qty" />
+          <input type="number" step="0.01" value="${it.qty !== undefined ? it.qty : 1}" class="w-full px-2 py-1 rounded border border-slate-200 text-center font-bold text-[#053f28] imp-qty" />
         </td>
         <td class="p-1.5">
           <input value="${it.unit || 'KG'}" placeholder="UoM" class="w-full px-2 py-1 rounded border border-slate-200 text-center uppercase font-bold imp-uom" />
         </td>
-        <td class="p-1.5 imp-col-inv ${isSJ ? 'hidden' : ''}">
-          <input type="number" value="${it.price !== undefined ? it.price : 0}" oninput="recalculateImportGrandTotal()" class="w-full px-2 py-1 rounded border border-slate-200 text-right font-semibold imp-price" />
-        </td>
-        <td class="p-1.5 imp-col-inv ${isSJ ? 'hidden' : ''}">
-          <input type="number" value="${it.disc || 0}" oninput="recalculateImportGrandTotal()" class="w-full px-2 py-1 rounded border border-slate-200 text-right imp-disc" />
-        </td>
         <td class="p-1.5 text-center">
-          <button type="button" onclick="this.closest('tr').remove(); renumberImportRows(); recalculateImportGrandTotal();" class="text-rose-500 hover:text-rose-700">
+          <button type="button" onclick="this.closest('tr').remove(); renumberImportRows();" class="text-rose-500 hover:text-rose-700">
             <i class="fa-solid fa-trash"></i>
           </button>
         </td>
@@ -2208,23 +1939,6 @@
       });
     }
 
-    function recalculateImportGrandTotal() {
-      const rows = document.querySelectorAll('.imp-item-row');
-      let subtotal = 0;
-      rows.forEach(r => {
-        const qty = parseFloat(r.querySelector('.imp-qty')?.value) || 0;
-        const price = parseFloat(r.querySelector('.imp-price')?.value) || 0;
-        const disc = parseFloat(r.querySelector('.imp-disc')?.value) || 0;
-        subtotal += Math.max(0, (qty * price) - disc);
-      });
-      const totDisc = parseFloat(document.getElementById('impTotalDisc')?.value) || 0;
-      const totTax = parseFloat(document.getElementById('impTotalTax')?.value) || 0;
-      const grandEl = document.getElementById('impGrandTotal');
-      if (grandEl) {
-        grandEl.value = Math.max(0, Math.round(subtotal - totDisc + totTax));
-      }
-    }
-
     function collectImportedModalData() {
       const custName = (document.getElementById('impCustName')?.value || 'Pelanggan Import').trim();
       const notaNumber = (document.getElementById('impNotaNumber')?.value || '').trim();
@@ -2233,9 +1947,6 @@
       const terminDays = parseInt(document.getElementById('impTermin')?.value, 10) || 7;
       const custPhone = (document.getElementById('impCustPhone')?.value || '082113780016').trim();
       const custAddress = (document.getElementById('impCustAddress')?.value || '-').trim();
-      const discountAmount = parseFloat(document.getElementById('impTotalDisc')?.value) || 0;
-      const taxAmount = parseFloat(document.getElementById('impTotalTax')?.value) || 0;
-      const grandTotal = parseFloat(document.getElementById('impGrandTotal')?.value) || 0;
 
       const items = [];
       document.querySelectorAll('.imp-item-row').forEach(r => {
@@ -2243,10 +1954,8 @@
         const name = (r.querySelector('.imp-name')?.value || 'Produk').trim();
         const qty = parseFloat(r.querySelector('.imp-qty')?.value) || 1;
         const unit = (r.querySelector('.imp-uom')?.value || 'KG').trim().toUpperCase();
-        const price = parseFloat(r.querySelector('.imp-price')?.value) || 0;
-        const disc = parseFloat(r.querySelector('.imp-disc')?.value) || 0;
         if (name) {
-          items.push({ item_code: code, product_name: name, qty, unit, price, disc });
+          items.push({ item_code: code, product_name: name, qty, unit, price: 0, disc: 0 });
         }
       });
 
@@ -2258,9 +1967,9 @@
         terminDays,
         custPhone,
         custAddress,
-        discountAmount,
-        taxAmount,
-        grandTotal,
+        discountAmount: 0,
+        taxAmount: 0,
+        grandTotal: 0,
         items
       };
     }
@@ -2278,7 +1987,7 @@
         if (document.getElementById('manNotaNumber')) document.getElementById('manNotaNumber').value = data.notaNumber;
         if (document.getElementById('manRefNumber')) document.getElementById('manRefNumber').value = data.refPo;
         if (document.getElementById('manTerminDays')) document.getElementById('manTerminDays').value = data.terminDays;
-        if (document.getElementById('manNotes')) document.getElementById('manNotes').value = `Import Dokumen (${data.notaNumber}) • Ref/PO: ${data.refPo}`;
+        if (document.getElementById('manNotes')) document.getElementById('manNotes').value = `Import Surat Jalan (${data.notaNumber}) • PO: ${data.refPo}`;
 
         const container = document.getElementById('manualItemsContainer');
         if (container && data.items.length > 0) {
@@ -2287,7 +1996,7 @@
             addManualItemRowWithData(it);
           });
         }
-        showToast('Seluruh tulisan dari file berhasil dimasukkan ke Form Pesanan!', 'success');
+        showToast('Seluruh tulisan dari Surat Jalan berhasil dimasukkan ke Form Pesanan!', 'success');
       }, 80);
     }
 
@@ -2323,16 +2032,14 @@
         };
       });
 
-      const finalTotal = data.grandTotal > 0 ? data.grandTotal : Math.max(0, calcTotal - data.discountAmount + data.taxAmount);
-
       const newOrdObj = {
         order_id: newOrderId,
         nota_number: data.notaNumber || newOrderId,
         ref_number: data.refPo,
         po_number: data.refPo,
         termin_days: data.terminDays,
-        discount_amount: data.discountAmount,
-        tax_amount: data.taxAmount,
+        discount_amount: 0,
+        tax_amount: 0,
         created_at: nowFormatted(),
         delivery_date: data.docDate,
         customer_id: generateUID('CUST'),
@@ -2344,7 +2051,7 @@
         status: 'Siap dikirim',
         courier_id: '',
         courier_name: '-',
-        total_amount: finalTotal,
+        total_amount: calcTotal,
         notes: data.refPo !== '-' ? data.refPo : '',
         public_tracking_enabled: true,
         lat: -6.2500 + (Math.random() - 0.5) * 0.04,
@@ -2362,7 +2069,7 @@
         status: 'Siap dikirim',
         timestamp: nowFormatted(),
         actor: `${currentUser ? currentUser.name : 'Admin'} (Import PDF/JPEG)`,
-        note: `Pesanan diimport otomatis dari dokumen (${newOrderId}) & siap dicetak Surat Jalan ber-barcode.`
+        note: `Pesanan diimport otomatis dari dokumen Surat Jalan (${newOrderId}) & siap dicetak ber-barcode.`
       });
 
       commitDatabaseChange('createOrder', {
@@ -2371,23 +2078,22 @@
         actor: currentUser ? currentUser.name : 'Admin'
       });
 
-      // Reset file input agar bisa mengunggah file yang sama lagi jika diperlukan
       const fileInp = document.getElementById('docFileInput');
       if (fileInp) fileInp.value = '';
 
       closeModal();
       navigateTo('pesanan');
-      showToast(`Dokumen ${newOrderId} (${data.custName}) berhasil diimport & siap dicetak Barcode Surat Jalan!`, 'success');
+      showToast(`Surat Jalan ${newOrderId} (${data.custName}) berhasil diimport & siap dicetak Barcode!`, 'success');
     }
 
     function openCourierBarcodeScannerModal() {
       if (isCourierCurrentlyOnActiveTrip()) {
-        showToast('Mode Scan terkunci karena Anda sedang dalam pengantaran aktif! Fokus pada menu Kirim.', 'warning');
+        showToast('Mode Scan terkunci karena Anda sudah scan Surat Jalan! Fokus ke menu Kirim, Buka Navigasi Google Maps, dan Konfirmasi Tiba di Lokasi.', 'warning');
         navigateTo('kurir_pengiriman');
         return;
       }
 
-      openModal('Scan Barcode Surat Jalan — Kurir Langsung Jalan', `
+      openModal('Scan Barcode Surat Jalan — Kurir Wajib Scan', `
         <div class="space-y-4 text-xs">
           <div class="p-3.5 rounded-2xl bg-[#053f28] text-white flex items-center gap-3 border-b-4 border-[#fde002]">
             <div class="w-11 h-11 rounded-xl bg-[#fde002] text-[#053f28] flex items-center justify-center text-xl font-black shrink-0">
@@ -2395,7 +2101,7 @@
             </div>
             <div>
               <h4 class="font-extrabold text-sm text-[#fde002]">Arahkan Kamera ke Barcode Surat Jalan</h4>
-              <p class="text-[11px] text-white/85">Begitu Barcode ter-scan, status otomatis berubah menjadi <b>Dalam Perjalanan</b> dan langsung membuka navigasi Google Maps ke lokasi pelanggan!</p>
+              <p class="text-[11px] text-white/85">Begitu Barcode Surat Jalan ter-scan, semua tombol scan akan dikunci otomatis dan aplikasi langsung fokus ke menu <b>Kirim</b>, <b>Buka Navigasi Google Maps</b>, serta <b>Konfirmasi Tiba di Lokasi</b>!</p>
             </div>
           </div>
 
@@ -2411,20 +2117,6 @@
             <button type="button" onclick="stopBarcodeCameraScanner(); closeModal();" class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold">
               Tutup Kamera
             </button>
-          </div>
-
-          <div class="pt-3 border-t border-slate-200 space-y-2">
-            <label class="block font-extrabold text-[#053f28]">Atau Pilih / Masukkan Nomor Barcode Surat Jalan:</label>
-            <div class="flex gap-2">
-              <select id="manualScanOrderSelect" class="flex-1 px-3 py-2.5 rounded-xl border border-slate-300 font-bold text-[#053f28] bg-hh-50">
-                <option value="">-- Pilih Nomor Order / Surat Jalan --</option>
-                ${(DB.HH_ORDERS || []).filter(o => o.status !== 'Berhasil terkirim').map(o => `<option value="${o.order_id}">${o.order_id} — ${o.customer_name} (${o.customer_address})</option>`).join('')}
-              </select>
-              <button type="button" onclick="executeCourierBarcodeDispatch(document.getElementById('manualScanOrderSelect').value)"
-                class="px-4 py-2.5 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold shrink-0">
-                <i class="fa-solid fa-motorcycle mr-1"></i> Scan & Jalan!
-              </button>
-            </div>
           </div>
         </div>
       `);
@@ -2455,7 +2147,7 @@
               <div class="p-6 text-center space-y-2 text-white">
                 <i class="fa-solid fa-camera-slash text-2xl text-[#fde002]"></i>
                 <p class="font-bold text-xs">Kamera tidak dapat diakses di perangkat ini.</p>
-                <p class="text-[11px] text-white/70">Gunakan tombol <b>"Scan dari Foto Barcode"</b> atau pilih langsung Nomor Surat Jalan di bawah.</p>
+                <p class="text-[11px] text-white/70">Gunakan tombol <b>"Scan dari Foto Barcode"</b> di bawah untuk memindai barcode Surat Jalan.</p>
               </div>
             `;
           }
@@ -2518,11 +2210,10 @@
       }
       const code = String(scannedCode || '').trim();
       if (!code) {
-        showToast('Masukkan atau scan kode Barcode Surat Jalan terlebih dahulu!', 'warning');
+        showToast('Scan kode Barcode Surat Jalan terlebih dahulu!', 'warning');
         return;
       }
 
-      // Cari pesanan berdasarkan order_id atau nota_number atau getUnifiedDocumentNumber
       const ord = (DB.HH_ORDERS || []).find(o => {
         const branch = DB.HH_BRANCHES.find(b => b.branch_id === o.branch_id);
         const docNo = getUnifiedDocumentNumber(o, getBranchPrefixCode(branch, o));
@@ -2536,7 +2227,6 @@
         return;
       }
 
-      // Otomatis tugaskan ke kurir yang melakukan scan (bila user adalah kurir) & ubah status menjadi "Dalam perjalanan"
       if (currentUser && currentUser.role === 'kurir') {
         ord.courier_id = currentUser.user_id;
         ord.courier_name = currentUser.name;
@@ -2556,7 +2246,6 @@
         note: `Kurir melakukan Scan Barcode Surat Jalan (${code}) dan langsung berangkat menuju lokasi ${ord.customer_name}.`
       });
 
-      // Simpan ke Database & Panggil endpoint scanBarcodeDispatch di Code.gs
       commitDatabaseChange('scanBarcodeDispatch', {
         order_id: ord.order_id,
         courier_id: ord.courier_id || (currentUser ? currentUser.user_id : ''),
@@ -2566,69 +2255,13 @@
 
       playCourierOrderSound();
 
-      const destQuery = (ord.customer_address && ord.customer_address !== '-')
-        ? `${ord.customer_name}, ${ord.customer_address}`
-        : `${ord.lat || -6.25},${ord.lng || 106.86}`;
-      const gmapsDestinationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destQuery)}&travelmode=driving`;
-
-      showToast(`Barcode ${ord.order_id} Terverifikasi! Membuka Rute Google Maps ke ${ord.customer_name}...`, 'success');
-
-      // Langsung buka Google Maps Navigasi otomatis begitu selesai scan!
-      if (autoRedirectToMaps) {
-        setTimeout(() => {
-          const newWin = window.open(gmapsDestinationUrl, '_blank');
-          if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
-            window.location.href = gmapsDestinationUrl;
-          }
-        }, 450);
-      }
-
-      openModal(`Scan Berhasil! Langsung Jalan ke Tujuan (${ord.order_id})`, `
-        <div class="space-y-4 text-xs text-center py-2">
-          <div class="w-16 h-16 rounded-full bg-emerald-100 text-[#053f28] flex items-center justify-center text-3xl mx-auto shadow-sm animate-bounce">
-            <i class="fa-solid fa-motorcycle"></i>
-          </div>
-          <div>
-            <span class="px-3 py-1 rounded-full bg-[#053f28] text-[#fde002] font-black text-[10px] uppercase">Status Otomatis: DALAM PERJALANAN & LIVE GPS ON</span>
-            <h4 class="text-lg font-black text-slate-900 mt-2">${ord.customer_name}</h4>
-            <p class="text-slate-600 mt-1 max-w-md mx-auto"><i class="fa-solid fa-location-dot text-rose-600 mr-1"></i> ${ord.customer_address}</p>
-          </div>
-
-          <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-bold text-[11px]">
-            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengarahkan otomatis ke Google Maps Navigasi... (Klik tombol biru di bawah jika belum terbuka otomatis)
-          </div>
-
-          <div class="p-3.5 rounded-xl bg-hh-50 border border-hh-200 text-left space-y-1">
-            <div class="flex justify-between">
-              <span class="text-slate-500 font-bold">Nomor Order / SJ:</span>
-              <span class="font-extrabold text-[#053f28]">${ord.order_id}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500 font-bold">Kurir Pengantar:</span>
-              <span class="font-extrabold text-slate-800">${ord.courier_name || (currentUser ? currentUser.name : 'Kurir')}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500 font-bold">Telepon Penerima:</span>
-              <span class="font-extrabold text-slate-800">${ord.customer_phone || '-'}</span>
-            </div>
-          </div>
-
-          <div class="pt-2 space-y-2">
-            <a href="${gmapsDestinationUrl}" target="_blank" rel="noopener noreferrer"
-              onclick="closeModal(); if(currentUser && currentUser.role==='kurir'){navigateTo('kurir_pengiriman');}"
-              class="w-full py-4 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-lg flex items-center justify-center gap-2 transition">
-              <i class="fa-solid fa-diamond-turn-right text-lg"></i> LANGSUNG JALAN KE TUJUAN (BUKA GOOGLE MAPS)
-            </a>
-            <button type="button" onclick="closeModal(); if(currentUser && currentUser.role==='kurir'){navigateTo('kurir_pengiriman');} else {navigateTo('tracking');}"
-              class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
-              Fokus ke Menu Kirim Sekarang
-            </button>
-          </div>
-        </div>
-      `);
+      closeModal();
+      showToast(`Barcode Surat Jalan ${ord.order_id} berhasil di-scan! Semua tombol scan dikunci, silakan gunakan tombol Buka Navigasi Google Maps & Konfirmasi Tiba di Lokasi.`, 'success');
 
       if (currentUser && currentUser.role === 'kurir') {
         navigateTo('kurir_pengiriman');
+      } else {
+        navigateTo('tracking');
       }
     }
 
@@ -2815,10 +2448,8 @@
         const password = document.getElementById('loginPassword').value;
         const passHash = await sha256Hash(password);
 
-        // Langsung cek dari data lokal yang sudah siap agar login instan tanpa nunggu jaringan lambat
         let matchedAccount = DB.HH_USERS.find(u => u.email.toLowerCase() === email);
         if (!matchedAccount) {
-          // Hanya tunggu sync sebentar jika email belum ditemukan di memori lokal
           await Promise.race([
             syncWithGASBackend(false),
             new Promise(resolve => setTimeout(resolve, 1200))
@@ -2871,7 +2502,6 @@
         logActivity(`Login ke aplikasi sebagai ${currentUser.role.toUpperCase()}`);
         showToast(`Selamat datang, ${currentUser.name}!`, 'success');
 
-        // Sinkronisasi background tanpa menghambat masuknya halaman
         syncWithGASBackend(false);
       } finally {
         if (btnSubmit) {
@@ -3081,7 +2711,7 @@
     }
 
     /*************************************************************************
-     * 5 VIEW KHUSUS APLIKASI HANDPHONE KURIR (DENGAN TOMBOL SCAN BARCODE SURAT JALAN)
+     * 5 VIEW KHUSUS APLIKASI HANDPHONE KURIR (REVISI 4 POIN)
      *************************************************************************/
     function renderKurirMobileHome(container) {
       const totalOrders = DB.HH_ORDERS.length;
@@ -3102,22 +2732,22 @@
             <h3 class="text-xl font-black text-white">Halo, ${currentUser.name}!</h3>
             <p class="text-xs text-white/80 mt-0.5">
               ${isScanLocked
-                ? 'Anda sedang dalam pengantaran aktif. Mode Scan dikunci, silakan fokus pada menu Kirim.'
-                : 'Scan Barcode pada Surat Jalan yang sudah di-print untuk langsung jalan ke lokasi tujuan.'}
+                ? 'Anda sudah melakukan Scan Surat Jalan. Semua tombol scan dikunci, silakan fokus ke tombol Kirim!'
+                : 'Scan Barcode pada Surat Jalan yang sudah di-print untuk memulai pengantaran.'}
             </p>
           </div>
           ${isScanLocked ? `
             <div class="space-y-2">
               <button disabled class="w-full py-3 px-4 rounded-xl bg-slate-400/30 text-white/60 font-black text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-white/15">
-                <i class="fa-solid fa-lock text-sm"></i> MODE SCAN BARCODE TERKUNCI (SEDANG MENGIRIM)
+                <i class="fa-solid fa-lock text-sm"></i> MODE SCAN BARCODE SJ TERKUNCI
               </button>
-              <button onclick="navigateTo('kurir_pengiriman')" class="w-full py-3 px-4 rounded-xl bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-xs shadow-md flex items-center justify-center gap-2">
-                <i class="fa-solid fa-truck-fast"></i> BUKA MENU KIRIM SEKARANG
+              <button onclick="navigateTo('kurir_pengiriman')" class="w-full py-3.5 px-4 rounded-xl bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-xs shadow-md flex items-center justify-center gap-2">
+                <i class="fa-solid fa-map-location-dot text-base"></i> FOKUS KE MENU KIRIM SEKARANG
               </button>
             </div>
           ` : `
             <button onclick="openCourierBarcodeScannerModal()" class="w-full py-3.5 px-4 rounded-xl bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-black text-xs shadow-md flex items-center justify-center gap-2 transition">
-              <i class="fa-solid fa-barcode text-base"></i> SCAN BARCODE SURAT JALAN — LANGSUNG JALAN
+              <i class="fa-solid fa-barcode text-base"></i> SCAN BARCODE SURAT JALAN (WAJIB SCAN)
             </button>
           `}
         </div>
@@ -3197,13 +2827,13 @@
             <h3 class="font-extrabold text-base text-[#053f28]"><i class="fa-solid fa-bell-concierge mr-1.5"></i> Pesanan Masuk & Scan Surat Jalan</h3>
             <p class="text-xs text-slate-500 mt-0.5">
               ${isScanLocked
-                ? 'Mode Scan dikunci selama pengantaran berlangsung. Fokus selesaikan tugas di menu Kirim.'
-                : 'Scan barcode pada Surat Jalan atau klik tombol mulai kirim.'}
+                ? 'Mode Scan Barcode SJ terkunci karena pengantaran sedang berjalan. Fokus ke tombol Kirim.'
+                : 'Kurir Wajib Scan Barcode pada kertas Surat Jalan untuk memulai pengantaran.'}
             </p>
           </div>
           ${isScanLocked ? `
             <button disabled class="px-3.5 py-2 rounded-xl bg-slate-200 text-slate-400 font-extrabold text-xs flex items-center gap-1.5 cursor-not-allowed">
-              <i class="fa-solid fa-lock"></i> Scan Terkunci
+              <i class="fa-solid fa-lock"></i> Scan Barcode SJ Terkunci
             </button>
           ` : `
             <button onclick="openCourierBarcodeScannerModal()" class="px-3.5 py-2 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center gap-1.5">
@@ -3241,23 +2871,22 @@
                     <p class="text-slate-700 font-medium leading-relaxed bg-white p-2.5 rounded-lg border border-slate-200 mt-2">${o.customer_address}</p>
                   </div>
 
-                  <div class="grid grid-cols-1 gap-2">
-                    ${isScanLocked || isAlreadyScanned ? `
-                      <button onclick="navigateTo('kurir_pengiriman')" class="w-full py-2.5 px-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs">
-                        <i class="fa-solid fa-map-location-dot"></i> Sudah Di-Scan — Fokus ke Menu Kirim
-                      </button>
-                    ` : `
-                      <button onclick="executeCourierBarcodeDispatch('${o.order_id}')" class="w-full py-2.5 px-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs">
-                        <i class="fa-solid fa-barcode"></i> Scan / Langsung Jalan
-                      </button>
-                    `}
-                  </div>
+                  <!-- Tombol Scan / Langsung Jalan dihilangkan sesuai instruksi: Kurir Wajib Scan Barcode SJ -->
+                  ${isAlreadyScanned || isScanLocked ? `
+                    <button onclick="navigateTo('kurir_pengiriman')" class="w-full py-2.5 px-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2 shadow-xs">
+                      <i class="fa-solid fa-map-location-dot"></i> Fokus ke Menu Kirim (Buka Navigasi & Konfirmasi Tiba)
+                    </button>
+                  ` : `
+                    <div class="px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-bold text-[11px] flex items-center gap-2">
+                      <i class="fa-solid fa-barcode text-[#053f28] text-sm"></i>
+                      <span>Kurir Wajib Scan Barcode pada kertas Surat Jalan menggunakan tombol <b>Scan Barcode SJ</b> di atas.</span>
+                    </div>
+                  `}
                 </div>
 
                 <div class="bg-hh-50/70 p-3.5 rounded-xl border border-hh-100 text-xs space-y-2">
                   <div class="flex items-center justify-between">
                     <span class="font-extrabold text-[#053f28]"><i class="fa-solid fa-box-open mr-1"></i> Daftar Barang (${items.length} Jenis)</span>
-                    <span class="font-black text-[#053f28]">${formatRupiah(o.total_amount)}</span>
                   </div>
                   <ul class="space-y-1 text-slate-700 border-t border-hh-200/60 pt-2">
                     ${items.map(i => `
@@ -3288,17 +2917,21 @@
       container.innerHTML = `
         <div class="bg-[#053f28] text-white rounded-2xl p-4 shadow-md border-b-4 border-[#fde002] flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 class="font-extrabold text-sm text-[#fde002]"><i class="fa-solid fa-map-location-dot mr-1.5"></i> Live Tracking Pengiriman</h3>
+            <h3 class="font-extrabold text-sm text-[#fde002]"><i class="fa-solid fa-map-location-dot mr-1.5"></i> Live Tracking & Pengiriman</h3>
             <p id="courierGpsCoordText" class="text-[11px] text-white/80 mt-0.5">
               GPS: ${lastGpsCoord.lat.toFixed(4)}, ${lastGpsCoord.lng.toFixed(4)}
             </p>
           </div>
           <div class="flex items-center gap-2">
-            ${!isScanLocked && activeOrders.length === 0 ? `
+            ${isScanLocked ? `
+              <button disabled class="py-2.5 px-3.5 rounded-xl bg-white/10 text-white/50 font-extrabold text-xs flex items-center gap-1.5 cursor-not-allowed">
+                <i class="fa-solid fa-lock"></i> Scan Terkunci
+              </button>
+            ` : `
               <button onclick="openCourierBarcodeScannerModal()" class="py-2.5 px-3.5 rounded-xl bg-[#fde002] text-[#053f28] font-extrabold text-xs shadow-md flex items-center gap-1.5">
                 <i class="fa-solid fa-barcode"></i> Scan SJ
               </button>
-            ` : ''}
+            `}
             <button onclick="toggleCourierGPS(${!gpsActive})"
               class="py-2.5 px-3.5 rounded-xl font-extrabold text-xs shadow-md transition flex items-center gap-1.5 shrink-0 ${
                 gpsActive ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
@@ -3348,116 +2981,9 @@
                         <i class="fa-solid fa-camera"></i> Ambil Foto Bukti Kirim
                       </button>
                     ` : `
-                      <button onclick="courierUpdateOrderStep('${o.order_id}', 'Dalam perjalanan')"
-                        class="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-motorcycle"></i> Mulai Jalan Sekarang
-                      </button>
-                    `}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        ` : `
-          <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center space-y-3">
-            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto">
-              <i class="fa-solid fa-barcode"></i>
-            </div>
-            <h4 class="font-extrabold text-sm text-slate-700">Tidak Ada Pengiriman Aktif</h4>
-            <p class="text-xs text-slate-500 max-w-xs mx-auto">Silakan klik tombol <b>Scan SJ</b> di atas atau di menu Home untuk memindai barcode Surat Jalan berikutnya.</p>
-          </div>
-        `}
-      `;
-
-      setTimeout(() => {
-        if (selectedOrd) renderMainTrackingMap(selectedOrd);
-      }, 60);
-    }
-
-    function onCourierSelectRouteOrder(orderId) {
-      updateTrackingDetailPanel(orderId);
-    }
-
-    function renderKurirMobilePengiriman(container) {
-      const activeOrders = DB.HH_ORDERS.filter(o =>
-        !['Berhasil terkirim', 'Gagal terkirim'].includes(o.status) &&
-        String(o.courier_id) === String(currentUser.user_id)
-      );
-
-      const selectedOrd = activeOrders.length ? activeOrders[0] : null;
-      const topMapsUrl = selectedOrd
-        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(selectedOrd.customer_address)}`
-        : 'https://www.google.com/maps';
-
-      container.innerHTML = `
-        <div class="bg-[#053f28] text-white rounded-2xl p-4 shadow-md border-b-4 border-[#fde002] flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 class="font-extrabold text-sm text-[#fde002]"><i class="fa-solid fa-map-location-dot mr-1.5"></i> Live Tracking & Scan Barcode SJ</h3>
-            <p id="courierGpsCoordText" class="text-[11px] text-white/80 mt-0.5">
-              GPS: ${lastGpsCoord.lat.toFixed(4)}, ${lastGpsCoord.lng.toFixed(4)}
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="openCourierBarcodeScannerModal()" class="py-2.5 px-3.5 rounded-xl bg-[#fde002] text-[#053f28] font-extrabold text-xs shadow-md flex items-center gap-1.5">
-              <i class="fa-solid fa-barcode"></i> Scan SJ
-            </button>
-            <button onclick="toggleCourierGPS(${!gpsActive})"
-              class="py-2.5 px-3.5 rounded-xl font-extrabold text-xs shadow-md transition flex items-center gap-1.5 shrink-0 ${
-                gpsActive ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
-              }">
-              <i class="fa-solid ${gpsActive ? 'fa-stop' : 'fa-satellite-dish'}"></i>
-              ${gpsActive ? 'Stop GPS' : 'On GPS'}
-            </button>
-          </div>
-        </div>
-
-        ${activeOrders.length > 0 ? `
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-            <select id="trackingOrderSelect" onchange="onCourierSelectRouteOrder(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-[#053f28] bg-hh-50">
-              ${activeOrders.map(o => `<option value="${o.order_id}">${o.order_id} — ${o.customer_name} (${o.status})</option>`).join('')}
-            </select>
-
-            <div id="mainTrackingMap" class="w-full h-[280px] rounded-2xl border border-slate-200"></div>
-
-            <a id="topSelectedOrderMapsBtn" href="${topMapsUrl}" target="_blank" rel="noopener noreferrer"
-              class="w-full py-3.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition">
-              <i class="fa-solid fa-diamond-turn-right text-base"></i> Buka Navigasi Google Maps ke Lokasi Tujuan
-            </a>
-          </div>
-
-          <div class="space-y-3">
-            ${activeOrders.map(o => {
-              const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customer_address)}`;
-              return `
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <span class="font-black text-xs text-[#053f28]">${o.order_id}</span>
-                      <h4 class="font-extrabold text-sm text-slate-900">${o.customer_name}</h4>
-                      <p class="text-[11px] text-slate-500 mt-0.5"><i class="fa-solid fa-location-dot text-rose-500 mr-1"></i> ${o.customer_address}</p>
-                    </div>
-                    ${statusBadgeHTML(o.status)}
-                  </div>
-                  <div class="grid grid-cols-1 gap-2">
-                    <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer"
-                      class="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm">
-                      <i class="fa-solid fa-diamond-turn-right text-sm"></i> Buka Navigasi Google Maps
-                    </a>
-
-                    ${o.status === 'Dalam perjalanan' ? `
-                      <button onclick="courierUpdateOrderStep('${o.order_id}', 'Tiba di lokasi')"
-                        class="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-location-crosshairs"></i> Konfirmasi Tiba di Lokasi
-                      </button>
-                    ` : o.status === 'Tiba di lokasi' ? `
-                      <button onclick="openProofUploadModal('${o.order_id}')"
+                      <button onclick="openCourierBarcodeScannerModal()"
                         class="w-full py-3 rounded-xl bg-[#053f28] text-[#fde002] font-extrabold text-xs flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-camera"></i> Ambil Foto Bukti Kirim
-                      </button>
-                    ` : `
-                      <button onclick="courierUpdateOrderStep('${o.order_id}', 'Dalam perjalanan')"
-                        class="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-motorcycle"></i> Mulai Jalan Sekarang
+                        <i class="fa-solid fa-barcode"></i> Scan Barcode Surat Jalan untuk Mulai
                       </button>
                     `}
                   </div>
@@ -3471,7 +2997,7 @@
               <i class="fa-solid fa-barcode"></i>
             </div>
             <h4 class="font-extrabold text-sm text-slate-700">Scan Barcode Surat Jalan untuk Memulai Tugas</h4>
-            <p class="text-xs text-slate-500 max-w-xs mx-auto">Klik tombol <b>Scan SJ</b> di atas untuk memindai barcode pada kertas Surat Jalan dan langsung berangkat ke lokasi tujuan.</p>
+            <p class="text-xs text-slate-500 max-w-xs mx-auto">Klik tombol <b>Scan SJ</b> di atas untuk memindai barcode pada kertas Surat Jalan dan mulai pengantaran.</p>
           </div>
         `}
       `;
@@ -3483,11 +3009,6 @@
 
     function onCourierSelectRouteOrder(orderId) {
       updateTrackingDetailPanel(orderId);
-      const ord = DB.HH_ORDERS.find(o => String(o.order_id) === String(orderId));
-      const btn = document.getElementById('topSelectedOrderMapsBtn');
-      if (ord && btn) {
-        btn.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ord.customer_address)}`;
-      }
     }
 
     function renderKurirMobileRiwayat(container) {
@@ -3516,7 +3037,6 @@
                 </div>
                 <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
                   <span class="text-slate-500">Penerima: <b>${proof ? proof.recipient_name : 'Pelanggan'}</b></span>
-                  <span class="font-extrabold text-[#053f28]">${formatRupiah(o.total_amount)}</span>
                 </div>
               </div>
             `;
@@ -3568,7 +3088,6 @@
       const inTransit = DB.HH_ORDERS.filter(o => ['Dalam perjalanan', 'Tiba di lokasi', 'Kurir ditugaskan'].includes(o.status)).length;
       const completed = DB.HH_ORDERS.filter(o => o.status === 'Berhasil terkirim').length;
       const pendingPrep = DB.HH_ORDERS.filter(o => ['Pesanan diterima', 'Menunggu persiapan', 'Sedang disiapkan', 'Siap dikirim'].includes(o.status)).length;
-      const totalRevenue = DB.HH_ORDERS.reduce((acc, o) => acc + Number(o.total_amount || 0), 0);
 
       container.innerHTML = `
         <div class="bg-gradient-to-r from-[#053f28] to-[#043320] rounded-2xl p-6 text-white shadow-lg border-l-8 border-[#fde002] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -3577,7 +3096,7 @@
             <div>
               <span class="px-2.5 py-0.5 rounded-full bg-[#fde002] text-[#053f28] text-[11px] font-black uppercase tracking-wider">Divisi: ${currentUser.role.toUpperCase()}</span>
               <h3 class="text-xl sm:text-2xl font-black mt-1.5 text-white">Halo, ${currentUser.name}!</h3>
-              <p class="text-xs text-white/80 mt-0.5">Import file PDF/JPEG Invoice & Surat Jalan otomatis tanpa ketik ulang, dan cetak Surat Jalan ber-Barcode untuk di-scan kurir.</p>
+              <p class="text-xs text-white/80 mt-0.5">Import file PDF/JPEG Surat Jalan otomatis tanpa ketik ulang, dan cetak Surat Jalan ber-Barcode untuk di-scan kurir.</p>
             </div>
           </div>
           <div class="flex flex-wrap gap-2">
@@ -3600,7 +3119,7 @@
             <div>
               <p class="text-xs font-bold uppercase text-slate-400">Total Pesanan</p>
               <p class="text-2xl font-black text-[#053f28] mt-1">${totalOrders} <span class="text-xs font-semibold">Order</span></p>
-              <p class="text-[11px] text-slate-500 mt-1">Nilai: <b>${formatRupiah(totalRevenue)}</b></p>
+              <p class="text-[11px] text-slate-500 mt-1">Surat Jalan Terdaftar</p>
             </div>
             <div class="w-12 h-12 rounded-2xl bg-[#053f28] text-[#fde002] flex items-center justify-center text-xl">
               <i class="fa-solid fa-basket-shopping"></i>
@@ -3663,7 +3182,7 @@
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
-            <h4 class="font-extrabold text-sm text-[#053f28]">Daftar Pesanan Terbaru</h4>
+            <h4 class="font-extrabold text-sm text-[#053f28]">Daftar Pesanan & Surat Jalan Terbaru</h4>
             <button onclick="navigateTo('pesanan')" class="text-xs font-extrabold text-[#053f28] hover:underline">Kelola Semua Pesanan →</button>
           </div>
           <div class="overflow-x-auto">
@@ -3674,9 +3193,8 @@
                   <th class="py-3 px-4">Pelanggan</th>
                   <th class="py-3 px-4">Sumber</th>
                   <th class="py-3 px-4">Kurir</th>
-                  <th class="py-3 px-4">Total</th>
                   <th class="py-3 px-4">Status</th>
-                  <th class="py-3 px-4 text-right">Cetak Barcode SJ & Invoice</th>
+                  <th class="py-3 px-4 text-right">Cetak Surat Jalan Ber-Barcode</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -3689,20 +3207,16 @@
                     </td>
                     <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-md bg-slate-100 font-semibold">${o.source}</span></td>
                     <td class="py-3 px-4 font-medium">${o.courier_name || '-'}</td>
-                    <td class="py-3 px-4 font-bold">${formatRupiah(o.total_amount)}</td>
                     <td class="py-3 px-4">${statusBadgeHTML(o.status)}</td>
                     <td class="py-3 px-4 text-right">
                       <div class="inline-flex items-center gap-1 flex-wrap justify-end">
                         <button onclick="printOrderDocument('${o.order_id}', 'SURAT_JALAN')" class="px-2.5 py-1 rounded-lg bg-[#053f28] text-[#fde002] font-extrabold hover:bg-[#04301e]" title="Print Surat Jalan Ber-Barcode">
-                          <i class="fa-solid fa-barcode"></i> Print SJ + Barcode
-                        </button>
-                        <button onclick="printOrderDocument('${o.order_id}', 'INVOICE')" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200">
-                          <i class="fa-solid fa-print"></i> Invoice
+                          <i class="fa-solid fa-barcode"></i> Print Surat Jalan
                         </button>
                       </div>
                     </td>
                   </tr>
-                `).join('') || `<tr><td colspan="7" class="py-8 text-center text-slate-400">Belum ada pesanan di Database Spreadsheet.</td></tr>`}
+                `).join('') || `<tr><td colspan="6" class="py-8 text-center text-slate-400">Belum ada pesanan di Database Spreadsheet.</td></tr>`}
               </tbody>
             </table>
           </div>
@@ -3776,7 +3290,7 @@
     }
 
     /*************************************************************************
-     * 6. MENU PESANAN & TAMBAH / IMPORT PESANAN
+     * 6. MENU PESANAN & TAMBAH / IMPORT PESANAN (HANYA SURAT JALAN)
      *************************************************************************/
     function renderOrdersView(container) {
       container.innerHTML = `
@@ -3812,12 +3326,11 @@
               <thead>
                 <tr class="bg-slate-50 text-slate-500 uppercase border-b border-slate-200">
                   <th class="py-3 px-4">ID & Tanggal</th>
-                  <th class="py-3 px-4">Pelanggan & Alamat</th>
-                  <th class="py-3 px-4">Item Pesanan</th>
+                  <th class="py-3 px-4">Ship To & Alamat</th>
+                  <th class="py-3 px-4">Item Surat Jalan</th>
                   <th class="py-3 px-4">Kurir</th>
-                  <th class="py-3 px-4">Total</th>
                   <th class="py-3 px-4">Status</th>
-                  <th class="py-3 px-4 text-right">Cetak Barcode SJ / Invoice / CRUD</th>
+                  <th class="py-3 px-4 text-right">Cetak Barcode Surat Jalan / CRUD</th>
                 </tr>
               </thead>
               <tbody id="ordersTableBody" class="divide-y divide-slate-100"></tbody>
@@ -3862,15 +3375,11 @@
               </ul>
             </td>
             <td class="py-3.5 px-4 font-semibold text-slate-700">${o.courier_name || '-'}</td>
-            <td class="py-3.5 px-4 font-extrabold text-slate-900">${formatRupiah(o.total_amount)}</td>
             <td class="py-3.5 px-4">${statusBadgeHTML(o.status)}</td>
             <td class="py-3.5 px-4 text-right">
               <div class="flex flex-wrap items-center justify-end gap-1">
                 <button onclick="printOrderDocument('${o.order_id}', 'SURAT_JALAN')" class="px-2.5 py-1.5 rounded-lg bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold text-[11px]">
-                  <i class="fa-solid fa-barcode"></i> Surat Jalan + Barcode
-                </button>
-                <button onclick="printOrderDocument('${o.order_id}', 'INVOICE')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]">
-                  <i class="fa-solid fa-print"></i> Invoice
+                  <i class="fa-solid fa-barcode"></i> Print Surat Jalan
                 </button>
                 <button onclick="copyCustomerTrackingLink('${o.order_id}')" class="px-2.5 py-1.5 rounded-lg bg-[#fde002] hover:bg-yellow-400 text-[#053f28] font-extrabold text-[11px]">
                   <i class="fa-solid fa-copy"></i> Link
@@ -3887,7 +3396,7 @@
             </td>
           </tr>
         `;
-      }).join('') || `<tr><td colspan="7" class="py-8 text-center text-slate-400">Belum ada data pesanan & invoice di Database Spreadsheet.</td></tr>`;
+      }).join('') || `<tr><td colspan="6" class="py-8 text-center text-slate-400">Belum ada data pesanan & surat jalan di Database Spreadsheet.</td></tr>`;
     }
 
     function deleteOrderCRUD(orderId) {
@@ -3906,11 +3415,11 @@
       if (!o) return;
       const items = DB.HH_ORDER_ITEMS.filter(i => i.order_id === orderId);
 
-      openModal(`Detail & Edit Pesanan ${o.order_id}`, `
+      openModal(`Detail & Edit Surat Jalan ${o.order_id}`, `
         <div class="space-y-4 text-xs">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
             <div>
-              <p class="text-slate-400 font-bold uppercase text-[10px]">Data Pelanggan</p>
+              <p class="text-slate-400 font-bold uppercase text-[10px]">Data Ship To</p>
               <input id="editOrdCustName" value="${o.customer_name}" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold" />
               <input id="editOrdCustPhone" value="${o.customer_phone}" class="w-full mt-1.5 px-2.5 py-1.5 rounded-lg border border-slate-300" />
               <input id="editOrdCustAddr" value="${o.customer_address}" class="w-full mt-1.5 px-2.5 py-1.5 rounded-lg border border-slate-300" />
@@ -3919,29 +3428,27 @@
               <p class="text-slate-400 font-bold uppercase text-[10px]">Status & Pengiriman</p>
               <div class="mt-1">${statusBadgeHTML(o.status)}</div>
               <p class="mt-2 text-slate-600">Kurir: <b>${o.courier_name || 'Belum ditugaskan'}</b></p>
-              <label class="block mt-2 text-[10px] font-bold uppercase text-slate-400">Catatan / No. Ref / PO:</label>
+              <label class="block mt-2 text-[10px] font-bold uppercase text-slate-400">Catatan / PO:</label>
               <input id="editOrdNotes" value="${o.notes || ''}" class="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-slate-300" />
             </div>
           </div>
 
           <div>
-            <h4 class="font-bold text-slate-800 mb-2">Rincian Buah & Sayur</h4>
+            <h4 class="font-bold text-slate-800 mb-2">Rincian Item Surat Jalan</h4>
             <table class="w-full border border-slate-200 rounded-xl overflow-hidden">
               <thead class="bg-slate-100 text-slate-600">
                 <tr>
-                  <th class="p-2 text-left">Produk</th>
-                  <th class="p-2 text-center">Pesan</th>
-                  <th class="p-2 text-center">Aktual</th>
-                  <th class="p-2 text-right">Subtotal</th>
+                  <th class="p-2 text-left">Item Description</th>
+                  <th class="p-2 text-center">Quantity</th>
+                  <th class="p-2 text-center">UoM</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 ${items.map(it => `
                   <tr>
                     <td class="p-2 font-semibold">${it.product_name}</td>
-                    <td class="p-2 text-center">${it.qty_ordered} ${it.unit}</td>
-                    <td class="p-2 text-center font-bold text-[#053f28]">${it.qty_actual} ${it.unit}</td>
-                    <td class="p-2 text-right font-bold">${formatRupiah(it.qty_actual * it.price)}</td>
+                    <td class="p-2 text-center font-bold text-[#053f28]">${it.qty_actual || it.qty_ordered}</td>
+                    <td class="p-2 text-center font-bold">${it.unit}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -3949,7 +3456,7 @@
           </div>
 
           <div class="bg-hh-50 p-4 rounded-xl border border-hh-200 space-y-2">
-            <label class="block font-bold text-[#053f28]">Perbarui Data & Status Pesanan:</label>
+            <label class="block font-bold text-[#053f28]">Perbarui Data & Status Surat Jalan:</label>
             <div class="flex flex-wrap gap-2">
               <select id="modalOrderStatusSelect" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 bg-white font-semibold">
                 ${ORDER_STATUS_FLOW.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
@@ -3992,12 +3499,11 @@
       const todayStr = new Date().toISOString().slice(0, 10);
       container.innerHTML = `
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs max-w-4xl mx-auto space-y-6">
-          <!-- Banner Import PDF / JPEG Tanpa Ketik -->
           <div class="p-4 rounded-2xl bg-gradient-to-r from-[#053f28] to-[#085c3b] text-white flex flex-wrap items-center justify-between gap-4 border-l-8 border-[#fde002]">
             <div>
               <span class="px-2.5 py-0.5 rounded-full bg-[#fde002] text-[#053f28] text-[10px] font-black uppercase">Auto-Filter OCR & PDF</span>
-              <h3 class="font-extrabold text-base text-white mt-1">Punya File PDF atau Foto JPEG Invoice / Surat Jalan?</h3>
-              <p class="text-xs text-white/85">Upload file PDF atau JPEG, semua tulisan otomatis difilter masuk ke kolom tanpa perlu mengetik lagi!</p>
+              <h3 class="font-extrabold text-base text-white mt-1">Punya File PDF atau Foto JPEG Surat Jalan?</h3>
+              <p class="text-xs text-white/85">Upload file PDF atau JPEG Surat Jalan, semua tulisan otomatis difilter masuk ke kolom tanpa perlu mengetik lagi!</p>
             </div>
             <button onclick="openImportDocumentModal()" type="button" class="px-4 py-2.5 rounded-xl bg-[#fde002] hover:bg-yellow-400 text-[#053f28] text-xs font-extrabold shadow-md shrink-0">
               <i class="fa-solid fa-file-arrow-up mr-1.5"></i> Import File PDF / JPEG Sekarang
@@ -4006,7 +3512,7 @@
 
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
             <div>
-              <h3 class="font-extrabold text-base text-[#053f28]">Form Input Pesanan / Invoice & Surat Jalan</h3>
+              <h3 class="font-extrabold text-base text-[#053f28]">Form Input Pesanan & Surat Jalan (Delivery Order)</h3>
               <p class="text-xs text-slate-500">Terisi otomatis dari Import PDF/JPEG atau isi manual di bawah ini.</p>
             </div>
             <button onclick="openTelegramSimulatorModal()" type="button" class="px-3.5 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold">
@@ -4024,8 +3530,8 @@
                 </select>
               </div>
               <div>
-                <label class="block font-bold text-slate-600 mb-1">Cust Name / Ship to *</label>
-                <input id="manCustName" required type="text" placeholder="Contoh: Resto Taman Sari" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold" />
+                <label class="block font-bold text-slate-600 mb-1">Ship To (Nama Pelanggan) *</label>
+                <input id="manCustName" required type="text" placeholder="Contoh: Boost Juice Mall SKA Pekanbaru" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold" />
               </div>
               <div>
                 <label class="block font-bold text-slate-600 mb-1">Nomor WhatsApp / Telepon *</label>
@@ -4033,28 +3539,25 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label class="block font-bold text-slate-600 mb-1">No. Nota / Delivery Order</label>
-                <input id="manNotaNumber" type="text" placeholder="Otomatis jika kosong" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-[#053f28]" />
+                <label class="block font-bold text-slate-600 mb-1">Delivery Order Number</label>
+                <input id="manNotaNumber" type="text" placeholder="Otomatis jika kosong (Misal: PK00018155)" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-[#053f28]" />
               </div>
               <div>
-                <label class="block font-bold text-slate-600 mb-1">No. Ref / PO</label>
-                <input id="manRefNumber" type="text" placeholder="Nomor PO / Ref" class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
+                <label class="block font-bold text-slate-600 mb-1">PO :</label>
+                <input id="manRefNumber" type="text" placeholder="Nomor PO" class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
               </div>
               <div>
                 <label class="block font-bold text-slate-600 mb-1">Document Date *</label>
                 <input id="manDeliveryDate" required type="date" value="${todayStr}" class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
               </div>
-              <div>
-                <label class="block font-bold text-slate-600 mb-1">Termin (Hari)</label>
-                <input id="manTerminDays" type="number" value="7" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold" />
-              </div>
+              <input id="manTerminDays" type="hidden" value="7" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="sm:col-span-2">
-                <label class="block font-bold text-slate-600 mb-1">Alamat Lengkap Pengiriman (Ship to Address) *</label>
+                <label class="block font-bold text-slate-600 mb-1">Alamat Lengkap Pengiriman (Ship To Address) *</label>
                 <input id="manCustAddress" required type="text" placeholder="Nama jalan, nomor, patokan..." class="w-full px-3 py-2.5 rounded-xl border border-slate-200" />
               </div>
               <div>
@@ -4074,7 +3577,7 @@
 
             <div class="pt-3 border-t border-slate-100">
               <div class="flex items-center justify-between mb-2">
-                <label class="font-extrabold text-[#053f28]">Daftar Produk Buah & Sayur Dipesan (Maksimal 20 Orderan)</label>
+                <label class="font-extrabold text-[#053f28]">Daftar Item Surat Jalan (Maksimal 20 Orderan)</label>
                 <button type="button" onclick="addManualItemRow()" class="px-3 py-1.5 rounded-lg bg-hh-100 text-[#053f28] font-extrabold">
                   + Tambah Baris Produk (Maks 20)
                 </button>
@@ -4085,7 +3588,7 @@
             <div class="pt-4 border-t border-slate-200 flex justify-end gap-3">
               <button type="button" onclick="navigateTo('pesanan')" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
               <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#053f28] hover:bg-[#04301e] text-[#fde002] font-extrabold shadow-md">
-                <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Pesanan ke Database
+                <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Surat Jalan ke Database
               </button>
             </div>
           </form>
@@ -4113,29 +3616,27 @@
       const container = document.getElementById('manualItemsContainer');
       if (!container) return;
       if (container.querySelectorAll('.manual-item-row').length >= 20) {
-        showToast('Maksimal 20 baris item produk per Invoice!', 'warning');
+        showToast('Maksimal 20 baris item produk per Surat Jalan!', 'warning');
         return;
       }
       const row = document.createElement('div');
       row.className = 'grid grid-cols-12 gap-2 items-center manual-item-row bg-slate-50 p-2 rounded-xl border border-slate-200';
       row.innerHTML = `
-        <div class="col-span-5 sm:col-span-5">
-          <input type="text" list="masterProductsDatalist" value="${prefill ? prefill.product_name : ''}" required placeholder="Nama Produk / Pilih dari Katalog"
+        <div class="col-span-7 sm:col-span-7">
+          <input type="text" list="masterProductsDatalist" value="${prefill ? prefill.product_name : ''}" required placeholder="Item Description / Pilih Produk"
             onchange="onManualProductInputChange(this)"
             class="w-full px-3 py-2 rounded-lg border border-slate-300 font-bold text-xs item-prod-name" />
           <datalist id="masterProductsDatalist">
-            ${DB.HH_PRODUCTS.map(p => `<option value="${p.name}">${formatRupiah(p.price)} / ${p.unit}</option>`).join('')}
+            ${DB.HH_PRODUCTS.map(p => `<option value="${p.name}">${p.unit}</option>`).join('')}
           </datalist>
         </div>
         <div class="col-span-2 sm:col-span-2">
-          <input type="number" step="0.01" min="0.01" value="${prefill ? prefill.qty : 1}" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 font-bold text-center item-qty-input" placeholder="Qty" />
+          <input type="number" step="0.01" min="0.01" value="${prefill ? prefill.qty : 1}" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 font-bold text-center item-qty-input" placeholder="Quantity" />
         </div>
         <div class="col-span-2 sm:col-span-2">
-          <input type="text" value="${prefill ? prefill.unit : 'KG'}" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 font-bold text-center uppercase item-unit-input" placeholder="Uom" />
+          <input type="text" value="${prefill ? prefill.unit : 'KG'}" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 font-bold text-center uppercase item-unit-input" placeholder="UoM" />
         </div>
-        <div class="col-span-2 sm:col-span-2">
-          <input type="number" value="${prefill ? prefill.price : 25000}" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 font-bold text-right item-price-input" placeholder="Harga" />
-        </div>
+        <input type="hidden" value="${prefill ? prefill.price || 0 : 0}" class="item-price-input" />
         <div class="col-span-1 sm:col-span-1 text-right">
           <button type="button" onclick="this.closest('.manual-item-row').remove()" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100">
             <i class="fa-solid fa-trash"></i>
@@ -4152,7 +3653,7 @@
         const row = inputEl.closest('.manual-item-row');
         if (row) {
           row.querySelector('.item-unit-input').value = matched.unit || 'KG';
-          row.querySelector('.item-price-input').value = matched.price || 25000;
+          row.querySelector('.item-price-input').value = matched.price || 0;
         }
       }
     }
@@ -4233,7 +3734,7 @@
         status: 'Pesanan diterima',
         timestamp: nowFormatted(),
         actor: `${currentUser.name}`,
-        note: 'Input pesanan & masuk antrean persiapan gudang.'
+        note: 'Input Surat Jalan & masuk antrean persiapan gudang.'
       });
 
       commitDatabaseChange('createOrder', {
@@ -4243,7 +3744,7 @@
       });
 
       logActivity(`Membuat pesanan baru ${newOrderId} (${custName})`);
-      showToast(`Pesanan ${newOrderId} berhasil disimpan ke Database!`);
+      showToast(`Surat Jalan ${newOrderId} berhasil disimpan ke Database!`);
       navigateTo('pesanan');
     }
 
@@ -4260,7 +3761,7 @@
               <span class="px-2 py-0.5 rounded bg-emerald-100 text-[#053f28] font-bold text-[10px]">Otomatis Abaikan Tanda Silang (❌)</span>
             </div>
             <textarea id="rawWaMessageInput" rows="5" class="w-full p-3 rounded-xl border border-slate-300 bg-white font-mono text-[11px]"
-              placeholder="Contoh Format Copy WA:\nNama Outlet: Boost Juice Mall SKA Pekanbaru\nAlamat: Jl. Soekarno-Hatta No.114, Pekanbaru\nTanggal Pengiriman: 2026-11-05\nPesanan:\n✅ Apple Granny Smith China 5 kg @47500\n✅ Banana C3 (Sisiran) 2 sisir 25500"></textarea>
+              placeholder="Contoh Format Copy WA:\nNama Outlet: Boost Juice Mall SKA Pekanbaru\nAlamat: Jl. Soekarno-Hatta No.114, Pekanbaru\nTanggal Pengiriman: 2026-11-05\nPesanan:\n✅ Apple Granny Smith China 5 kg\n✅ Banana C3 (Sisiran) 2 sisir"></textarea>
             <div class="flex flex-wrap gap-2">
               <button type="button" onclick="parseWhatsAppMessageToDraft(false)" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold transition">
                 <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Filter & Jadikan Draft Order
@@ -4275,10 +3776,6 @@
             <h4 class="font-extrabold text-slate-800">Daftar Draft WA / Telegram (${pendingDrafts.length} Menunggu Konfirmasi)</h4>
             ${pendingDrafts.map((d, idx) => {
               const safeId = String(d.draft_id || ('DRF-' + idx)).replace(/[^a-zA-Z0-9_-]/g, '');
-              let itemsArr = Array.isArray(d.parsed_items) ? d.parsed_items : [];
-              if (itemsArr.length === 0 && d.parsed_items_json) {
-                try { itemsArr = JSON.parse(d.parsed_items_json); } catch (e) { itemsArr = []; }
-              }
               return `
                 <div class="p-4 rounded-xl border-2 border-sky-200 bg-white space-y-3">
                   <div class="flex items-center justify-between">
@@ -4395,7 +3892,7 @@
             product_name: prodNameClean,
             qty: qtyVal,
             unit: unitVal,
-            price: extractedPrice || 25000
+            price: extractedPrice || 0
           });
         }
       });
@@ -4620,7 +4117,7 @@
           <div class="flex items-center justify-between">
             <div>
               <h3 class="font-extrabold text-sm text-[#053f28]">Katalog Produk Buah & Sayur</h3>
-              <p class="text-[11px] text-slate-500">Daftar Nama Produk, Harga, dan Satuan (Kg, Gram, Pcs, Krat, Dus, dll).</p>
+              <p class="text-[11px] text-slate-500">Daftar Nama Produk dan Satuan (Kg, Gram, Pcs, Krat, Dus, dll).</p>
             </div>
             <button onclick="openProductModal()" class="px-3.5 py-2 rounded-xl bg-[#053f28] text-[#fde002] text-xs font-extrabold">+ Tambah Produk</button>
           </div>
@@ -4629,7 +4126,7 @@
               <div class="p-4 rounded-2xl border border-slate-200 hover:border-[#053f28] transition bg-white flex flex-col justify-between">
                 <div>
                   <h4 class="font-extrabold text-sm text-slate-900">${p.name}</h4>
-                  <p class="text-base font-black text-[#053f28] mt-1.5">${formatRupiah(p.price)} <span class="text-xs font-bold text-slate-500">/ ${p.unit}</span></p>
+                  <p class="text-xs font-bold text-[#053f28] mt-1.5">Satuan: ${p.unit}</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex gap-1.5 text-xs">
                   <button onclick="openProductModal('${p.product_id}')" class="flex-1 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700"><i class="fa-solid fa-pen"></i> Edit</button>
@@ -4653,8 +4150,8 @@
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="font-bold block mb-1">Harga (Rp) *</label>
-              <input id="crudProdPrice" type="number" required value="${existing ? existing.price : 25000}" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold" />
+              <label class="font-bold block mb-1">Harga (Rp)</label>
+              <input id="crudProdPrice" type="number" value="${existing ? existing.price : 0}" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold" />
             </div>
             <div>
               <label class="font-bold block mb-1">Satuan *</label>
@@ -4919,7 +4416,7 @@
         it.qty_actual = actVal;
         it.qty_damaged = dmgVal;
         it.qc_status = 'Checked';
-        newTotal += actVal * it.price;
+        newTotal += actVal * (it.price || 0);
       });
 
       ord.total_amount = newTotal;
@@ -4993,7 +4490,7 @@
                   <th class="p-3">Alamat Tujuan</th>
                   <th class="p-3">Status Saat Ini</th>
                   <th class="p-3">Kurir Saat Ini</th>
-                  <th class="p-3 text-right">CetakSJ / Aksi</th>
+                  <th class="p-3 text-right">Cetak SJ / Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y">
@@ -5116,7 +4613,7 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 class="font-extrabold text-sm text-[#053f28]">Daftar Tugas Pengiriman Kurir & Scan Barcode Surat Jalan</h3>
-            <p class="text-xs text-slate-500">Kurir cukup klik <b>Scan Barcode Surat Jalan</b> pada lembar yang sudah di-print untuk langsung jalan ke lokasi tujuan.</p>
+            <p class="text-xs text-slate-500">Kurir wajib klik <b>Scan Barcode Surat Jalan</b> pada lembar yang sudah di-print untuk mulai jalan ke lokasi tujuan.</p>
           </div>
           <button onclick="openCourierBarcodeScannerModal()" class="px-4 py-2.5 rounded-xl bg-[#053f28] text-[#fde002] text-xs font-extrabold flex items-center gap-2 shadow-sm">
             <i class="fa-solid fa-barcode"></i> Scan Barcode Surat Jalan
@@ -5290,14 +4787,13 @@
       if (btnSubmit) {
         if (btnSubmit.disabled) return;
         btnSubmit.disabled = true;
-        btnSubmit.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> MENYELESAIKAN PENGANTARAN...`;
       }
 
       const recipient = document.getElementById('proofRecipientName').value.trim();
       const photoSrc = document.getElementById('proofPreviewImg').src;
 
-      // Tandai order langsung selesai agar menu Pesanan & Kirim seketika kosong tanpa menunggu server
-      recentlyCompletedOrderIds.add(String(orderId));
+      // Langsung kunci & kosongkan order dari menu Pesanan dan Kirim seketika (0 ms delay)
+      markOrderCompletedInstantly(orderId);
 
       const ord = DB.HH_ORDERS.find(o => String(o.order_id) === String(orderId));
       if (ord) {
@@ -5327,11 +4823,11 @@
         note: `Berhasil diterima oleh: ${recipient}`
       });
 
-      // Langsung tutup modal, kosongkan badge, dan render ulang tampilan seketika (0 ms delay)
+      // Kosongkan tampilan menu Pesanan & Kirim secara instan agar tidak ada tombol lain yang ter-klik
       closeModal();
       updateCourierOrderBadgeCount();
       navigateTo(currentView);
-      showToast(`Pengiriman ${orderId} selesai! Menu Pesanan & Kirim telah dikosongkan.`, 'success');
+      showToast(`Pengantaran ${orderId} selesai! Menu Pesanan & Kirim langsung dikosongkan.`, 'success');
 
       // Kirim perubahan ke server di background
       commitDatabaseChange('uploadDeliveryProof', {
@@ -5354,7 +4850,7 @@
               <i class="fa-solid fa-map-location-dot"></i>
             </div>
             <h3 class="font-extrabold text-base text-slate-700">Belum Ada Pesanan Aktif untuk Dilacak</h3>
-            <p class="text-xs text-slate-500 max-w-md mx-auto">Tambahkan atau Import PDF/JPEG pesanan terlebih dahulu untuk melihat rute pelacakan kurir.</p>
+            <p class="text-xs text-slate-500 max-w-md mx-auto">Tambahkan atau Import PDF/JPEG Surat Jalan terlebih dahulu untuk melihat rute pelacakan kurir.</p>
           </div>
         `;
         return;
@@ -5509,8 +5005,8 @@
           </div>
         </div>
         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
-          <p class="font-bold text-slate-700 mb-1">Rincian Pesanan Buah & Sayur:</p>
-          ${items.map(it => `<div class="flex justify-between py-0.5"><span>${it.product_name} (${it.qty_actual || it.qty_ordered} ${it.unit})</span><b>${formatRupiah((it.qty_actual || it.qty_ordered) * it.price)}</b></div>`).join('')}
+          <p class="font-bold text-slate-700 mb-1">Rincian Item Surat Jalan:</p>
+          ${items.map(it => `<div class="flex justify-between py-0.5"><span>${it.product_name}</span><b>${it.qty_actual || it.qty_ordered} ${it.unit}</b></div>`).join('')}
         </div>
       `;
 
@@ -5533,14 +5029,13 @@
       const successCount = DB.HH_ORDERS.filter(o => o.status === 'Berhasil terkirim').length;
       const failedCount = DB.HH_ORDERS.filter(o => o.status === 'Gagal terkirim').length;
       const pendingCount = Math.max(0, totalOrders - successCount - failedCount);
-      const totalRevenue = DB.HH_ORDERS.reduce((acc, o) => acc + Number(o.total_amount || 0), 0);
 
       container.innerHTML = `
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-5">
           <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div>
               <h3 class="font-extrabold text-base text-[#053f28]">Pusat Laporan Operasional & Analitik</h3>
-              <p class="text-xs text-slate-500">Data dihitung langsung dari isi Database Spreadsheet saat ini (Total Nilai: <b>${formatRupiah(totalRevenue)}</b>).</p>
+              <p class="text-xs text-slate-500">Data dihitung langsung dari isi Database Spreadsheet saat ini.</p>
             </div>
             <button onclick="exportReportToCSV()" ${totalOrders === 0 ? 'disabled' : ''} class="px-4 py-2 rounded-xl bg-[#053f28] disabled:bg-slate-200 disabled:text-slate-400 text-[#fde002] text-xs font-extrabold">
               <i class="fa-solid fa-file-csv mr-1"></i> Ekspor Laporan (CSV)
@@ -5569,9 +5064,9 @@
     }
 
     function exportReportToCSV() {
-      const headers = ['Order_ID', 'Tanggal_Kirim', 'Pelanggan', 'Telepon', 'Sumber', 'Kurir', 'Status', 'Total_Rp'];
+      const headers = ['Order_ID', 'Tanggal_Kirim', 'Pelanggan', 'Telepon', 'Sumber', 'Kurir', 'Status'];
       const rows = DB.HH_ORDERS.map(o => [
-        o.order_id, o.delivery_date, `"${o.customer_name}"`, o.customer_phone, `"${o.source}"`, `"${o.courier_name}"`, `"${o.status}"`, o.total_amount
+        o.order_id, o.delivery_date, `"${o.customer_name}"`, o.customer_phone, `"${o.source}"`, `"${o.courier_name}"`, `"${o.status}"`
       ]);
       const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
       const link = document.createElement('a');
@@ -5844,14 +5339,10 @@
                 });
                 DB.HH_TELEGRAM = mergedDrafts;
               } else if (sheetKey === 'HH_ORDERS') {
-                // Pastikan order yang baru saja diselesaikan kurir tetap berstatus 'Berhasil terkirim' dan tidak tertimpa data lama saat auto-sync
+                // Pastikan order yang sudah diselesaikan kurir tidak muncul kembali saat sinkronisasi
                 DB.HH_ORDERS = json.data.HH_ORDERS.map(remoteOrd => {
                   if (recentlyCompletedOrderIds.has(String(remoteOrd.order_id))) {
-                    if (remoteOrd.status === 'Berhasil terkirim') {
-                      recentlyCompletedOrderIds.delete(String(remoteOrd.order_id));
-                    } else {
-                      remoteOrd.status = 'Berhasil terkirim';
-                    }
+                    remoteOrd.status = 'Berhasil terkirim';
                   }
                   return remoteOrd;
                 });
